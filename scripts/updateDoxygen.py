@@ -120,29 +120,6 @@ if __name__ == '__main__':
         run(['tar xzvf doxygen.tar.gz'])
         os.remove('doxygen.tar.gz')
     os.chdir(os.path.join(out_dir,"Documentation"))
-    #doxygen_cfg_lines = open("do.config",'r').readlines()
-    #for l in doxygen_cfg_lines:
-    #    if l.startswith("PROJECT_NUMBER"):
-    #        l = "PROJECT_NUMBER    = %s"%cfg['svn_tag'] if opts.release else 'trunk'
-    #doxygen_cfg = "\n".join(doxygen_cfg_lines)
-    #foo = open("do.config",'w')
-    #foo.write(doxygen_cfg)
-    #foo.close()
-    #mkdir("doxygen")
-    #logging.info("attempting to find include folders and header files, output suppressed")
-    #logging.info("attempting to find all header files, output suppressed")    
-    #INCLUDE_DIRECTORIES = " ".join(["../"+y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], 'include'))])
-    #HEADER_FILES = " ".join(["../"+y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], '*.h'))])
-    #os.chdir(os.path.join(out_dir,"doxygen"))
-    #logging.debug("includes: %s"%INCLUDE_DIRECTORIES)
-    #logging.debug("header files: %s"%HEADER_FILES)    
-    #doxygen_cfg = open(os.path.join(cfg['doxygen_main'],'do.config'),'r').read()
-    #doxygen_cfg=doxygen_cfg.replace("$DAMPE_INLCUDE_DIRECTORIES",INCLUDE_DIRECTORIES).replace("$DAMPE_HEADER_FILES",HEADER_FILES)
-    #foo = open("do.config",'w')
-    #foo.write(doxygen_cfg)
-    #foo.close()
-    #safe_copy("../../doxygen.html_header","doxygen.html_header")
-    # we should be able to run doxygen now
     run(["%s do.config"%cfg['doxygen_binary']])
     # next cleanup
     if not opts.skip_cleanup:
@@ -153,7 +130,7 @@ if __name__ == '__main__':
                 logging.debug("attempting to remove %s"%f)
                 if os.path.isfile(f): os.remove(f)
                 else: shutil.rmtree(f)
-#    ## find existing folders
+    ## find existing folders
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
     folders = [f for f in os.listdir('.') if os.path.isdir(f)]
