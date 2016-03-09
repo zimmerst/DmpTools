@@ -100,6 +100,7 @@ if __name__ == '__main__':
     parser.add_option("--svnrepo",dest='svn_repo',type=str,default=None,help='overrides repository setting in cfg')
     parser.add_option("--tag",dest='svn_tag',type=str,default='trunk',help='tag to checkout')
     parser.add_option("-r","--release",dest='release',action='store_true',default=False,help='if used, assume this is a tagged release')
+    parser.add_option("-f","--force-checkout",dest='force',action='store_true',default=False,help='force checkout instead of update')
     parser.add_option("--dest",dest='doxygen_main',type=str,default=None,help="overrides doxygen storage location")
     parser.add_option("--log",dest='logfile',type=str,default=None,help="overrides log-file destination")
     (opts, arguments) = parser.parse_args()
@@ -124,7 +125,7 @@ if __name__ == '__main__':
     ## okay, dealt with inputs, now let's do the real stuff
     out_dir = cfg['doxygen_main']+"/trunk" if not opts.release else cfg['doxygen_main']+"/%s"%cfg['svn_tag'] 
     logging.info("executing doxygen magic in %s"%out_dir)
-    if os.path.isdir(out_dir):
+    if os.path.isdir(out_dir) and not opts.force:
         logging.info("found output directory already, attempting an update to save time")
         os.chdir(out_dir)
         cmd_args = ['svn update','']
