@@ -44,7 +44,6 @@ class HTMLDocument(object):
         foo.close()
             
 def init_directory(mydir,exec_path):
-    pwd = os.curdir
     os.chdir(mydir)
     logging.debug("current directory: %s"%os.curdir)
     share_path = os.path.join(exec_path,"../share/doxygen")
