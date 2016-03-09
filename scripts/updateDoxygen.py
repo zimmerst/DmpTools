@@ -51,9 +51,9 @@ class HTMLDocument(object):
     def __compileBody(self):
         my_list = []
         if 'trunk' in self.links:
-            my_list += ["\n<h4><a href=\"%s\">trunk</a></h4>"%self.links['trunk']]
+            my_list += ["\n<h5><a href=\"%s\">trunk</a></h5>"%self.links['trunk']]
             del self.links['trunk']
-        my_list += ["\n<h4><a href=\"%s\">%s</a></h4>"%(v,k) for (k,v) in sorted(self.links.iteritems(),reverse=True)]
+        my_list += ["\n<h5><a href=\"%s\">%s</a></h5>"%(v,k) for (k,v) in sorted(self.links.iteritems(),reverse=True)]
         html_body = "<body><h1>%s</h1>"%self.title
         html_body+= "".join(my_list)
         html_body+= "\n</body>"
