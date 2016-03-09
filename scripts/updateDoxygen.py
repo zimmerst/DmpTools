@@ -5,8 +5,31 @@ Created on Mar 9, 2016
 @summary: script attempts to connect to svn server, checks out a revision (or trunk) and attempts running doxygen on it
 
 '''
-import sys, logging, ConfigParser, os, subprocess, shutil
-from common.tools import mkdir, safe_copy
+import sys, logging, ConfigParser, os, subprocess, shutil, time, shlex
+
+def mkdir(dir):
+    if not os.path.exists(dir):  os.makedirs(dir)
+    return dir
+
+def safe_copy(infile, outfile, sleep=10, attempts=10):
+    infile = infile.replace("@","") if infile.startswith("@") else infile
+    # Try not to step on any toes....
+    if infile.startswith("root:"):
+        print 'file is on xrootd - switching to XRD library'
+        cmnd = "xrdcp %s %s"%(infile,outfile)
+    else:
+        cmnd = "cp %s %s"%(infile,outfile)
+    i = 0
+    logging.info("copy %s -> %s"%(infile,outfile))
+    while i < attempts: 
+        status = subprocess.call(shlex.split(cmnd))
+        if status == 0: 
+            return status
+        else:
+            logging.warning("%i - Copy failed; sleep %ss"%(i,sleep))
+            time.sleep(sleep)
+        i += 1
+    raise Exception("File *really* doesn't exist: %s"%infile)
 
 class HTMLDocument(object):
     title = None
@@ -96,7 +119,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=cfg['logfile'],level=logging.DEBUG if opts.debug else logging.INFO,
                         format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     
-    html = HTMLDocument(title="List of DmpSoftware Releases",header="Doxygen Documentation for DmpFramework")
+    html = HTMLDocument(title="List of DmpSoftware Releases",HTMLHeader="Doxygen Documentation for DmpFramework")
     init_directory(cfg['doxygen_main'],exec_path)
     ## okay, dealt with inputs, now let's do the real stuff
     out_dir = cfg['doxygen_main']+"/trunk" if not opts.release else cfg['doxygen_main']+"/%s"%cfg['svn_tag'] 
