@@ -109,14 +109,16 @@ if __name__ == '__main__':
     HEADER_FILES = " ".join([y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], '*.h'))])
     logging.debug("includes: %s"%INCLUDE_DIRECTORIES)
     logging.debug("header files: %s"%HEADER_FILES)
+    #safe_copy("../do.config","do.config")
     doxygen_cfg = open("../do.config","r").read()
     doxygen_cfg=doxygen_cfg.replace("$INCLUDE_DIRECTORIES",INCLUDE_DIRECTORIES)
+    doxygen_cfg=doxygen_cfg.replace("$HEADER_FILES",HEADER_FILES)
     foo = open("do.config",'w')
     foo.write(doxygen_cfg)
     foo.close()
     safe_copy("../doxygen.html_header","doxygen.html_header")
     # we should be able to run doxygen now
-    run(["%s ../do.config"%cfg['doxygen_binary']])
+    run(["%s do.config"%cfg['doxygen_binary']])
 #    svn_repo = cfg['svn_repo']+"/trunk" if not opts.release else cfg['svn_repo']+"tags/%s"%cfg['svn_tag']
     
     
