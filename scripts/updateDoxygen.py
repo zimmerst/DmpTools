@@ -10,22 +10,29 @@ class HTMLDocument(object):
     title = None
     header = None
     HTMLHeader = None
-    links = None
+    links = {}
     _body = None
     def __init__(self,**kwargs):
         self.__dict__.update(kwargs)
     def set_header(self,header):
+        logging.debug("setting html header %s"%header)
         self.header = header
     def add_link(self,key,value):
+        logging.debug("adding %s: %s"%(key,value))
         self.links[key]=value
     def remove_link(self,key):
         if key in self.links:
             del self.links[key]
     def __compileBody(self):
-        my_list = ["\n<a href=\"%s\">%s</a><br>"%(k,v) for (k,v) in self.links]
+        my_list = []
+        if 'trunk' in self.links:
+            my_list += ["\n<h4><a href=\"%s\">trunk</a></h4><br>"%self.links['trunk']]
+            del self.links['trunk']
+        my_list += ["\n<h4><a href=\"%s\">%s</a></h4><br>"%(k,v) for (k,v) in sorted(self.links.iteritems(),-1)]
         html_body = "<body><h1>%s</h1>"%self.title
         html_body+= "\n".join(my_list)
         html_body+= "\n</body>"
+        logging.debug("HTML Body follows \n%s"%html_body)
         return html_body
     def dump(self,outfile):
         foo = open(outfile,'w')
@@ -102,31 +109,40 @@ if __name__ == '__main__':
     logging.info("about to execute remote svn command, output suppressed")
     run(cmd_args)
     # next, prepare doxygen stuff
-    os.chdir(out_dir)
-    logging.info("attempting to find include folders and header files, output suppressed")
-    logging.info("attempting to find all header files, output suppressed")
-    INCLUDE_DIRECTORIES = " ".join([y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], 'include'))])
-    HEADER_FILES = " ".join([y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], '*.h'))])
-    logging.debug("includes: %s"%INCLUDE_DIRECTORIES)
-    logging.debug("header files: %s"%HEADER_FILES)
-    #safe_copy("../do.config","do.config")
-    doxygen_cfg = open("../do.config","r").read()
-    doxygen_cfg=doxygen_cfg.replace("$INCLUDE_DIRECTORIES",INCLUDE_DIRECTORIES)
-    doxygen_cfg=doxygen_cfg.replace("$HEADER_FILES",HEADER_FILES)
-    foo = open("do.config",'w')
-    foo.write(doxygen_cfg)
-    foo.close()
-    safe_copy("../doxygen.html_header","doxygen.html_header")
+    os.chdir(os.path.join(out_dir,"Documentation"))
+    #doxygen_cfg_lines = open("do.config",'r').readlines()
+    #for l in doxygen_cfg_lines:
+    #    if l.startswith("PROJECT_NUMBER"):
+    #        l = "PROJECT_NUMBER    = %s"%cfg['svn_tag'] if opts.release else 'trunk'
+    #doxygen_cfg = "\n".join(doxygen_cfg_lines)
+    #foo = open("do.config",'w')
+    #foo.write(doxygen_cfg)
+    #foo.close()
+    #mkdir("doxygen")
+    #logging.info("attempting to find include folders and header files, output suppressed")
+    #logging.info("attempting to find all header files, output suppressed")    
+    #INCLUDE_DIRECTORIES = " ".join(["../"+y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], 'include'))])
+    #HEADER_FILES = " ".join(["../"+y.replace(out_dir+"/","") for x in os.walk(out_dir) for y in glob.glob(os.path.join(x[0], '*.h'))])
+    #os.chdir(os.path.join(out_dir,"doxygen"))
+    #logging.debug("includes: %s"%INCLUDE_DIRECTORIES)
+    #logging.debug("header files: %s"%HEADER_FILES)    
+    #doxygen_cfg = open(os.path.join(cfg['doxygen_main'],'do.config'),'r').read()
+    #doxygen_cfg=doxygen_cfg.replace("$DAMPE_INLCUDE_DIRECTORIES",INCLUDE_DIRECTORIES).replace("$DAMPE_HEADER_FILES",HEADER_FILES)
+    #foo = open("do.config",'w')
+    #foo.write(doxygen_cfg)
+    #foo.close()
+    #safe_copy("../../doxygen.html_header","doxygen.html_header")
     # we should be able to run doxygen now
     run(["%s do.config"%cfg['doxygen_binary']])
-#    svn_repo = cfg['svn_repo']+"/trunk" if not opts.release else cfg['svn_repo']+"tags/%s"%cfg['svn_tag']
-    
-    
 #    ## find existing folders
-#    os.chdir(cfg['doxygen_main'])
-#    doxygen_loc = "doc/html/index.html"
-#    folders = [f for f in os.listdir('.') if os.path.isdir(f)]
-#    docs = {key:os.path.join(key,doxygen_loc) for key in folders if os.path.isfile(os.path.join(key,doxygen_loc))}
-#    for key, value in docs.iteritems():
-#        html.add_link(key,value)
-#    os.chdir(pwd)
+    os.chdir(cfg['doxygen_main'])
+    doxygen_loc = "Documentation/html/index.html"
+    folders = [f for f in os.listdir('.') if os.path.isdir(f)]
+    docs = {key:os.path.join(key,doxygen_loc) for key in folders if os.path.isfile(os.path.join(key,doxygen_loc))}
+    logging.info("found %i tags"%len(docs.keys()))
+    for key, value in docs.iteritems():
+        html.add_link(key,value)
+    html.dump("index.html")
+    logging.info("created index.html and linked new content")
+    os.chdir(pwd)
+    logging.info("completed this cycle")
