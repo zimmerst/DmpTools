@@ -3,7 +3,7 @@ Created on Mar 9, 2016
 
 @author: zimmer
 '''
-import sys, logging, ConfigParser, os, glob, subprocess, copy
+import sys, logging, ConfigParser, os, subprocess, shutil
 from common.tools import mkdir, safe_copy
 
 class HTMLDocument(object):
@@ -26,11 +26,11 @@ class HTMLDocument(object):
     def __compileBody(self):
         my_list = []
         if 'trunk' in self.links:
-            my_list += ["\n<h4><a href=\"%s\">trunk</a></h4><br>"%self.links['trunk']]
+            my_list += ["\n<h4><a href=\"%s\">trunk</a></h4>"%self.links['trunk']]
             del self.links['trunk']
-        my_list += ["\n<h4><a href=\"%s\">%s</a></h4><br>"%(k,v) for (k,v) in sorted(self.links.iteritems(),-1)]
+        my_list += ["\n<h4><a href=\"%s\">%s</a></h4>"%(v,k) for (k,v) in sorted(self.links.iteritems(),-1)]
         html_body = "<body><h1>%s</h1>"%self.title
-        html_body+= "\n".join(my_list)
+        html_body+= "".join(my_list)
         html_body+= "\n</body>"
         logging.debug("HTML Body follows \n%s"%html_body)
         return html_body
@@ -55,7 +55,7 @@ def run(cmd_args):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logging.info("attempting to run: %s"%" ".join(cmd_args))
-    proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     if not err is None:
         for e in err.split("\n"): logging.error(e)
@@ -71,6 +71,8 @@ if __name__ == '__main__':
     parser.set_usage(usage)
     parser.set_description(description)
     parser.add_option("--debug",dest="debug",action="store_true",default=False, help="run in debug mode")
+    parser.add_option("--no-cleanup",dest="skip_cleanup",action="store_true",default=False, 
+                      help="if set to true, keep the entire source dir, otherwise only Documentation & Examples are kept")
     parser.add_option("--svnrepo",dest='svn_repo',type=str,default=None,help='overrides repository setting in cfg')
     parser.add_option("--tag",dest='svn_tag',type=str,default='trunk',help='tag to checkout')
     parser.add_option("-r","--release",dest='release',action='store_true',default=False,help='if used, assume this is a tagged release')
@@ -109,6 +111,14 @@ if __name__ == '__main__':
     logging.info("about to execute remote svn command, output suppressed")
     run(cmd_args)
     # next, prepare doxygen stuff
+    doc_dir = os.path.join(out_dir,"Documentation")
+    if not os.path.isdir(doc_dir):
+        logging.error("could not find Documentation directory, this may be the case if you attempt to create the documentation for an older release")
+        safe_copy(os.path.join(cfg['doxygen_main'],"doxygen.tar.gz"),os.path.join(out_dir,"doxygen.tar.gz"))
+        logging.warning("trying to remedy the situation by adding the default Doxygen configuration, which may be out-dated")
+        os.chdir(out_dir)
+        run(['tar xzvf doxygen.tar.gz'])
+        os.remove('doxygen.tar.gz')
     os.chdir(os.path.join(out_dir,"Documentation"))
     #doxygen_cfg_lines = open("do.config",'r').readlines()
     #for l in doxygen_cfg_lines:
@@ -134,6 +144,15 @@ if __name__ == '__main__':
     #safe_copy("../../doxygen.html_header","doxygen.html_header")
     # we should be able to run doxygen now
     run(["%s do.config"%cfg['doxygen_binary']])
+    # next cleanup
+    if not opts.skip_cleanup:
+        os.chdir(out_dir)
+        logging.info("perform cleanup to safe space!")
+        for f in os.listdir(out_dir):
+            if not f in ['Documentation','Examples']:
+                logging.debug("attempting to remove %s"%f)
+                if os.path.isfile(f): os.remove(f)
+                else: shutil.rmtree(f)
 #    ## find existing folders
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
