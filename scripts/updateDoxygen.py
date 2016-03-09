@@ -2,6 +2,8 @@
 Created on Mar 9, 2016
 
 @author: zimmer
+@summary: script attempts to connect to svn server, checks out a revision (or trunk) and attempts running doxygen on it
+
 '''
 import sys, logging, ConfigParser, os, subprocess, shutil
 from common.tools import mkdir, safe_copy
