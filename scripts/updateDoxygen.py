@@ -90,10 +90,11 @@ if __name__ == '__main__':
     pwd = os.curdir
     from optparse import OptionParser
     parser = OptionParser()
-    usage = "Usage: %prog [options] config.cfg"
+    usage = "Usage: %prog [options]"
     description = "script updates doxygen-generated web-pages after updating svn, to be run as cron job"
     parser.set_usage(usage)
     parser.set_description(description)
+    parser.add_option("--configfile",dest="cfg",type=str, default = "default.cfg",help='config file to load')
     parser.add_option("--debug",dest="debug",action="store_true",default=False, help="run in debug mode")
     parser.add_option("--no-cleanup",dest="skip_cleanup",action="store_true",default=False, 
                       help="if set to true, keep the entire source dir, otherwise only Documentation & Examples are kept")
@@ -108,7 +109,7 @@ if __name__ == '__main__':
         print parser.print_help()
         raise Exception
     exec_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-    cfgFile = sys.argv[1]
+    cfgFile = opts.cfg
     configParser = ConfigParser.SafeConfigParser(allow_no_value=True)
     configParser.read(cfgFile)
     cfg = dict(configParser.items("doxygen"))
