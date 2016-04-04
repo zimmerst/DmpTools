@@ -153,7 +153,8 @@ if __name__ == '__main__':
         run(['tar xzvf doxygen.tar.gz'])
         os.remove('doxygen.tar.gz')
     os.chdir(os.path.join(out_dir,"Documentation"))
-    run(["%s do.config"%cfg['doxygen_binary']])
+    run(["(cat do.config; echo \"PROJECT_NUMBER=%s\") | %s -"%("Trunk" if opts.release else opts.tag.strip("DmpSoftware-"),
+                                                               cfg['doxygen_binary'])])
     # next cleanup
     if not opts.skip_cleanup:
         os.chdir(out_dir)
