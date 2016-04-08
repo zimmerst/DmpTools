@@ -3,7 +3,8 @@ Created on Mar 9, 2016
 
 @author: zimmer
 @summary: script attempts to connect to svn server, checks out a revision (or trunk) and attempts running doxygen on it
-
+@note: to run on a release: python updateDoxygen.py --configfile=dampe-doxygen.cfg --tag DmpSoftware-5-1-1 --release
+@note: to run on trunk: python updateDoxygen.py --configfile=dampe-doxygen.cfg 
 '''
 import sys, logging, ConfigParser, os, subprocess, shutil, time, shlex
 
