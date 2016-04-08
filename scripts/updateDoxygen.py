@@ -167,11 +167,11 @@ if __name__ == '__main__':
             if _dir in excluded_dirs or ".svn" in _dir: continue
             logging.debug("attempting to remove %s"%_dir)
             for f in files:
-                if f.endswith(".h") or f.endswith(".hh"):
-                    logging.debug("keeping header intact %s"%f)
+                fabs = os.path.join(_dir,f)
+                if fabs.endswith(".h") or fabs.endswith(".hh"):
+                    logging.debug("keeping header intact %s"%fabs)
                     continue
-                print f
-                os.remove(f)
+                os.remove(fabs)
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
     folders = [f for f in os.listdir('.') if os.path.isdir(f)]
