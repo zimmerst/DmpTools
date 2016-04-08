@@ -89,8 +89,8 @@ def run(cmd_args):
     logging.info("attempting to run: %s"%" ".join(cmd_args))
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
-    if not err is None:
-        for e in err.split("\n"): logging.error("%s len(error)=%i"%(e,len(e)))
+    if err:
+        logging(err)
     for d in out.split("\n"):
         logging.debug(d)
 
