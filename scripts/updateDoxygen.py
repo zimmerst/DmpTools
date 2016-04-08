@@ -164,7 +164,8 @@ if __name__ == '__main__':
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
         for _dir, subdirs, files in os.walk(out_dir):
-            if "Examples" in _dir or "Documentation" in _dir or ".svn" in _dir: continue
+            if "Examples" in _dir or "Documentation" in _dir: continue
+            if ".svn" in _dir and not opts.release: continue # remove only in release.
             logging.debug("attempting to remove %s"%_dir)
             for f in files:
                 fabs = os.path.join(_dir,f)
