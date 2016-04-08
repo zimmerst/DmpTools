@@ -154,7 +154,7 @@ if __name__ == '__main__':
         os.remove('doxygen.tar.gz')
     os.chdir(os.path.join(out_dir,"Documentation"))
     CMD = "(cat do.config; echo \"PROJECT_NUMBER=%s\") | %s -"%("Trunk" if opts.release else opts.svn_tag.strip("DmpSoftware-"),
-                                                                cfg['doxygen_binary'])] 
+                                                                cfg['doxygen_binary'])
     print CMD
     run([CMD])
     # next cleanup
