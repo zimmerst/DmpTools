@@ -24,9 +24,8 @@ def recursive_walk(folder, excluded_folders=['.svn','Documentation','Examples'])
                 logging.debug("keeping header file %s intact"%filename)
                 continue
             if ".svn" in filename: continue
-            print os.path.abspath(filename)
-            os.remove(filename)
-
+            if os.path.isfile(filename): os.remove(filename)
+            
 def safe_copy(infile, outfile, sleep=10, attempts=10):
     infile = infile.replace("@","") if infile.startswith("@") else infile
     # Try not to step on any toes....
