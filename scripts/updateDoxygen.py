@@ -156,7 +156,7 @@ if __name__ == '__main__':
     proj_number = "trunk" if opts.release else opts.svn_tag
     if "DmpSoftware-" in proj_number: proj_number = proj_number.replace("DmpSoftware-","")
     CMD = '(cat do.config; echo "PROJECT_NUMBER=%s";) | %s -'%(proj_number,cfg['doxygen_binary'])
-    print CMD
+    if opts.debug: print CMD
     run([CMD])
     # next cleanup
     if not opts.skip_cleanup:
