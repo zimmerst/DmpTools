@@ -155,8 +155,7 @@ if __name__ == '__main__':
     os.chdir(os.path.join(out_dir,"Documentation"))
     proj_number = "trunk" if opts.release else opts.svn_tag
     if "DmpSoftware-" in proj_number: proj_number = proj_number.replace("DmpSoftware-","")
-    CMD = "(cat do.config; echo \"PROJECT_NUMBER=%s\") | %s -"%(proj_number,
-                                                                cfg['doxygen_binary'])
+    CMD = '(cat do.config; echo "PROJECT_NUMBER=%s";) | %s -'%(proj_number,cfg['doxygen_binary'])
     print CMD
     run([CMD])
     # next cleanup
