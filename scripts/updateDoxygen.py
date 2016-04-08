@@ -10,23 +10,6 @@ import sys, logging, ConfigParser, os, subprocess, shutil, time, shlex
 def mkdir(dir):
     if not os.path.exists(dir):  os.makedirs(dir)
     return dir
-
-def recursive_walk(folder, excluded_folders=['.svn','Documentation','Examples']):
-    for folderName, subfolders, filenames in os.walk(folder):
-        skip = False
-        for f in folderName: if f in excluded_folders: skip = True
-        if skip: continue
-        if not '.svn' in folderName: logging.debug("attempting to remove %s"%folderName)
-        if subfolders:
-            for subfolder in subfolders:
-                recursive_walk(subfolder)
-        if subfolder in excluded_folders: continue
-        for filename in filenames:
-            if filename.endswith(".h") or filename.endswith(".hh"): 
-                logging.debug("keeping header file %s intact"%filename)
-                continue
-            if ".svn" in filename: continue
-            if os.path.isfile(filename): os.remove(filename)
             
 def safe_copy(infile, outfile, sleep=10, attempts=10):
     infile = infile.replace("@","") if infile.startswith("@") else infile
@@ -188,16 +171,6 @@ if __name__ == '__main__':
                     logging.debug("keeping header intact %s"%f)
                     continue
                 os.remove(f)
-    
-    #    recursive_walk(out_dir)
-    #    for root, dirs, files in os.walk("."):
-    #        path = root.split('/')
-    #        if path in ['Documentation','Examples','.svn','.']: continue
-    #        for f in files:
-    #            
-    #                continue
-    #            os.remove(f)
-    ## find existing folders
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
     folders = [f for f in os.listdir('.') if os.path.isdir(f)]
