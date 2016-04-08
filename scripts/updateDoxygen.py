@@ -11,6 +11,19 @@ def mkdir(dir):
     if not os.path.exists(dir):  os.makedirs(dir)
     return dir
 
+def recursive_walk(folder):
+    for folderName, subfolders, filenames in os.walk(folder):
+        logging.debug("attempting to remove %s"%folderName)
+        if subfolders:
+            for subfolder in subfolders:
+                recursive_walk(subfolder)
+        if subfolder in ['.svn','Documentation','Examples']: continue
+        for filename in filenames:
+            if filename.endswith(".h") or filename.endswith(".hh"): 
+                logging.debug("keeping header file %s intact"%filename)
+                continue
+            else: os.remove(filename)
+
 def safe_copy(infile, outfile, sleep=10, attempts=10):
     infile = infile.replace("@","") if infile.startswith("@") else infile
     # Try not to step on any toes....
@@ -162,15 +175,14 @@ if __name__ == '__main__':
     if not opts.skip_cleanup:
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
-        for root, dirs, files in os.walk("."):
-            path = root.split('/')
-            logging.debug("attempting to remove %s"%path)
-            if path in ['Documentation','Examples','.svn']: continue
-            for f in files:
-                if f.endswith(".h") or f.endswith(".hh"):
-                    logging.debug("keeping header file %s intact"%f)
-                    continue
-                os.remove(f)
+        recursive_walk(out_dir)
+    #    for root, dirs, files in os.walk("."):
+    #        path = root.split('/')
+    #        if path in ['Documentation','Examples','.svn','.']: continue
+    #        for f in files:
+    #            if f.endswith(".h") or f.endswith(".hh"):
+    #                continue
+    #            os.remove(f)
     ## find existing folders
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
