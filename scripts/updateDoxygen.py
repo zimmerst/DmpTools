@@ -14,7 +14,7 @@ def mkdir(dir):
 def recursive_walk(folder, excluded_folders=['.svn','Documentation','Examples']):
     for folderName, subfolders, filenames in os.walk(folder):
         if folderName in excluded_folders: continue
-        logging.debug("attempting to remove %s"%folderName)
+        if not '.svn' in folderName: logging.debug("attempting to remove %s"%folderName)
         if subfolders:
             for subfolder in subfolders:
                 recursive_walk(subfolder)
