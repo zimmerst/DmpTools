@@ -171,6 +171,8 @@ if __name__ == '__main__':
                     logging.debug("keeping header intact %s"%fabs)
                     continue
                 os.remove(fabs)
+        run(['svn cleanup','']) # remove svn overload.
+    
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
     folders = [f for f in os.listdir('.') if os.path.isdir(f)]
