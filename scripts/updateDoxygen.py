@@ -90,7 +90,7 @@ def run(cmd_args):
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     if err:
-        logging(err)
+        for e in err.split("\n"): logging.error(e)
     for d in out.split("\n"):
         logging.debug(d)
 
