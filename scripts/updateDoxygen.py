@@ -162,7 +162,7 @@ if __name__ == '__main__':
     if not opts.skip_cleanup:
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
-        for root, dirs, files in os.walk(out_dir):
+        for root, dirs, files in os.walk("."):
             if dirs in ['Documentation','Examples']: continue
             path = root.split('/')
             logging.debug("attempting to remove %s"%path)
