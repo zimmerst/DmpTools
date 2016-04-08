@@ -11,13 +11,14 @@ def mkdir(dir):
     if not os.path.exists(dir):  os.makedirs(dir)
     return dir
 
-def recursive_walk(folder):
+def recursive_walk(folder, excluded_folders=['.svn','Documentation','Examples']):
     for folderName, subfolders, filenames in os.walk(folder):
+        if folderName in excluded_folders: continue
         logging.debug("attempting to remove %s"%folderName)
         if subfolders:
             for subfolder in subfolders:
                 recursive_walk(subfolder)
-        if subfolder in ['.svn','Documentation','Examples']: continue
+        if subfolder in excluded_folders: continue
         for filename in filenames:
             if filename.endswith(".h") or filename.endswith(".hh"): 
                 logging.debug("keeping header file %s intact"%filename)
