@@ -170,6 +170,7 @@ if __name__ == '__main__':
                 if f.endswith(".h") or f.endswith(".hh"):
                     logging.debug("keeping header intact %s"%f)
                     continue
+                print f
                 os.remove(f)
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
