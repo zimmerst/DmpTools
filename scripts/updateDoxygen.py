@@ -159,12 +159,11 @@ if __name__ == '__main__':
     if opts.debug: print CMD
     run([CMD])
     # next cleanup
-    excluded_dirs = ['Examples','Documentation']
     if not opts.skip_cleanup:
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
         for _dir, subdirs, files in os.walk(out_dir):
-            if _dir in excluded_dirs or ".svn" in _dir: continue
+            if "Examples" in _dir or "Documentation" in _dir or ".svn" in _dir: continue
             logging.debug("attempting to remove %s"%_dir)
             for f in files:
                 fabs = os.path.join(_dir,f)
