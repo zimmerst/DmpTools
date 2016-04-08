@@ -163,9 +163,9 @@ if __name__ == '__main__':
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
         for root, dirs, files in os.walk("."):
-            if dirs in ['Documentation','Examples','.svn']: continue
             path = root.split('/')
             logging.debug("attempting to remove %s"%path)
+            if path in ['Documentation','Examples','.svn']: continue
             for f in files:
                 if f.endswith(".h") or f.endswith(".hh"):
                     logging.debug("keeping header file %s intact"%f)
