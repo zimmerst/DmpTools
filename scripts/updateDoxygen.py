@@ -153,7 +153,9 @@ if __name__ == '__main__':
         run(['tar xzvf doxygen.tar.gz'])
         os.remove('doxygen.tar.gz')
     os.chdir(os.path.join(out_dir,"Documentation"))
-    CMD = "(cat do.config; echo \"PROJECT_NUMBER=%s\") | %s -"%("Trunk" if opts.release else opts.svn_tag.strip("DmpSoftware-"),
+    proj_number = "trunk" if opts.release else opts.svn_tag
+    if "DmpSoftware-" in proj_number: proj_number = proj_number.replace("DmpSoftware-","")
+    CMD = "(cat do.config; echo \"PROJECT_NUMBER=%s\") | %s -"%(proj_number,
                                                                 cfg['doxygen_binary'])
     print CMD
     run([CMD])
