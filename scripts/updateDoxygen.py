@@ -13,7 +13,9 @@ def mkdir(dir):
 
 def recursive_walk(folder, excluded_folders=['.svn','Documentation','Examples']):
     for folderName, subfolders, filenames in os.walk(folder):
-        if folderName in excluded_folders: continue
+        skip = False
+        for f in folderName: if f in excluded_folders: skip = True
+        if skip: continue
         if not '.svn' in folderName: logging.debug("attempting to remove %s"%folderName)
         if subfolders:
             for subfolder in subfolders:
@@ -174,15 +176,25 @@ if __name__ == '__main__':
     if opts.debug: print CMD
     run([CMD])
     # next cleanup
+    excluded_dirs = ['Examples','Documentation','.svn']
     if not opts.skip_cleanup:
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
-        recursive_walk(out_dir)
+        for _dir, subdirs, files in os.walk(out_dir):
+            if _dir in excluded_dirs: continue
+            logging.debug("attempting to remove %s"%_dir)
+            for f in files:
+                if f.endswith(".h") or f.endswith(".hh"):
+                    logging.debug("keeping header intact %s"%f)
+                    continue
+                os.remove(f)
+    
+    #    recursive_walk(out_dir)
     #    for root, dirs, files in os.walk("."):
     #        path = root.split('/')
     #        if path in ['Documentation','Examples','.svn','.']: continue
     #        for f in files:
-    #            if f.endswith(".h") or f.endswith(".hh"):
+    #            
     #                continue
     #            os.remove(f)
     ## find existing folders
