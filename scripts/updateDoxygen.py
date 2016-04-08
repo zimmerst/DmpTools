@@ -162,11 +162,15 @@ if __name__ == '__main__':
     if not opts.skip_cleanup:
         os.chdir(out_dir)
         logging.info("perform cleanup to safe space!")
-        for f in os.listdir(out_dir):
-            if not f in ['Documentation','Examples']:
-                logging.debug("attempting to remove %s"%f)
-                if os.path.isfile(f): os.remove(f)
-                else: shutil.rmtree(f)
+        for root, dirs, files in os.walk(out_dir):
+            if dirs in ['Documentation','Examples']: continue
+            path = root.split('/')
+            logging.debug("attempting to remove %s"%path)
+            for f in files:
+                if f.endswith(".h") or f.endswith(".hh"):
+                    logging.debug("keeping header file %s intact"%f)
+                    continue
+                os.remove(f)
     ## find existing folders
     os.chdir(cfg['doxygen_main'])
     doxygen_loc = "Documentation/html/index.html"
