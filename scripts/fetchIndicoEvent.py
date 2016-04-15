@@ -5,6 +5,7 @@
 
 
 import time, datetime, json, urllib, hmac, hashlib, sys
+from __builtin__ import None
 
 GLOB_API_KEY = 'enter here API key from Indico'
 GLOB_HOSTNAME= 'http://address.of.host'
@@ -129,9 +130,20 @@ class IndicoEvent(IndicoObject):
 			#print ret[-1]
 		return sorted(ret, key = lambda user: user['timestamp'])
 
-	def getContributionsAsTwiki(self,with_material=True):
-		ret = self.getContributionsAsList(self,with_material=with_material)
-
+	def getMinutes(self):
+		ret = None
+		res = self.validateJSON()
+		if not res['OK']:
+			print 'error validating JSON, returning an empty list, error below'
+			print	res['Message']
+			return ret
+		material = self.JSON['results'][-1]['material']
+		if len(material):
+			for m in material:
+				if m['id']=='minutes': ret = m['resources'][-1]['url']
+		return ret
+	
+	
 if __name__ == '__main__':
 	from optparse import OptionParser
 	parser = OptionParser()
@@ -157,5 +169,7 @@ if __name__ == '__main__':
 		contribs = my_event.getContributions()
 		for c in contribs:
 			print contrib2twiki(c)
+		minutes = my_event.getMinutes()
+		if minutes: print "   * [[%s][Minutes]]"%minutes
 	print "\nLast Update: %s"%time.ctime()
 
