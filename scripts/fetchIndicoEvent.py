@@ -1,3 +1,9 @@
+"""
+@author: S. Zimmer (Geneva)
+@brief: convenience script to crawl Indico page and extract all contributions for each event with identical names
+"""
+
+
 import time, datetime, json, urllib, hmac, hashlib, sys
 
 GLOB_API_KEY = 'enter here API key from Indico'
