@@ -6,7 +6,7 @@
 			see http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
 """
 
-import time, datetime, json, urllib, hmac, hashlib, sys, ssl
+import time, datetime, json, urllib, ssl
 
 GLOB_API_KEY = 'add API key here.'
 GLOB_HOSTNAME= "https://dpnc-indico.unige.ch/indico"
@@ -66,7 +66,6 @@ class IndicoObject(object):
 		if self.JSON is None:							return IS_OK(False,'JSON query empty, maybe something went wrong')
 		if not self.JSON['complete']:			return IS_OK(False,'JSON query not complete')
 		if not len(self.JSON['results']): return IS_OK(False,'JSON query seemingly okay, but results are empty')
-		content = self.JSON['results']
 		return IS_OK(True,"Everything is Fine")
 	
 	def submitQuery(self):
@@ -109,9 +108,9 @@ class IndicoEvent(IndicoObject):
 			return ret
 		contributions = self.JSON['results'][0]['contributions']
 		#print 'ID: %i found %i contributions'%(self.ID,len(contributions))
-		for i,contrib in enumerate(contributions):
+		for contrib in contributions:
 			contribId = contrib['id']
-			for j, c in enumerate(contrib['subContributions']):
+			for c in contrib['subContributions']:
 				subID = c['id']
 				#print "processing item %i"%i
 				#print c
