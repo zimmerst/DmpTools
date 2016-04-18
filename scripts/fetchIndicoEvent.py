@@ -2,10 +2,7 @@
 @author: S. Zimmer (Geneva)
 @brief: convenience script to crawl Indico page and extract all contributions for each event with identical names
 """
-
-
-import time, datetime, json, urllib, hmac, hashlib, sys
-from __builtin__ import None
+import time, datetime, json, urllib
 
 GLOB_API_KEY = 'enter here API key from Indico'
 GLOB_HOSTNAME= 'http://address.of.host'
