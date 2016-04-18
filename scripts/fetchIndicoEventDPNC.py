@@ -121,6 +121,7 @@ class IndicoEvent(IndicoObject):
 					if len(c['speakers'][0]['affiliation']):
 						r['speaker']+=" (%s)"%c['speakers'][0]['affiliation']
 				else: r['speaker']='no speaker'
+				if "&amp;" in r['speaker']: r['speaker'] = r['speaker'].replace("&amp;","&")
 				if with_material:
 					r['slides']="%s/getFile.py/access?subContId=%s&contribId=%s&resId=0&materialId=slides&confId=%s"%(GLOB_HOSTNAME,subID,contribId,self.ID)
 					#mat = c['material']
