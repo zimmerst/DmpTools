@@ -155,7 +155,7 @@ if __name__ == '__main__':
 	(opts, arguments) = parser.parse_args()
 	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n"
 	doc_header+= "%" + "META:TOPICPARENT{name=\"%s\"}"%opts.topicParent + "%\n"
-	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*\n"%opts.title
+	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*\n\n"%opts.title
 	my_cat = IndicoCategory(ID=4)
 	my_cat.submitQuery()
 	events = reversed(my_cat.getEvents(title=opts.mtitle))
@@ -176,6 +176,8 @@ if __name__ == '__main__':
 	if opts.file is None:
 		print fStr
 	else:
-		foo = open(opts.file,'w')
-		foo.write(fStr)
+		s = fStr.encode("UTF-8").decode('unicode_escape').encode('ascii','ignore')
+		while "()" in s: s = s.replace("()","")
+		foo = open(os.path.expandvars(opts.file),'w')
+		foo.write(s)
 		foo.close()

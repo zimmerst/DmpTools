@@ -6,7 +6,7 @@
 			see http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
 """
 
-import time, datetime, json, urllib, ssl
+import time, datetime, json, urllib, ssl, os
 
 GLOB_API_KEY = 'add API key here.'
 GLOB_HOSTNAME= "https://dpnc-indico.unige.ch/indico"
@@ -63,9 +63,9 @@ class IndicoObject(object):
 		self.ID=EVENT_ID
 	
 	def validateJSON(self):
-		if self.JSON is None:							return IS_OK(False,'JSON query empty, maybe something went wrong')
-		if not self.JSON['complete']:			return IS_OK(False,'JSON query not complete')
-		if not len(self.JSON['results']): return IS_OK(False,'JSON query seemingly okay, but results are empty')
+		if self.JSON is None:				return IS_OK(False,'JSON query empty, maybe something went wrong')
+		if not self.JSON['complete']:		return IS_OK(False,'JSON query not complete')
+		if not len(self.JSON['results']): 	return IS_OK(False,'JSON query seemingly okay, but results are empty')
 		return IS_OK(True,"Everything is Fine")
 	
 	def submitQuery(self):
@@ -152,6 +152,7 @@ class IndicoEvent(IndicoObject):
 
 
 if __name__ == '__main__':
+	fStr = ""
 	from optparse import OptionParser
 	parser = OptionParser()
 	usage = "Usage: %prog [options]"
@@ -159,26 +160,35 @@ if __name__ == '__main__':
 	parser.set_usage(usage)
 	parser.set_description(description)
 	parser.add_option("--title",dest='title',default='DAMPE-EU Data Analysis Meetings',help="title to be used in twiki")
+	parser.add_option("--file",dest='file',default=None,help="if set, write output to file")
 	parser.add_option("--meeting_title",dest='mtitle',default="DAMPE data analysis ",help="title of event in Indico")
 	(opts, arguments) = parser.parse_args()
 	doc_header = "===== DAMPE %s =====\n**Do not edit this page manually, as it is created by a bot**\n"%opts.title
 	my_cat = IndicoCategory(ID=48)
 	my_cat.submitQuery()
 	events = reversed(my_cat.getEvents(title=opts.mtitle))
-	print doc_header
+	fStr+="%s\n"%doc_header
 	for i,ev in enumerate(events):
 		startDate = ev['startDate']
 		h = "**[[%s|%s]]**"%(ev['url'].replace("http","https")," ".join([startDate[key] for key in ['date','time','tz']]))
 		if i == 0 and nextMeeting(startDate): h+= " **(next meeting)**"
 		h+="\n"
-		print h
+		fStr+="%s\n"%h
 		my_event = IndicoEvent(ID=int(ev['id']))
 		my_event.submitQuery()
 		contribs = my_event.getContributions()
 		for c in contribs:
-			print contrib2twiki(c)
+			fStr+="%s\n"%contrib2twiki(c)
 		minutes = my_event.getMinutes()
-		if minutes: print "   * [[%s|Minutes]]"%minutes
-	print "\nLast Update: %s"%time.ctime()
+		if minutes: fStr+="%s\n"%"   * [[%s|Minutes]]"%minutes
+	fStr+="%s\n"%"\nLast Update: %s"%time.ctime()
+	if opts.file is None:
+		print fStr
+	else:
+		s = fStr.encode("UTF-8").decode('unicode_escape').encode('ascii','ignore')
+		while "()" in s: s = s.replace("()","")
+		foo = open(os.path.expandvars(opts.file),'w')
+		foo.write(s)
+		foo.close()
 
 
