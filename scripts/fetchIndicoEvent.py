@@ -154,7 +154,7 @@ if __name__ == '__main__':
 	parser.add_option("--meeting_title",dest='mtitle',default="DAMPESW Simulation ",help="title of event in Indico")
 	(opts, arguments) = parser.parse_args()
 	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n"
-	doc_header+= "%" + "META:TOPICPARENT{name=\"%s\"}\n"%opts.topicParent + "%\n"
+	doc_header+= "%" + "META:TOPICPARENT{name=\"%s\"}"%opts.topicParent + "%\n"
 	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
 	my_cat = IndicoCategory(ID=4)
 	my_cat.submitQuery()
@@ -164,14 +164,14 @@ if __name__ == '__main__':
 		startDate = ev['startDate']
 		h = "---++++ [[%s][%s]]"%(ev['url']," ".join([startDate[key] for key in ['date','time','tz']]))
 		if i == 0 and nextMeeting(startDate): h+= " *(next meeting)*"
-		fStr+=h
+		fStr+="%s\n"%h
 		my_event = IndicoEvent(ID=int(ev['id']))
 		my_event.submitQuery()
 		contribs = my_event.getContributions()
 		for c in contribs:
-			fStr+=contrib2twiki(c)
+			fStr+="%s\n"%contrib2twiki(c)
 		minutes = my_event.getMinutes()
-		if minutes: fStr+= "   * [[%s][Minutes]]"%minutes
+		if minutes: fStr+= "   * [[%s][Minutes]]\n"%minutes
 	fStr+= "\nLast Update: %s"%time.ctime()
 	if opts.file is None:
 		print fStr
