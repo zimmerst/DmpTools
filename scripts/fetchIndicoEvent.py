@@ -153,9 +153,9 @@ if __name__ == '__main__':
 	parser.add_option("--topic",dest='topicParent',default='DampeSimulation',help="title to be used in twiki")
 	parser.add_option("--meeting_title",dest='mtitle',default="DAMPESW Simulation ",help="title of event in Indico")
 	(opts, arguments) = parser.parse_args()
-	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n%"
-	doc_header+= "META:TOPICPARENT{name=\"%s\"}\n"%opts.topicParent
-	doc_header+= "%\n---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
+	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n"
+	doc_header+= "%" + "META:TOPICPARENT{name=\"%s\"}\n"%opts.topicParent + "%\n"
+	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
 	my_cat = IndicoCategory(ID=4)
 	my_cat.submitQuery()
 	events = reversed(my_cat.getEvents(title=opts.mtitle))
