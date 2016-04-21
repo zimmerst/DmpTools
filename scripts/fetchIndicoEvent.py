@@ -142,30 +142,40 @@ class IndicoEvent(IndicoObject):
 	
 if __name__ == '__main__':
 	from optparse import OptionParser
+	fStr = ""
 	parser = OptionParser()
 	usage = "Usage: %prog [options]"
 	description = "fetch Indico content from %s"%GLOB_HOSTNAME
 	parser.set_usage(usage)
 	parser.set_description(description)
 	parser.add_option("--title",dest='title',default='Simulation Group Meetings',help="title to be used in twiki")
+	parser.add_option("--file",dest='file',default=None,help="if set, write output to file")
+	parser.add_option("--topic",dest='topicParent',default='DampeSimulation',help="title to be used in twiki")
 	parser.add_option("--meeting_title",dest='mtitle',default="DAMPESW Simulation ",help="title of event in Indico")
 	(opts, arguments) = parser.parse_args()
-	doc_header = "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
+	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n"
+	doc_header+= "%META:TOPICPARENT{name=\"%s\"}%\n"%opts.topicParent
+	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
 	my_cat = IndicoCategory(ID=4)
 	my_cat.submitQuery()
 	events = reversed(my_cat.getEvents(title=opts.mtitle))
-	print doc_header
+	fStr+=doc_header
 	for i,ev in enumerate(events):
 		startDate = ev['startDate']
 		h = "---++++ [[%s][%s]]"%(ev['url']," ".join([startDate[key] for key in ['date','time','tz']]))
 		if i == 0 and nextMeeting(startDate): h+= " *(next meeting)*"
-		print h
+		fStr+=h
 		my_event = IndicoEvent(ID=int(ev['id']))
 		my_event.submitQuery()
 		contribs = my_event.getContributions()
 		for c in contribs:
-			print contrib2twiki(c)
+			fStr+=contrib2twiki(c)
 		minutes = my_event.getMinutes()
-		if minutes: print "   * [[%s][Minutes]]"%minutes
-	print "\nLast Update: %s"%time.ctime()
-
+		if minutes: fStr+= "   * [[%s][Minutes]]"%minutes
+	fStr+= "\nLast Update: %s"%time.ctime()
+	if opts.file is None:
+		print fStr
+	else:
+		foo = open(opts.file,'w')
+		foo.write(fStr)
+		foo.close()
