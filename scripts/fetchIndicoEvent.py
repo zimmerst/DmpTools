@@ -155,7 +155,7 @@ if __name__ == '__main__':
 	(opts, arguments) = parser.parse_args()
 	doc_header = "%META:TOPICINFO{author=\"zimmer\" date=\"1460719702\" format=\"1.1\" version=\"1.2\"}%\n"
 	doc_header+= "%" + "META:TOPICPARENT{name=\"%s\"}"%opts.topicParent + "%\n"
-	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*"%opts.title
+	doc_header+= "---+ DAMPE %s\n*Do not edit this page manually, as it is created by a bot*\n"%opts.title
 	my_cat = IndicoCategory(ID=4)
 	my_cat.submitQuery()
 	events = reversed(my_cat.getEvents(title=opts.mtitle))
