@@ -21,7 +21,7 @@ def safe_copy(infile, outfile, sleep=10, attempts=10):
     else:
         cmnd = "cp %s %s"%(infile,outfile)
     i = 0
-    logging.info("copy %s -> %s"%(infile,outfile))
+    logging.info("copy %s -> %s",infile,outfile)
     while i < attempts: 
         status = subprocess.call(shlex.split(cmnd))
         if status == 0: 

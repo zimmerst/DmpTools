@@ -8,8 +8,7 @@ import logging
 from progress.bar import Bar
 import pandas as pd
 import numpy as np
-from copy import deepcopy
-from ROOT import TChain, TFile, TTree, TCut, TTreeFormula
+from ROOT import TChain, TFile, TTree, TTreeFormula
 from optparse import OptionParser
 import os
 
