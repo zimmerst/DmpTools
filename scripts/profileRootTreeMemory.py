@@ -18,6 +18,7 @@ f=TFile(sys.argv[1],"READ")
 
 trees = ['CollectionTree','RunMetadataTree']
 for tree in trees:
+	t=TTree()
 	t=f.Get(tree)
 	branchnames = map(lambda branch: branch.GetName(), t.GetListOfBranches())
 	

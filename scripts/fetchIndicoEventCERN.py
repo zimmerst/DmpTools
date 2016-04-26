@@ -3,7 +3,7 @@
 @brief: convenience script to crawl CERN Indico page and extract all contributions for each event with identical names
 """
 
-import time, datetime, json, urllib, hmac, hashlib, sys
+import time, datetime, json, urllib, hmac, hashlib
 # CERN needs both api-key & api-secret (only persistent requests are setup)
 GLOB_API_KEY = ''
 GLOB_API_SECRET = ''
@@ -73,7 +73,7 @@ class IndicoObject(object):
 	def validateJSON(self):
 		if self.JSON is None:							return IS_OK(False,'JSON query empty, maybe something went wrong')
 		if not len(self.JSON['results']): return IS_OK(False,'JSON query seemingly okay, but results are empty')
-		content = self.JSON['results']
+		#content = self.JSON['results']
 		return IS_OK(True,"Everything is Fine")
 	
 	def submitQuery(self):
@@ -115,7 +115,7 @@ class IndicoEvent(IndicoObject):
 			return ret
 		contributions = self.JSON['results'][0]['contributions']
 		#print 'found %i contributions'%len(contributions)
-		for i,c in enumerate(contributions):
+		for c in contributions:
 			#print "processing item %i"%i
 			r = {'title':c['title']}
 			r['timestamp'] = toTimeStamp(c['startDate'])

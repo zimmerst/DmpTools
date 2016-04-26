@@ -61,7 +61,7 @@ class IndicoObject(object):
 		if self.JSON is None:							return IS_OK(False,'JSON query empty, maybe something went wrong')
 		if not self.JSON['complete']:			return IS_OK(False,'JSON query not complete')
 		if not len(self.JSON['results']): return IS_OK(False,'JSON query seemingly okay, but results are empty')
-		content = self.JSON['results']
+		#content = self.JSON['results']
 		return IS_OK(True,"Everything is Fine")
 	
 	def submitQuery(self):
@@ -103,7 +103,7 @@ class IndicoEvent(IndicoObject):
 			return ret
 		contributions = self.JSON['results'][0]['contributions']
 		#print 'found %i contributions'%len(contributions)
-		for i,c in enumerate(contributions):
+		for c in contributions:
 			#print "processing item %i"%i
 			r = {'title':c['title']}
 			r['timestamp'] = toTimeStamp(c['startDate'])

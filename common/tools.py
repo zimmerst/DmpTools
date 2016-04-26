@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import subprocess as sub
 import numpy as np
-from numpy import sin,arccos,pi
 import os, re, time
 import numbers
 import shlex
@@ -174,7 +173,7 @@ def yaml_load(filename):
     try:
         ret = yaml.load(open(filename),Loader=Loader)
     except Exception, e:
-        logging.exception("found exception in yaml_load %s"%str(e))
+        logging.exception("found exception in yaml_load %s",str(e))
         ret = yaml.load(open(filename),Loader=yaml.Loader)
     return ret
     
@@ -254,7 +253,7 @@ def load_config(defaults,config=None,**kwargs):
         item_list = [None,None,'',None,str]
         item_list[:len(item)] = item        
         key, value, comment, groupname, item_type = item_list
-
+        del comment
         if len(item) == 1:
             raise Exception('Option tuple must have at least one element.')
                     
@@ -335,10 +334,10 @@ def tolist(x):
         x=str(x) # convert unicode & numpy strings 
         try:
             return int(x)
-        except:
+        except Exception:
             try:
                 return float(x)
-            except:
+            except Exception:
                 if x == 'True': return True
                 elif x == 'False': return False
                 else: return x
@@ -351,5 +350,3 @@ if __name__ == "__main__":
     description = "python script"
     parser = OptionParser(usage=usage,description=description)
     (opts, args) = parser.parse_args()
-
-
