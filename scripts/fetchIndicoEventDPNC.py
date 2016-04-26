@@ -5,8 +5,8 @@
 @note: 		since the server has a self-signed certificate, ssl verification is bypassed using a context; 
 			see http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
 """
-
-import time, datetime, json, urllib, ssl, os
+from urllib import urlopen, urlencode
+import time, datetime, json, ssl, os
 
 GLOB_API_KEY = 'add API key here.'
 GLOB_HOSTNAME= "https://dpnc-indico.unige.ch/indico"
@@ -46,7 +46,7 @@ class IndicoObject(object):
 		items.append(('ak',self.API_KEY))
 		items = sorted(items, key=lambda x: x[0].lower())
 		path = '%s/%s.json'%(self.PATH,self.ID)
-		self.URL = '%s?%s' % (path, urllib.urlencode(items))
+		self.URL = '%s?%s' % (path, urlencode(items))
 		return self.URL
 	
 	def __init__(self,**kwargs):
@@ -69,9 +69,9 @@ class IndicoObject(object):
 		return IS_OK(True,"Everything is Fine")
 	
 	def submitQuery(self):
-		context = ssl._create_unverified_context()
+		_context = ssl._create_unverified_context()
 		try:
-			f = urllib.urlopen(self.URL,context=context)
+			f = urlopen(self.URL,context=_context)
 			raw_data = f.read()
 			self.JSON = json.loads(raw_data)
 		except IOError, io:
