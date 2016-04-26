@@ -71,7 +71,7 @@ class IndicoObject(object):
 	def submitQuery(self):
 		_context = ssl._create_unverified_context()
 		try:
-			f = urlopen(self.URL,context=_context)
+			f = urlopen(self.URL, data=None, proxies=None, context=_context)
 			raw_data = f.read()
 			self.JSON = json.loads(raw_data)
 		except IOError, io:
