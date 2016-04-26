@@ -6,11 +6,11 @@ Created on Mar 9, 2016
 @note: to run on a release: python updateDoxygen.py --configfile=dampe-doxygen.cfg --tag DmpSoftware-5-1-1 --release
 @note: to run on trunk: python updateDoxygen.py --configfile=dampe-doxygen.cfg 
 '''
-import sys, logging, ConfigParser, os, subprocess, shutil, time, shlex
+import sys, logging, ConfigParser, os, subprocess, time, shlex
 
-def mkdir(dir):
-    if not os.path.exists(dir):  os.makedirs(dir)
-    return dir
+def mkdir(Dir):
+    if not os.path.exists(Dir):  os.makedirs(Dir)
+    return Dir
             
 def safe_copy(infile, outfile, sleep=10, attempts=10):
     infile = infile.replace("@","") if infile.startswith("@") else infile
@@ -27,7 +27,7 @@ def safe_copy(infile, outfile, sleep=10, attempts=10):
         if status == 0: 
             return status
         else:
-            logging.warning("%i - Copy failed; sleep %ss"%(i,sleep))
+            logging.warning("%i - Copy failed; sleep %ss", i,sleep)
             time.sleep(sleep)
         i += 1
     raise Exception("File *really* doesn't exist: %s"%infile)
@@ -48,10 +48,10 @@ class HTMLDocument(object):
     def __init__(self,**kwargs):
         self.__dict__.update(kwargs)
     def set_header(self,header):
-        logging.debug("setting html header %s"%header)
+        logging.debug("setting html header %s",header)
         self.header = header
     def add_link(self,key,value):
-        logging.debug("adding %s: %s"%(key,value))
+        logging.debug("adding %s: %s",key,value)
         self.links[key]=value
     def remove_link(self,key):
         if key in self.links:
@@ -65,18 +65,18 @@ class HTMLDocument(object):
         html_body = "<body><h1>%s</h1>"%self.title
         html_body+= "".join(my_list)
         html_body+= "\n</body>"
-        logging.debug("HTML Body follows \n%s"%html_body)
+        logging.debug("HTML Body follows \n%s",html_body)
         return html_body
     def dump(self,outfile):
-        foo = open(outfile,'w')
+        foop = open(outfile,'w')
         body = self.__compileBody()
         html_str = "<html><head><title>%s</title>%s</head>\n%s"%(self.HTMLHeader,self.CSS,body)
-        foo.write(html_str)
-        foo.close()
+        foop.write(html_str)
+        foop.close()
             
 def init_directory(mydir,exec_path):
     os.chdir(mydir)
-    logging.debug("current directory: %s"%os.curdir)
+    logging.debug("current directory: %s",os.curdir)
     share_path = os.path.join(exec_path,"../share/doxygen")
     for f in os.listdir(share_path):
         infile = os.path.join(share_path,f)
@@ -86,7 +86,7 @@ def init_directory(mydir,exec_path):
 def run(cmd_args):
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
-    logging.info("attempting to run: %s"%" ".join(cmd_args))
+    logging.info("attempting to run: %s",str(cmd_args))
     proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     if err:
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     init_directory(cfg['doxygen_main'],exec_path)
     ## okay, dealt with inputs, now let's do the real stuff
     out_dir = cfg['doxygen_main']+"/trunk" if not opts.release else cfg['doxygen_main']+"/%s"%cfg['svn_tag'] 
-    logging.info("executing doxygen magic in %s"%out_dir)
+    logging.info("executing doxygen magic in %s",out_dir)
     if os.path.isdir(out_dir) and not opts.force:
         logging.info("found output directory already, attempting an update to save time")
         os.chdir(out_dir)
@@ -166,11 +166,11 @@ if __name__ == '__main__':
         for _dir, subdirs, files in os.walk(out_dir):
             if "Examples" in _dir or "Documentation" in _dir: continue
             if ".svn" in _dir and not opts.release: continue # remove only in release.
-            logging.debug("attempting to remove %s"%_dir)
+            logging.debug("attempting to remove %s",_dir)
             for f in files:
                 fabs = os.path.join(_dir,f)
                 if fabs.endswith(".h") or fabs.endswith(".hh"):
-                    logging.debug("keeping header intact %s"%fabs)
+                    logging.debug("keeping header intact %s",fabs)
                     continue
                 os.remove(fabs)
         if not opts.release: run(['svn cleanup','']) # remove svn overload.
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     doxygen_loc = "Documentation/html/index.html"
     folders = [f for f in os.listdir('.') if os.path.isdir(f)]
     docs = {key:os.path.join(key,doxygen_loc) for key in folders if os.path.isfile(os.path.join(key,doxygen_loc))}
-    logging.info("found %i tags"%len(docs.keys()))
+    logging.info("found %i tags",len(docs.keys()))
     for key, value in docs.iteritems():
         html.add_link(key,value)
     html.dump("index.html")
