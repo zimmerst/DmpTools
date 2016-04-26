@@ -3,7 +3,7 @@
 @author: S. Zimmer (UniGE)
 """
 
-from ROOT import *
+from ROOT import TFile, TTree
 import sys
 
 def get_branch_size(b):

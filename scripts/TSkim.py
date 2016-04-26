@@ -9,11 +9,9 @@ from progress.bar import Bar
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-from ROOT import *
-from math import *
+from ROOT import TChain, TFile, TTree, TCut, TString, TTreeFormula
 from optparse import OptionParser
-from numpy import *
-import numpy, os
+import os
 
 if __name__ == '__main__':
     
@@ -49,8 +47,8 @@ if __name__ == '__main__':
     # create pandas dataframe
     allColumns = IntBrName+DblBrName #
     df_ = pd.DataFrame(columns=allColumns)
-    IntBrVal=[numpy.array([0]) for x in IntBrName]
-    DblBrVal=[numpy.array([0.]) for x in DblBrName]
+    IntBrVal=[np.array([0]) for x in IntBrName]
+    DblBrVal=[np.array([0.]) for x in DblBrName]
     if os.path.isfile(options.inmf):
         # have inputfile
         files = open(options.inmf,'r').readlines()

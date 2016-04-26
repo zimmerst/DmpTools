@@ -147,7 +147,7 @@ class IndicoEvent(IndicoObject):
 			return ret
 		material = self.JSON['results'][-1]['material'][0] # will always be a list
 		if 'id' in material:
-			if m['id']=='minutes': ret = material['resources'][-1]['url']
+			if material['id']=='minutes': ret = material['resources'][-1]['url']
 		return ret
 
 
