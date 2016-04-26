@@ -178,6 +178,6 @@ if __name__ == '__main__':
 	else:
 		s = fStr.encode("UTF-8").decode('unicode_escape').encode('ascii','ignore')
 		while "()" in s: s = s.replace("()","")
-		foo = open(os.path.expandvars(opts.file),'w')
-		foo.write(s)
-		foo.close()
+		foob = open(os.path.expandvars(opts.file),'w')
+		foob.write(s)
+		foob.close()

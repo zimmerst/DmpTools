@@ -227,7 +227,7 @@ def update_dict(d0,d1,add_new_keys=False,append=False):
     
     for k, v in d0.iteritems():
 
-        if not k in d1: continue
+        if k not in d1: continue
 
         if isinstance(v,dict) and isinstance(d1[k],dict):
             update_dict(d0[k],d1[k],add_new_keys,append)
@@ -239,7 +239,7 @@ def update_dict(d0,d1,add_new_keys=False,append=False):
 
     if add_new_keys:
         for k, v in d1.iteritems(): 
-            if not k in d0: d0[k] = d1[k]
+            if k not in d0: d0[k] = d1[k]
     
 def load_config(defaults,config=None,**kwargs):
     """Create a configuration dictionary.  The defaults tuple is used
