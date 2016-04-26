@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 import subprocess as sub
 import numpy as np
-from numpy import cos,sin,arccos,pi
-import os, re, time, copy
+from numpy import sin,arccos,pi
+import os, re, time
 import numbers
-import shutil, shlex
-import pyfits
+import shlex
 import yaml, logging
 
 def makeSafeName(srcname):
@@ -18,9 +17,9 @@ def pwd():
     # Careful, won't work after a call to os.chdir...
     return os.environ['PWD']
 
-def mkdir(dir):
-    if not os.path.exists(dir):  os.makedirs(dir)
-    return dir
+def mkdir(_dir):
+    if not os.path.exists(_dir):  os.makedirs(_dir)
+    return _dir
 
 def config():
     npconfig()
@@ -152,13 +151,13 @@ def safe_copy(infile, outfile, sleep=10, attempts=10):
     else:
         cmnd = "cp %s %s"%(infile,outfile)
     i = 0
-    logging.info("copy %s -> %s"%(infile,outfile))
+    logging.info("copy %s -> %s",infile,outfile)
     while i < attempts: 
         status = sub.call(shlex.split(cmnd))
         if status == 0: 
             return status
         else:
-            logging.warning("%i - Copy failed; sleep %ss"%(i,sleep))
+            logging.warning("%i - Copy failed; sleep %ss",i,sleep)
             time.sleep(sleep)
         i += 1
     raise Exception("File *really* doesn't exist: %s"%infile)
@@ -174,7 +173,8 @@ def yaml_load(filename):
 
     try:
         ret = yaml.load(open(filename),Loader=Loader)
-    except:
+    except Exception, e:
+        logging.exception("found exception in yaml_load %s"%str(e))
         ret = yaml.load(open(filename),Loader=yaml.Loader)
     return ret
     
@@ -183,12 +183,9 @@ def yaml_dump(x, filename):
         x        : output to dump to the file
         filename : output file (can be file-type or path string)
     """
-    
-    if hasattr(yaml,'CDumper'):
-        Dumper = yaml.CDumper
-    else: 
-        Dumper = yaml.Dumper
-
+    #    Dumper = yaml.Dumper
+    #    if hasattr(yaml,'CDumper'):
+    #        Dumper = yaml.CDumper
     if isinstance(filename, basestring):
         out = open(filename,'w')
     elif isinstance(filename, file):
