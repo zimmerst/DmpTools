@@ -9,7 +9,7 @@ from progress.bar import Bar
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-from ROOT import TChain, TFile, TTree, TCut, TString, TTreeFormula
+from ROOT import TChain, TFile, TTree, TCut, TTreeFormula
 from optparse import OptionParser
 import os
 
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     parser.add_option("--TCut", dest="cuts",default=None, help="TCut String in Quotes")
     parser.add_option("--TreeName", dest="ttree",default="MeritTuple", help="name of tree to store")
     (options,args)= parser.parse_args()
-    logging.info("Input file: %s"%options.inmf)
-    logging.info("Cut string: %s"%options.cuts)
+    logging.info("Input file: %s",options.inmf)
+    logging.info("Cut string: %s",options.cuts)
     
     IntBrName = []#'latitude']
     DblBrName = ['latitude','longitude']
@@ -57,7 +57,7 @@ if __name__ == '__main__':
             InfileArg.append(f.replace("\n",""))
     filenum1=0
     nEntTot=0
-    logging.info("found %i files"%len(InfileArg))
+    logging.info("found %i files",len(InfileArg))
     cube = None
     while filenum1<len(InfileArg):
         ifilename=InfileArg[filenum1]
@@ -65,12 +65,12 @@ if __name__ == '__main__':
         MeritIn.Add(ifilename)
         nEnt=MeritIn.GetEntries()
         nEnt = 100000 # debug
-        logging.info('found %i events'%(int(nEnt)))
+        logging.info('found %i events',int(nEnt))
         bar_suffix = "%(percent)d%%- %(elapsed)ds" #'%(percent)d%%'
-        bar = Bar("%s: Progress..."%os.path.basename(ifilename),max=int(nEnt), suffix=bar_suffix)
+        bbar = Bar("%s: Progress..."%os.path.basename(ifilename),max=int(nEnt), suffix=bar_suffix)
         if(nEnt==0):
             del MeritIn
-            logging.warning("WARNING! EMPTY FILE %s"%ifilename)
+            logging.warning("WARNING! EMPTY FILE %s",ifilename)
             filenum1+=1
             continue
         if not options.cuts is None:
@@ -95,16 +95,16 @@ if __name__ == '__main__':
                 series = np.array(IntBrVal if len(IntBrVal) else DblBrVal).T            
             tmp_frame.loc[i] = series[0]
             del series
-            bar.next()
+            bbar.next()
         df_.append(tmp_frame)
         del tmp_frame
-        bar.finish()
+        bbar.finish()
         filenum1+=1
         del MeritIn
-        del bar
+        del bbar
         df_.to_pickle(options.otmf) # should save in the end to make sure we store process along the way.
 
     # dump the pandas dataframe
     # check out: https://metarabbit.wordpress.com/2013/12/10/how-to-save-load-large-pandas-dataframes/comment-page-1/
     df_.to_pickle(options.otmf)
-    logging.info("Number of input events: %i"%int(nEntTot))
+    logging.info("Number of input events: %i",int(nEntTot))
