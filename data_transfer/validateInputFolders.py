@@ -10,7 +10,7 @@ from re import findall
 from sys import argv
 
 input_folder = argv[1]
-
+print "working on folder %s"%input_folder
 for folder in listdir(input_folder):
     release = None
     res = findall("\d+",folder)
