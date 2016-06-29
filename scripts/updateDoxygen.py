@@ -6,7 +6,11 @@ Created on Mar 9, 2016
 @note: to run on a release: python updateDoxygen.py --configfile=dampe-doxygen.cfg --tag DmpSoftware-5-1-1 --release
 @note: to run on trunk: python updateDoxygen.py --configfile=dampe-doxygen.cfg 
 '''
-import sys, logging, ConfigParser, os, subprocess, time, shlex
+from subprocess import PIPE, Popen, call as sub_call
+from select import poll as spoll, POLLIN, POLLHUP
+import sys, logging, ConfigParser, os, time, shlex
+
+
 
 def mkdir(Dir):
     if not os.path.exists(Dir):  os.makedirs(Dir)
@@ -23,7 +27,7 @@ def safe_copy(infile, outfile, sleep=10, attempts=10):
     i = 0
     logging.info("copy %s -> %s",infile,outfile)
     while i < attempts: 
-        status = subprocess.call(shlex.split(cmnd))
+        status = sub_call(shlex.split(cmnd))
         if status == 0: 
             return status
         else:
@@ -83,16 +87,40 @@ def init_directory(mydir,exec_path):
         outfile= os.path.join(mydir,f)
         safe_copy(os.path.abspath(infile),outfile)
 
-def run(cmd_args):
+def run(cmd_args, useLogging=True, suppressErrors=False, interleaved=True):
+    # inspired from http://tinyurl.com/hslhjfe (StackOverflow)
     if not isinstance(cmd_args, list):
         raise RuntimeError('must be list to be called')
     logging.info("attempting to run: %s",str(cmd_args))
-    proc = subprocess.Popen(cmd_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    (out, err) = proc.communicate()
-    if err:
-        for e in err.split("\n"): logging.error(e)
-    for d in out.split("\n"):
-        logging.debug(d)
+    errors = []
+    output = []
+    tsk = Popen(cmd_args,stdout=PIPE,stderr=PIPE)
+    poll = spoll()
+    poll.register(tsk.stdout,POLLIN | POLLHUP)
+    poll.register(tsk.stderr,POLLIN | POLLHUP)
+    pollc = 2
+    events = poll.poll()
+    while pollc > 0 and len(events) > 0:
+        for rfd, event in events:
+            if event & POLLIN:
+                if rfd == tsk.stdout.fileno():
+                    line = tsk.stdout.readline()
+                    if len(line) > 0:
+                        if useLogging: logging.info(line[:-1])
+                        output.append(str(line[:-1]))
+                if rfd == tsk.stderr.fileno():
+                    line = tsk.stderr.readline()
+                    if len(line) > 0:
+                        if suppressErrors: continue
+                        errors.append(line[:-1])
+                        if interleaved: output.append(errors[-1])
+                        if useLogging: logging.error(errors[-1])
+            if event & POLLHUP:
+                poll.unregister(rfd)
+                pollc = pollc - 1
+            if pollc > 0: events = poll.poll()
+    rc=tsk.wait()
+    return "\n".join(output), "\n".join(errors), rc
 
 if __name__ == '__main__':
     pwd = os.curdir
