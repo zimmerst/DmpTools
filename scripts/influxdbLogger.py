@@ -33,7 +33,7 @@ def main(args=None):
         }
         ]
     pp = PrettyPrinter(indent=2)
-    client = InfluxDBClient("192.33.218.223",8086,'dampe','dampe2015','xrootd')
+    client = InfluxDBClient("192.33.218.124",8083,'user','password','xrootd')
     pp.pprint(json_bdy)
     client.create_database('xrootd')
     ret = client.write_points(json_bdy)
