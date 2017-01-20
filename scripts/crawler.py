@@ -55,11 +55,11 @@ def testPdgId(fname):
     from os.path import basename
     bn = basename(fname).split(".")[0].split("-")[0]
     if not bn.startswith("all"):
-        print 'non-standard sample, skip'
-        return True
+        #print 'non-standard sample, skip'
+        #return True
     elif ("bkg" or "background" or "back") in bn.lower():
-        print 'background sample, skip'
-        return True
+        #print 'background sample, skip'
+        #return True
     else:
         from ROOT import DmpEvtSimuPrimaries
         tree = mcprimaries = None
