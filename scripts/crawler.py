@@ -8,9 +8,11 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
+from os.path import getsize
 from tqdm import tqdm
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
+from XRootD import client
 
 infile = argv[1]
 
@@ -106,17 +108,27 @@ def checkHKD(fname):
     except Exception as err:
         raise Exception(err.message)
 
-
+def getSize(lfn):
+    if lfn.startswith("root://"):
+        server = "root://{server}".format(server=lfn.split("/")[2])
+        xc = client.FileSystem("root://{server}".format(server=server))
+        is_ok, res = xc.stat(lfn.replace(server,""))
+        if not is_ok.ok: raise Exception(is_ok.message)
+        return res.size
+    else:
+        return getsize(lfn)
 
 ch = DmpChain("CollectionTree")
 ch.Add(infile)
 nevts = int(ch.GetEntries())
 tstart = -1.
 tstop = -1.
+fsize = 0.
 good = True
 comment = "NONE"
 f_type = None
 try:
+    fsize = getSize(infile)
     if nevts == 0: raise IOError("zero events.")
     else:
         for i in tqdm(xrange(nevts)):
@@ -132,7 +144,7 @@ try:
         else:
             # must be simu data or reco
             reco_missing = isNull(evt.pEvtBgoRec())
-            simu_missing = isNull(evt.pDmpEvtSimuPrimaries())
+            simu_missing = isNull(evt.pEvtSimuPrimaries())
             if reco_missing and simu_missing:
                 raise Exception("both DmpEvtSimuPrimaries and DmpEvtBgoRec appear missing.")
             elif reco_missing:
@@ -151,6 +163,6 @@ except Exception as err:
     comment = err.message
     good = False
 
-f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, comment=comment)
+f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, comment=comment, size=fsize)
 
 print f_out
