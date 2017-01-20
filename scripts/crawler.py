@@ -118,7 +118,7 @@ def checkHKD(fname):
             ch = TChain("HousekeepingData/{tree}".format(tree=tree))
             ch.Add(fname)
             if ch.GetEntries() == 0: raise Exception("HKD tree %s empty",tree)
-            checkBranches(tree, branches)
+            checkBranches(ch, branches)
     except Exception as err:
         raise Exception(err.message)
     return True
