@@ -48,17 +48,17 @@ def checkBranches(tree, branches):
         res = tree.FindBranch(b)
         if res is None:
             raise Exception("missing branch %s",b)
-    return
+    return True
 
 def testPdgId(fname):
     from os.path import basename
     bn = basename(fname).split(".")[0].split("-")[0]
     if not bn.startswith("all"):
         print 'non-standard sample, skip'
-        return
+        return True
     elif ("bkg" or "background" or "back") in bn.lower():
         print 'background sample, skip'
-        return
+        return True
     else:
         from ROOT import DmpEvtSimuPrimaries
         tree = mcprimaries = None
@@ -71,7 +71,6 @@ def testPdgId(fname):
             if pdg_id > 10000:
                 pdg_id = int(pdg_id/10000.) - 100000
             pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
-            failed = False
             particle = bn.replace("all","")
             print particle
             assert particle in pdgs.keys(), "particle type not supported"
@@ -82,7 +81,7 @@ def testPdgId(fname):
         except Exception as err:
             del tree, mcprimaries
             raise Exception(err.message)
-        return
+        return True
 
 def isNull(ptr):
     try:
@@ -122,6 +121,7 @@ def checkHKD(fname):
             checkBranches(tree, branches)
     except Exception as err:
         raise Exception(err.message)
+    return True
 
 def isFlight(fname):
     ch = DmpChain("CollectionTree")
@@ -163,7 +163,7 @@ try:
     if nevts == 0: raise IOError("zero events.")
     flight_data, stat = isFlight(infile)
     if flight_data:
-        checkHKD(infile)
+        good = checkHKD(infile)
         tstart = stat.get("tstart",-1.)
         tstop  = stat.get("tstop",-1.)
         f_type = "2A"
@@ -177,8 +177,9 @@ try:
             if None in reco_branches: raise Exception("missing branches in mc:reco")
         else:
             f_type = "mc:simu"
-        testPdgId(infile)
-    checkBranches(tch, branches[f_type])
+        if(testPdgId(infile)): good = True
+    if good:
+        good = checkBranches(tch, branches[f_type])
 
 except Exception as err:
     comment = str(err)
