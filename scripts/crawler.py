@@ -61,11 +61,12 @@ def testPdgId(fname):
         print 'background sample, skip'
         return
     else:
-        ch = DmpChain("CollectionTree")
-        ch.SetVerbose(0)
-        ch.Add(infile)
-        evt = ch.GetDmpEvent()
-        pdg_id = int(evt.pEvtSimuPrimaries().pvpart_pdg)
+        from ROOT import DmpEvtSimuPrimaries
+        tree = TChain("CollectionTree")
+        mcprimaries = DmpEvtSimuPrimaries()
+        tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
+        entry = tree.GetEntry(0)
+        pdg_id = mcprimaries.pvpart_pdg
         if pdg_id > 10000:
             pdg_id = int(pdg_id/10000.) - 100000
         pdgs = dict(proton=2212, electron=11, gamma=22,he = 2, li = 3, be = 4, b = 5, c = 6, n = 7, o = 8)
@@ -76,7 +77,7 @@ def testPdgId(fname):
                     failed = True
                 else:
                     failed = False
-        del ch, evt
+        del tree, mcprimaries
         if failed:
             raise Exception("wrong PDG ID!")
         return
