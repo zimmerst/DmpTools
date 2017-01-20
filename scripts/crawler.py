@@ -163,6 +163,7 @@ except Exception as err:
     comment = err.message
     good = False
 
-f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, comment=comment, size=fsize)
+f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good,
+             comment=comment, size=fsize, type=f_type)
 
 print f_out
