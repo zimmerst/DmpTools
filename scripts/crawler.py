@@ -140,7 +140,6 @@ try:
         if flight_data:
             tstop = getTime(evt)
             f_type = "2A"
-            checkHKD(infile)
         else:
             # must be simu data or reco
             reco_missing = isNull(evt.pEvtBgoRec())
@@ -153,6 +152,9 @@ try:
                 f_type = "mc:reco"
             testPdgId(infile,evt)
         del ch
+        print 'verification of branches.'
+        if flight_data:
+            checkHKD(infile)
         tch = TChain("CollectionTree")
         tch.Add(infile)
         for b in branches[f_type]:
