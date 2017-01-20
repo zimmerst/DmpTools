@@ -20,6 +20,7 @@ res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
 from ROOT import TChain, DmpChain
+DmpChain.SetVerbose(0)
 
 types = ("mc:simu","mc:reco","2A")
 
@@ -127,7 +128,6 @@ def checkHKD(fname):
     return True
 
 def isFlight(fname):
-    DmpChain.SetVerbose(0)
     ch = DmpChain("CollectionTree")
     ch.SetVerbose(0)
     ch.Add(infile)
