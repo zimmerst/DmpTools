@@ -52,32 +52,34 @@ def checkBranches(tree, branches):
 
 def testPdgId(fname):
     from os.path import basename
-    bn = basename(fname).split(".")[0].lower()
+    bn = basename(fname).split(".")[0].split("-")[0]
+    print bn
     if not bn.startswith("all"):
         print 'non-standard sample, skip'
         return
-    elif "bkg" or "background" in bn:
+    elif ("bkg" or "background") in bn.lower():
         print 'background sample, skip'
         return
-    ch = DmpChain("CollectionTree")
-    ch.SetVerbose(0)
-    ch.Add(infile)
-    evt = ch.GetDmpEvent()
-    pdg_id = int(evt.pEvtSimuPrimaries().pvpart_pdg)
-    if pdg_id > 10000:
-        pdg_id = int(pdg_id/10000.) - 100000
-    pdgs = dict(proton=2212, electron=11, gamma=22,he = 2, li = 3, be = 4, b = 5, c = 6, n = 7, o = 8)
-    failed = False
-    for pdg in pdgs:
-        if pdg in bn:
-            if pdg_id != pdg[pdgs]:
-                failed = True
-            else:
-                failed = False
-    del ch, evt
-    if failed:
-        raise Exception("wrong PDG ID!")
-    return
+    else:
+        ch = DmpChain("CollectionTree")
+        ch.SetVerbose(0)
+        ch.Add(infile)
+        evt = ch.GetDmpEvent()
+        pdg_id = int(evt.pEvtSimuPrimaries().pvpart_pdg)
+        if pdg_id > 10000:
+            pdg_id = int(pdg_id/10000.) - 100000
+        pdgs = dict(proton=2212, electron=11, gamma=22,he = 2, li = 3, be = 4, b = 5, c = 6, n = 7, o = 8)
+        failed = False
+        for pdg in pdgs:
+            if pdg in bn:
+                if pdg_id != pdg[pdgs]:
+                    failed = True
+                else:
+                    failed = False
+        del ch, evt
+        if failed:
+            raise Exception("wrong PDG ID!")
+        return
 
 def isNull(ptr):
     try:
