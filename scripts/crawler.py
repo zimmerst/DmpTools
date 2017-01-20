@@ -53,33 +53,32 @@ def checkBranches(tree, branches):
 def testPdgId(fname):
     from os.path import basename
     bn = basename(fname).split(".")[0].split("-")[0]
-    print bn
     if not bn.startswith("all"):
         print 'non-standard sample, skip'
         return
-    elif ("bkg" or "background") in bn.lower():
+    elif ("bkg" or "background" or "back") in bn.lower():
         print 'background sample, skip'
         return
     else:
         from ROOT import DmpEvtSimuPrimaries
-        tree = TChain("CollectionTree")
-        mcprimaries = DmpEvtSimuPrimaries()
-        tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
-        entry = tree.GetEntry(0)
-        pdg_id = mcprimaries.pvpart_pdg
-        if pdg_id > 10000:
-            pdg_id = int(pdg_id/10000.) - 100000
-        pdgs = dict(proton=2212, electron=11, gamma=22,he = 2, li = 3, be = 4, b = 5, c = 6, n = 7, o = 8)
-        failed = False
-        for pdg in pdgs:
-            if pdg in bn:
-                if pdg_id != pdg[pdgs]:
-                    failed = True
-                else:
-                    failed = False
-        del tree, mcprimaries
-        if failed:
-            raise Exception("wrong PDG ID!")
+        tree = mcprimaries = None
+        try:
+            tree = TChain("CollectionTree")
+            mcprimaries = DmpEvtSimuPrimaries()
+            tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
+            entry = tree.GetEntry(0)
+            pdg_id = mcprimaries.pvpart_pdg
+            if pdg_id > 10000:
+                pdg_id = int(pdg_id/10000.) - 100000
+            pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
+            failed = False
+            particle = bn.replace("all","")
+            assert particle in pdgs.keys(), "particle type not supported"
+            if particle != pdg_id:
+                raise Exception("wrong PDG ID!")
+        except Exception as err
+            del tree, mcprimaries
+            raise Exception(err.message)
         return
 
 def isNull(ptr):
