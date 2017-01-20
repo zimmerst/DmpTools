@@ -129,6 +129,7 @@ def checkHKD(fname):
     return True
 
 def isFlight(fname):
+    DmpChain.SetVerbose(0)
     ch = DmpChain("CollectionTree")
     ch.SetVerbose(0)
     ch.Add(infile)
@@ -164,7 +165,7 @@ try:
     fsize = getSize(infile)
     tch = TChain("CollectionTree")
     tch.Add(infile)
-    nevts = tch.GetEntries()
+    nevts = int(tch.GetEntries())
     if nevts == 0: raise IOError("zero events.")
     flight_data, stat = isFlight(infile)
     if flight_data:
