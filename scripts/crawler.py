@@ -167,7 +167,7 @@ tstop = -1.
 fsize = 0.
 good = True
 comment = "NONE"
-f_type = Other
+f_type = "Other"
 svn_rev = "None"
 tag = "None"
 try:
