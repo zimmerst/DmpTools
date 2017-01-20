@@ -77,12 +77,10 @@ def testPdgId(fname):
                 pdg_id = int(pdg_id/10000.) - 100000
             pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
             particle = bn.replace("all","")
-            print particle
+            #print particle
             assert particle in pdgs.keys(), "particle type not supported"
             if pdgs[particle] != pdg_id:
                 raise Exception("wrong PDG ID! particle_found=%i particle_expected=%i",pdgs[particle],pdg_id)
-            else:
-                print 'PDG ID verification successful.'
         except Exception as err:
             del tree, mcprimaries
             raise Exception(err.message)
@@ -174,7 +172,7 @@ try:
         tstop  = stat.get("tstop",-1.)
         f_type = "2A"
     else:
-        print 'mc data'
+        #print 'mc data'
         simu_branches = [tch.FindBranch(b) for b in branches['mc:simu']]
         reco_branches = [tch.FindBranch(b) for b in branches['mc:reco']]
 
