@@ -43,10 +43,7 @@ branches = {
 #    from subprocess import Popen, PIPE
 #    cmd = "md5sum {fname}".
 
-def testPdgId(fname,evt):
-    pdg_id = int(evt.pEvtSimuPrimaries().pvpart_pdg)
-    if pdg_id > 10000:
-        pdg_id = int(pdg_id/10000.) - 100000
+def testPdgId(fname,fname):
     from os.path import basename
     bn = basename(evt).split(".")[0].lower()
     if not bn.startswith("all"):
@@ -55,6 +52,13 @@ def testPdgId(fname,evt):
     if "bkg" or "background" in bn:
         print 'background sample, skip'
         return
+    ch = DmpChain("CollectionTree")
+    ch.SetVerbose(0)
+    ch.Add(infile)
+    evt = ch.GetDmpEvent()
+    pdg_id = int(evt.pEvtSimuPrimaries().pvpart_pdg)
+    if pdg_id > 10000:
+        pdg_id = int(pdg_id/10000.) - 100000
     pdgs = dict(proton=2212, electron=11, gamma=22,he = 2, li = 3, be = 4, b = 5, c = 6, n = 7, o = 8)
     failed = False
     for pdg in pdgs:
@@ -63,6 +67,7 @@ def testPdgId(fname,evt):
                 failed = True
             else:
                 failed = False
+    del ch, evt
     if failed:
         raise Exception("wrong PDG ID!")
     return
@@ -108,6 +113,22 @@ def checkHKD(fname):
     except Exception as err:
         raise Exception(err.message)
 
+def isFlight(fname):
+    ch = DmpChain("CollectionTree")
+    ch.SetVerbose(0)
+    ch.Add(infile)
+    nevts = int(ch.GetEntries())
+    if not nevts: raise Exception("zero events")
+    for i in tqdm(xrange(nevts)):
+        evt = ch.GetDmpEvent(i)
+        if i == 0:
+            tstart = getTime(evt)
+    tstop = getTime(evt)
+    flight_data = True if ch.GetDataType() == DmpChain.kFlight else False
+    del ch
+    del evt
+    return flight_data, dict(tstart=tstart, tstop=tstop)
+
 def getSize(lfn):
     if lfn.startswith("root://"):
         server = "root://{server}".format(server=lfn.split("/")[2])
@@ -118,9 +139,6 @@ def getSize(lfn):
     else:
         return getsize(lfn)
 
-ch = DmpChain("CollectionTree")
-ch.Add(infile)
-nevts = int(ch.GetEntries())
 tstart = -1.
 tstop = -1.
 fsize = 0.
@@ -129,37 +147,28 @@ comment = "NONE"
 f_type = None
 try:
     fsize = getSize(infile)
+    tch = TChain("CollectionTree")
+    tch.Add(infile)
+    nevts = tch.GetEntries()
     if nevts == 0: raise IOError("zero events.")
+    flight_data, stat = isFlight(infile)
+    if flight_data:
+        checkHKD(infile)
+        tstart = stat.get("tstart",-1.)
+        tstop  = stat.get("tstop",-1.)
+        f_type = "2A"
     else:
-        for i in tqdm(xrange(nevts)):
-            evt = ch.GetDmpEvent(i)
-            flight_data = True if ch.GetDataType() == DmpChain.kFlight else False
-            if flight_data:
-                if i == 0:
-                    tstart = getTime(evt)
-        if flight_data:
-            tstop = getTime(evt)
-            f_type = "2A"
+        print 'mc data'
+        simu_branches = [tch.FindBranch(b) for b in branches['mc:simu']]
+        reco_branches = [tch.FindBranch(b) for b in branches['mc:reco']]
+
+        if None in simu_branches:
+            f_type = "mc:reco"
+            if None in reco_branches: raise Exception("missing branches in mc:reco")
         else:
-            # must be simu data or reco
-            reco_missing = isNull(evt.pEvtBgoRec())
-            simu_missing = isNull(evt.pEvtSimuPrimaries())
-            if reco_missing and simu_missing:
-                raise Exception("both DmpEvtSimuPrimaries and DmpEvtBgoRec appear missing.")
-            elif reco_missing:
-                f_type = "mc:simu"
-            else:
-                f_type = "mc:reco"
-            testPdgId(infile,evt)
-        del ch
-        print 'verification of branches.'
-        if flight_data:
-            checkHKD(infile)
-        tch = TChain("CollectionTree")
-        tch.Add(infile)
-        for b in branches[f_type]:
-            r = tch.FindBranch(b)
-            assert r is not None, 'missing branch : %s' % b
+            f_type = "mc:simu"
+        testPdgId(infile, evt)
+    assert None in [tch.FindBranch(b) for b in branches[f_type]], "missing branch in tree"
 
 except Exception as err:
     comment = err.message
