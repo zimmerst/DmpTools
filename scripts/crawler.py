@@ -20,7 +20,7 @@ if not infile.startswith("root://"):
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
-from ROOT import TChain, DmpChain, DmpEvent
+from ROOT import TChain, TString, DmpChain, DmpEvent
 DmpChain.SetVerbose(-1)
 DmpEvent.SetVerbosity(-1)
 types = ("mc:simu","mc:reco","2A")
@@ -124,6 +124,17 @@ def checkHKD(fname):
         raise Exception(err.message)
     return True
 
+def extractVersion(fname):
+    ch = TChain("RunMetadataTree")
+    ch.Add(fname)
+    ch.SetBranchStatus("*",1)
+    svn_rev = TString()
+    tag = TString()
+    ch.SetBranchAddress("SvnRev",svn_rev)
+    ch.SetBranchAddress("tag",tag)
+    ch.GetEntry(0)
+    return tag, svn_rev
+
 def isFlight(fname):
     ch = DmpChain("CollectionTree")
     ch.Add(infile)
@@ -135,6 +146,7 @@ def isFlight(fname):
     #    evt = ch.GetDmpEvent(i)
     #    if i == 0:
     evt = ch.GetDmpEvent(nevts-1)
+    version=
     tstop = getTime(evt)
     flight_data = True if ch.GetDataType() == DmpChain.kFlight else False
     del ch
@@ -156,9 +168,12 @@ tstop = -1.
 fsize = 0.
 good = True
 comment = "NONE"
-f_type = None
+f_type = Other
+svn_rev = "None"
+tag = "None"
 try:
     fsize = getSize(infile)
+    tag, svn_rev = extractVersion(infile)
     tch = TChain("CollectionTree")
     tch.Add(infile)
     nevts = int(tch.GetEntries())
@@ -181,6 +196,7 @@ try:
             f_type = "mc:simu"
         if(testPdgId(infile)): good = True
     if good:
+        assert f_type in types, "found non-supported dataset type!"
         good = checkBranches(tch, branches[f_type])
 
 except Exception as err:
@@ -188,6 +204,6 @@ except Exception as err:
     good = False
 
 f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good,
-             comment=comment, size=fsize, type=f_type)
+             comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev)
 
 print f_out
