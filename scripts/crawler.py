@@ -45,7 +45,7 @@ branches = {
 
 def testPdgId(fname):
     from os.path import basename
-    bn = basename(evt).split(".")[0].lower()
+    bn = basename(fname).split(".")[0].lower()
     if not bn.startswith("all"):
         print 'non-standard sample, skip'
         return
