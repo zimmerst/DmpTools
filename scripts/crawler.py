@@ -8,14 +8,15 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
-from os.path import getsize
+from os.path import getsize, abspath
 #from tqdm import tqdm
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
 
 infile = argv[1]
-
+if not infile.startswith("root://"):
+    infile = abspath(infile)
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
