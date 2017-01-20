@@ -56,7 +56,7 @@ def testPdgId(fname):
     if not bn.startswith("all"):
         print 'non-standard sample, skip'
         return
-    if "bkg" or "background" in bn:
+    elif "bkg" or "background" in bn:
         print 'background sample, skip'
         return
     ch = DmpChain("CollectionTree")
