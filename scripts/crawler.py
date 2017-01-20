@@ -54,12 +54,8 @@ def checkBranches(tree, branches):
 def testPdgId(fname):
     from os.path import basename
     bn = basename(fname).split(".")[0].split("-")[0]
-    if not bn.startswith("all"):
-        #print 'non-standard sample, skip'
-        #return True
-    elif ("bkg" or "background" or "back") in bn.lower():
-        #print 'background sample, skip'
-        #return True
+    if (not bn.startswith("all")) or (("bkg" or "background" or "back") in bn.lower()):
+        return True
     else:
         from ROOT import DmpEvtSimuPrimaries
         tree = mcprimaries = None
