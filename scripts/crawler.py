@@ -133,10 +133,12 @@ def isFlight(fname):
     ch.Add(infile)
     nevts = int(ch.GetEntries())
     if not nevts: raise Exception("zero events")
-    for i in tqdm(xrange(nevts)):
-        evt = ch.GetDmpEvent(i)
-        if i == 0:
-            tstart = getTime(evt)
+    evt = ch.GetDmpEvent(0)
+    tstart = getTime(evt)
+    #for i in tqdm(xrange(nevts)):
+    #    evt = ch.GetDmpEvent(i)
+    #    if i == 0:
+    evt = ch.GetDmpEvent(nevts-1)
     tstop = getTime(evt)
     flight_data = True if ch.GetDataType() == DmpChain.kFlight else False
     del ch
