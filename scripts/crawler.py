@@ -43,6 +43,13 @@ branches = {
 #    from subprocess import Popen, PIPE
 #    cmd = "md5sum {fname}".
 
+def checkBranches(tree, branches):
+    for b in branches:
+        res = tree.FindBranch(b)
+        if res is None:
+            raise Exception("missing branch %s",b)
+    return
+
 def testPdgId(fname):
     from os.path import basename
     bn = basename(fname).split(".")[0].lower()
@@ -107,9 +114,7 @@ def checkHKD(fname):
             ch = TChain("HousekeepingData/{tree}".format(tree=tree))
             ch.Add(fname)
             if ch.GetEntries() == 0: raise Exception("HKD tree %s empty",tree)
-            for b in branches:
-                r = ch.FindBranch(b)
-                assert r is not None, 'missing branch : %s' % b
+            checkBranches(tree, branches)
     except Exception as err:
         raise Exception(err.message)
 
@@ -168,7 +173,7 @@ try:
         else:
             f_type = "mc:simu"
         testPdgId(infile)
-    assert None in [tch.FindBranch(b) for b in branches[f_type]], "missing branch in tree"
+    checkBranches(tch, branches[f_type])
 
 except Exception as err:
     comment = err.message
