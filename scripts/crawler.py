@@ -64,8 +64,12 @@ def testPdgId(fname):
         tree = mcprimaries = None
         try:
             tree = TChain("CollectionTree")
+            tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
+            branch = tree.GetBranch("DmpEvtSimuPrimaries")
             mcprimaries = DmpEvtSimuPrimaries()
             tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
+            branch.GetEntry(0)
+            tree.GetEntry(0)
             entry = tree.GetEntry(0)
             pdg_id = int(mcprimaries.pvpart_pdg)
             if pdg_id > 10000:
