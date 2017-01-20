@@ -76,7 +76,7 @@ def testPdgId(fname):
             assert particle in pdgs.keys(), "particle type not supported"
             if particle != pdg_id:
                 raise Exception("wrong PDG ID!")
-        except Exception as err
+        except Exception as err:
             del tree, mcprimaries
             raise Exception(err.message)
         return
