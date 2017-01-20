@@ -111,7 +111,7 @@ def checkHKD(fname):
 def getSize(lfn):
     if lfn.startswith("root://"):
         server = "root://{server}".format(server=lfn.split("/")[2])
-        xc = client.FileSystem("root://{server}".format(server=server))
+        xc = client.FileSystem(server)
         is_ok, res = xc.stat(lfn.replace(server,""))
         if not is_ok.ok: raise Exception(is_ok.message)
         return res.size
