@@ -129,7 +129,7 @@ def checkHKD(fname):
 
 def isFlight(fname):
     ch = DmpChain("CollectionTree")
-    ch.SetVerbose(0)
+    ch.SetVerbosity(-1)
     ch.Add(infile)
     nevts = int(ch.GetEntries())
     if not nevts: raise Exception("zero events")
