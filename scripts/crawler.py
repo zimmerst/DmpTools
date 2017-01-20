@@ -64,6 +64,7 @@ def testPdgId(fname):
         tree = mcprimaries = None
         try:
             tree = TChain("CollectionTree")
+            tree.Add(fname)
             tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
             branch = tree.GetBranch("DmpEvtSimuPrimaries")
             mcprimaries = DmpEvtSimuPrimaries()
