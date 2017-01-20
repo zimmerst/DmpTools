@@ -181,7 +181,7 @@ try:
     checkBranches(tch, branches[f_type])
 
 except Exception as err:
-    comment = err.message
+    comment = str(err)
     good = False
 
 f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good,
