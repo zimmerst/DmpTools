@@ -67,15 +67,15 @@ def testPdgId(fname):
             mcprimaries = DmpEvtSimuPrimaries()
             tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
             entry = tree.GetEntry(0)
-            pdg_id = mcprimaries.pvpart_pdg
+            pdg_id = int(mcprimaries.pvpart_pdg)
             if pdg_id > 10000:
                 pdg_id = int(pdg_id/10000.) - 100000
             pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
             failed = False
             particle = bn.replace("all","")
             assert particle in pdgs.keys(), "particle type not supported"
-            if particle != pdg_id:
-                raise Exception("wrong PDG ID!")
+            if pdgs[particle] != pdg_id:
+                raise Exception("wrong PDG ID! particle_found=%i particle_expected=%i",pdgs[particle],pdg_id)
         except Exception as err:
             del tree, mcprimaries
             raise Exception(err.message)
