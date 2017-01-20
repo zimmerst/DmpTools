@@ -146,7 +146,6 @@ def isFlight(fname):
     #    evt = ch.GetDmpEvent(i)
     #    if i == 0:
     evt = ch.GetDmpEvent(nevts-1)
-    version=
     tstop = getTime(evt)
     flight_data = True if ch.GetDataType() == DmpChain.kFlight else False
     del ch
