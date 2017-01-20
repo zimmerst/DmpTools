@@ -43,7 +43,7 @@ branches = {
 #    from subprocess import Popen, PIPE
 #    cmd = "md5sum {fname}".
 
-def testPdgId(fname,fname):
+def testPdgId(fname):
     from os.path import basename
     bn = basename(evt).split(".")[0].lower()
     if not bn.startswith("all"):
@@ -167,7 +167,7 @@ try:
             if None in reco_branches: raise Exception("missing branches in mc:reco")
         else:
             f_type = "mc:simu"
-        testPdgId(infile, evt)
+        testPdgId(infile)
     assert None in [tch.FindBranch(b) for b in branches[f_type]], "missing branch in tree"
 
 except Exception as err:
