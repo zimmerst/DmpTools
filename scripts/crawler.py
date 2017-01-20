@@ -9,7 +9,7 @@
 from sys import argv
 from ROOT import gSystem, gROOT
 from os.path import getsize
-from tqdm import tqdm
+#from tqdm import tqdm
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
