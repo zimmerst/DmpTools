@@ -73,9 +73,12 @@ def testPdgId(fname):
             pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
             failed = False
             particle = bn.replace("all","")
+            print particle
             assert particle in pdgs.keys(), "particle type not supported"
             if pdgs[particle] != pdg_id:
                 raise Exception("wrong PDG ID! particle_found=%i particle_expected=%i",pdgs[particle],pdg_id)
+            else:
+                print 'PDG ID verification successful.'
         except Exception as err:
             del tree, mcprimaries
             raise Exception(err.message)
