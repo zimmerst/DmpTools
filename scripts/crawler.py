@@ -13,6 +13,10 @@ from os.path import getsize, abspath
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
+res = gSystem.Load("libDmpEvent")
+if res != 0:
+    raise ImportError("could not import libDmpEvent, mission failed.")
+from ROOT import TChain, TString, DmpChain, DmpEvent
 
 error_code = 0
 
@@ -21,10 +25,6 @@ def main(infile, debug=False):
 
     if not infile.startswith("root://"):
         infile = abspath(infile)
-    res = gSystem.Load("libDmpEvent")
-    if res != 0:
-        raise ImportError("could not import libDmpEvent, mission failed.")
-    from ROOT import TChain, TString, DmpChain, DmpEvent
 
     DmpChain.SetVerbose(-1)
     DmpEvent.SetVerbosity(-1)
