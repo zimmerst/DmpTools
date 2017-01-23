@@ -22,6 +22,7 @@ from ROOT import TChain, TString, DmpChain, DmpEvent
 from yaml import load as yload, dump as ydump
 
 def yaml_load(infile):
+    print 'attempting to load {inf}'.format(inf=abspath(infile))
     if isfile(infile):
         return yload(open(infile,'rb').read())
     else:
@@ -293,6 +294,7 @@ if __name__ == '__main__':
         print out
     else:
         if ".yaml" in opts.output:
+            oout = []
             oout = yaml_load(opts.output)
             oout.append(out)
             yaml_dump(opts.output,oout)
