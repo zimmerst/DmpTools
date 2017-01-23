@@ -59,8 +59,8 @@ def main(infile, debug=False):
         for b in branches:
             res = tree.FindBranch(b)
             if res is None:
-                raise Exception("missing branch %s",b)
                 error_code = 1001
+                raise Exception("missing branch %s",b)
         return True
 
     def testPdgId(fname):
@@ -210,8 +210,8 @@ def main(infile, debug=False):
         tch.Add(infile)
         nevts = int(tch.GetEntries())
         if nevts == 0:
-            raise IOError("zero events.")
             error_code = 1004
+            raise IOError("zero events.")
         flight_data, stat = isFlight(infile)
         if flight_data:
             good = checkHKD(infile)
