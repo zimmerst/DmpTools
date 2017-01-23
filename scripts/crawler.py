@@ -21,14 +21,14 @@ from ROOT import TChain, TString, DmpChain, DmpEvent
 
 from yaml import load as yload, dump as ydump
 
-yaml_load(infile):
+def yaml_load(infile):
     if isfile(infile):
         return yload(open(infile,'rb').read())
     else:
         print 'output file does not exist yet.'
         {}
 
-yaml_dump(infile,out_object):
+def yaml_dump(infile,out_object):
     ydump(open(infile,'wb'),out_object)
 
 error_code = 0
