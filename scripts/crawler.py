@@ -86,10 +86,12 @@ def main(infile, debug=False):
                 #print particle
                 assert particle in pdgs.keys(), "particle type not supported"
                 if pdgs[particle] != pdg_id:
-                    raise Exception("wrong PDG ID! particle_found=%i particle_expected=%i",pdgs[particle],pdg_id)
+                    msg = "wrong PDG ID! particle_found={part_found} particle_expected={part_exp}".format(part_exp=int(pdgs[particle]),
+                                                                                                          part_found=int(pdg_id))
+                    raise ValueError(msg)
             except Exception as err:
                 del tree, mcprimaries
-                raise Exception(str(err))
+                raise Exception(err.message)
             return True
 
     def isNull(ptr):
