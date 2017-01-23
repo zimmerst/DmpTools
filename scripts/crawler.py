@@ -172,7 +172,7 @@ def main(infile, debug=False):
         ch.SetBranchAddress("SvnRev",svn_rev)
         ch.SetBranchAddress("tag",tag)
         ch.GetEntry(0)
-        return tag, svn_rev
+        return str(tag), str(svn_rev)
 
     def isFlight(fname):
         if debug: print 'check if data is flight data'
