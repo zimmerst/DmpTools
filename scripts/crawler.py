@@ -66,9 +66,9 @@ def main(infile, debug=False):
         if (not bn.startswith("all")) or (("bkg" or "background" or "back") in bn.lower()):
             return True
         else:
-            from ROOT import DmpEvtSimuPrimaries
-            tree = mcprimaries = None
             try:
+                from ROOT import DmpEvtSimuPrimaries
+                tree = mcprimaries = None
                 tree = TChain("CollectionTree")
                 tree.Add(fname)
                 tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
@@ -89,7 +89,7 @@ def main(infile, debug=False):
                     raise Exception("wrong PDG ID! particle_found=%i particle_expected=%i",pdgs[particle],pdg_id)
             except Exception as err:
                 del tree, mcprimaries
-                raise Exception(err.message)
+                raise Exception(str(err))
             return True
 
     def isNull(ptr):
