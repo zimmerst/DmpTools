@@ -30,7 +30,7 @@ def yaml_load(infile):
         return []
 
 def yaml_dump(infile,out_object):
-    ydump(open(infile,'wb'),out_object)
+    ydump(out_object,open(infile,'wb'))
 
 error_code = 0
 
