@@ -218,6 +218,7 @@ def main(infile, debug=False):
     f_type = "Other"
     svn_rev = "None"
     tag = "None"
+    nevts = 0
     try:
         good = isFile(infile)
         if not good:
