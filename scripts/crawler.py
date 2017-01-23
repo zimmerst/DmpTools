@@ -137,7 +137,6 @@ def main(infile, debug=False):
                 ch = TChain("HousekeepingData/{tree}".format(tree=tree))
                 ch.Add(fname)
                 if ch.GetEntries() == 0:
-                    error_code =
                     raise Exception("HKD tree %s empty",tree)
                 checkBranches(ch, branches)
         except Exception as err:
