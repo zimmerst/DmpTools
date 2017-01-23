@@ -13,7 +13,7 @@ from os.path import getsize, abspath, isfile
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
-from XRootD.client.flags import AccessMode
+from XRootD.client.flags import StatInfoFlags
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
@@ -199,14 +199,13 @@ def main(infile, debug=False):
         global error_code
         if debug: 'print checking file access'
         if lfn.startswith("root://"):
-            mode = AccessMode.OR | AccessMode.OW | AccessMode.OX | AccessMode.GR | AccessMode.UR
             server = "root://{server}".format(server=lfn.split("/")[2])
             xc = client.FileSystem(server)
             is_ok, res = xc.stat(lfn.replace(server, ""))
             if not is_ok.ok:
                 error_code = 2000
                 raise Exception(is_ok.message)
-            return True if res.flags == mode else False
+            return True if res.flags >= StatInfoFlags.IS_READABLE else False
         else:
             return isfile(lfn)
 
