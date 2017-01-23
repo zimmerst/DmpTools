@@ -8,11 +8,12 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
-from os.path import getsize, abspath
+from os.path import getsize, abspath, isfile
 #from tqdm import tqdm
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
+from XRootD.client.flags import AccessMode
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
@@ -194,6 +195,20 @@ def main(infile, debug=False):
         else:
             return getsize(lfn)
 
+    def isFile(lfn):
+        global error_code
+        if debug: 'print checking file access'
+        if lfn.startswith("root://"):
+            mode = AccessMode.OR | AccessMode.OW | AccessMode.OX | AccessMode.GR | AccessMode.UR
+            server = "root://{server}".format(server=lfn.split("/")[2])
+            xc = client.FileSystem(server)
+            is_ok, res = xc.stat(lfn.replace(server, ""))
+            if not is_ok.ok:
+                error_code = 2000
+                raise Exception(is_ok.message)
+            return True if res.flags == mode else False
+        else:
+            return isfile(lfn)
 
     tstart = -1.
     tstop = -1.
@@ -204,6 +219,11 @@ def main(infile, debug=False):
     svn_rev = "None"
     tag = "None"
     try:
+        good = isFile(infile)
+        if not good:
+            error_code = 2000
+            raise Exception("could not access file")
+
         fsize = getSize(infile)
         tag, svn_rev = extractVersion(infile)
         tch = TChain("CollectionTree")
