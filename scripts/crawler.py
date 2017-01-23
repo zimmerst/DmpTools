@@ -30,6 +30,7 @@ def main(infile, debug=False):
         DmpChain.SetVerbose(1)
         DmpEvent.SetVerbosity(1)
     types = ("mc:simu","mc:reco","2A")
+    error_code = 0
 
     branches = {
         "mc:simu":['EventHeader', 'DmpSimuStkHitsCollection', 'DmpSimuPsdHits', 'DmpSimuNudHits0Collection',
@@ -57,6 +58,7 @@ def main(infile, debug=False):
             res = tree.FindBranch(b)
             if res is None:
                 raise Exception("missing branch %s",b)
+                error_code = 1001
         return True
 
     def testPdgId(fname):
@@ -92,7 +94,9 @@ def main(infile, debug=False):
                     raise ValueError(msg)
             except Exception as err:
                 del tree, mcprimaries
+                error_code = 1003
                 raise Exception(err.message)
+
             return True
 
     def isNull(ptr):
@@ -132,9 +136,12 @@ def main(infile, debug=False):
             for tree, branches in trees.iteritems():
                 ch = TChain("HousekeepingData/{tree}".format(tree=tree))
                 ch.Add(fname)
-                if ch.GetEntries() == 0: raise Exception("HKD tree %s empty",tree)
+                if ch.GetEntries() == 0:
+                    error_code =
+                    raise Exception("HKD tree %s empty",tree)
                 checkBranches(ch, branches)
         except Exception as err:
+            error_code = 1002
             raise Exception(err.message)
         return True
 
@@ -155,7 +162,9 @@ def main(infile, debug=False):
         ch = DmpChain("CollectionTree")
         ch.Add(infile)
         nevts = int(ch.GetEntries())
-        if not nevts: raise Exception("zero events")
+        if not nevts:
+            error_code = 1004
+            raise Exception("zero events")
         evt = ch.GetDmpEvent(0)
         tstart = getTime(evt)
         #for i in tqdm(xrange(nevts)):
@@ -174,7 +183,9 @@ def main(infile, debug=False):
             server = "root://{server}".format(server=lfn.split("/")[2])
             xc = client.FileSystem(server)
             is_ok, res = xc.stat(lfn.replace(server,""))
-            if not is_ok.ok: raise Exception(is_ok.message)
+            if not is_ok.ok:
+                error_code = 2000
+                raise Exception(is_ok.message)
             return res.size
         else:
             return getsize(lfn)
@@ -194,7 +205,9 @@ def main(infile, debug=False):
         tch = TChain("CollectionTree")
         tch.Add(infile)
         nevts = int(tch.GetEntries())
-        if nevts == 0: raise IOError("zero events.")
+        if nevts == 0:
+            raise IOError("zero events.")
+            error_code = 1004
         flight_data, stat = isFlight(infile)
         if flight_data:
             good = checkHKD(infile)
@@ -208,7 +221,9 @@ def main(infile, debug=False):
 
             if None in simu_branches:
                 f_type = "mc:reco"
-                if None in reco_branches: raise Exception("missing branches in mc:reco")
+                if None in reco_branches:
+                    error_code = 1001
+                    raise Exception("missing branches in mc:reco")
             else:
                 f_type = "mc:simu"
             if(testPdgId(infile)): good = True
@@ -220,7 +235,7 @@ def main(infile, debug=False):
         comment = str(err.message)
         good = False
 
-    f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good,
+    f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
                  comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev)
     return f_out
 
