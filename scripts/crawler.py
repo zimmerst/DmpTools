@@ -102,7 +102,7 @@ def main(infile, debug=False):
             return False
 
     def getTime(evt):
-        if debug: "print 'extract timestamp'
+        if debug: print 'extract timestamp'
         if isNull(evt.pEvtHeader()):
             return -1.
         sec = evt.pEvtHeader().GetSecond()
