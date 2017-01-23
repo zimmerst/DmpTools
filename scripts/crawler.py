@@ -86,7 +86,7 @@ def main(infile, debug=False):
                 #print particle
                 assert particle in pdgs.keys(), "particle type not supported"
                 if pdgs[particle] != pdg_id:
-                    msg = "wrong PDG ID! particle_found={part_found} ({particle})particle_expected={part_exp} ({PID})".format(part_exp=int(pdgs[particle]),
+                    msg = "wrong PDG ID! particle_found={part_found} ({PID}); particle_expected={part_exp} ({particle})".format(part_exp=int(pdgs[particle]),
                                                                                                           part_found=int(pdg_id),particle=particle,
                                                                                                           PID=dict(zip(pdgs.values(),pdgs.keys()))[pdg_id])
                     raise ValueError(msg)
