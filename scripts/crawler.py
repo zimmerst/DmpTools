@@ -22,15 +22,16 @@ if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
 from ROOT import TChain, TString, DmpChain, DmpEvent
 
+error_code = 0
 
 def main(infile, debug=False):
+    global error_code
     DmpChain.SetVerbose(-1)
     DmpEvent.SetVerbosity(-1)
     if debug:
         DmpChain.SetVerbose(1)
         DmpEvent.SetVerbosity(1)
     types = ("mc:simu","mc:reco","2A")
-    error_code = 0
 
     branches = {
         "mc:simu":['EventHeader', 'DmpSimuStkHitsCollection', 'DmpSimuPsdHits', 'DmpSimuNudHits0Collection',
@@ -53,6 +54,7 @@ def main(infile, debug=False):
     #    cmd = "md5sum {fname}".
 
     def checkBranches(tree, branches):
+        global error_code
         if debug: print 'checking branches.'
         for b in branches:
             res = tree.FindBranch(b)
@@ -62,6 +64,7 @@ def main(infile, debug=False):
         return True
 
     def testPdgId(fname):
+        global error_code
         if debug: print 'testing for PDG id'
         from os.path import basename
         bn = basename(fname).split(".")[0].split("-")[0]
@@ -118,6 +121,7 @@ def main(infile, debug=False):
         return time
 
     def checkHKD(fname):
+        global error_code
         if debug: print 'check HKD trees'
         trees = dict( SatStatus = ['DmpHKDSatStatus'],
                          HighVoltage=['DmpHKDHighVoltage'],
@@ -177,6 +181,7 @@ def main(infile, debug=False):
         return flight_data, dict(tstart=tstart, tstop=tstop)
 
     def getSize(lfn):
+        global error_code
         if debug: 'print extracting file size'
         if lfn.startswith("root://"):
             server = "root://{server}".format(server=lfn.split("/")[2])
