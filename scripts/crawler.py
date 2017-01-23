@@ -211,6 +211,7 @@ def main(infile, debug=False):
         nevts = int(tch.GetEntries())
         if nevts == 0:
             error_code = 1004
+            good = False
             raise IOError("zero events.")
         flight_data, stat = isFlight(infile)
         if flight_data:
@@ -227,6 +228,7 @@ def main(infile, debug=False):
                 f_type = "mc:reco"
                 if None in reco_branches:
                     error_code = 1001
+                    good = False
                     raise Exception("missing branches in mc:reco")
             else:
                 f_type = "mc:simu"
