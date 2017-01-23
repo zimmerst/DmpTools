@@ -26,7 +26,7 @@ def yaml_load(infile):
         return yload(open(infile,'rb').read())
     else:
         print 'output file does not exist yet.'
-        {}
+        return []
 
 def yaml_dump(infile,out_object):
     ydump(open(infile,'wb'),out_object)
