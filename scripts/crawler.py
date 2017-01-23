@@ -28,7 +28,7 @@ def main(infile, debug=False):
     DmpEvent.SetVerbosity(-1)
     if debug:
         DmpChain.SetVerbose(1)
-        DmpEvent.SetVerbose(1)
+        DmpEvent.SetVerbosity(1)
     types = ("mc:simu","mc:reco","2A")
 
     branches = {
