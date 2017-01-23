@@ -22,7 +22,7 @@ from ROOT import TChain, TString, DmpChain, DmpEvent
 from yaml import load as yload, dump as ydump
 
 def yaml_load(infile):
-    print 'attempting to load {inf}'.format(inf=abspath(infile))
+    #print 'attempting to load {inf}'.format(inf=abspath(infile))
     if isfile(infile):
         return yload(open(infile,'rb').read())
     else:
