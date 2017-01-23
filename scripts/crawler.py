@@ -19,6 +19,18 @@ if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
 from ROOT import TChain, TString, DmpChain, DmpEvent
 
+from yaml import load as yload, dump as ydump
+
+yaml_load(infile):
+    if isfile(infile):
+        return yload(open(infile,'rb').read())
+    else:
+        print 'output file does not exist yet.'
+        {}
+
+yaml_dump(infile,out_object):
+    ydump(open(infile,'wb'),out_object)
+
 error_code = 0
 
 def main(infile, debug=False):
@@ -273,7 +285,14 @@ if __name__ == '__main__':
     description = "extract metadata from root files."
     parser.set_usage(usage)
     parser.set_description(description)
+    parser.add_option("--output","-o",dest='output',default='STDOUT',help='output, defaults to STDOUT')
     parser.add_option("--debug",dest="debug",action="store_true",default=False, help="run in debug mode")
     (opts, arguments) = parser.parse_args()
     out = main(argv[1], opts.debug)
-    print out
+    if opts.output == 'STDOUT':
+        print out
+    else:
+        if ".yaml" in opts.output:
+            oout = yaml_load(opts.output)
+            oout.append(out)
+            yaml_dump(opts.output,oout)
