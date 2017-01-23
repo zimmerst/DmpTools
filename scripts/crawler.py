@@ -86,8 +86,9 @@ def main(infile, debug=False):
                 #print particle
                 assert particle in pdgs.keys(), "particle type not supported"
                 if pdgs[particle] != pdg_id:
-                    msg = "wrong PDG ID! particle_found={part_found} particle_expected={part_exp}".format(part_exp=int(pdgs[particle]),
-                                                                                                          part_found=int(pdg_id))
+                    msg = "wrong PDG ID! particle_found={part_found} ({particle})particle_expected={part_exp} ({PID})".format(part_exp=int(pdgs[particle]),
+                                                                                                          part_found=int(pdg_id),particle=particle,
+                                                                                                          PID=dict(zip(pdgs.values(),pdgs.keys()))[pdg_id])
                     raise ValueError(msg)
             except Exception as err:
                 del tree, mcprimaries
