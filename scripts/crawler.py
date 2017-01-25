@@ -8,7 +8,7 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
-from os.path import getsize, abspath, isfile
+from os.path import getsize, abspath, isfile, splitext
 #from tqdm import tqdm
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
@@ -19,18 +19,23 @@ if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
 from ROOT import TChain, TString, DmpChain, DmpEvent
 
-from yaml import load as yload, dump as ydump
+from importlib import import_module
 
-def yaml_load(infile):
-    #print 'attempting to load {inf}'.format(inf=abspath(infile))
-    if isfile(infile):
-        return yload(open(infile,'rb').read())
-    else:
-        print 'output file does not exist yet.'
-        return []
 
-def yaml_dump(infile,out_object):
-    ydump(out_object,open(infile,'wb'))
+
+
+#from yaml import load as yload, dump as ydump
+
+#def yaml_load(infile):
+    ##print 'attempting to load {inf}'.format(inf=abspath(infile))
+    #if isfile(infile):
+   #     return yload(open(infile,'rb').read())
+  #  else:
+  #      print 'output file does not exist yet.'
+ #       return []
+#
+#def yaml_dump(infile,out_object):
+#    ydump(out_object,open(infile,'wb'))
 
 error_code = 0
 
@@ -293,8 +298,15 @@ if __name__ == '__main__':
     if opts.output == 'STDOUT':
         print out
     else:
-        if ".yaml" in opts.output:
-            oout = []
-            oout = yaml_load(opts.output)
-            oout.append(out)
-            yaml_dump(opts.output,oout)
+        ext = splitext(opts.output)[1]
+        supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
+        assert ext in supported_backends, "unsupported output format, {f}".format(f=ext)
+        oout = []
+        pack = import_module(ext[supported_backends])
+        # this makes sure to support the various formats.
+        if isfile(opts.output):
+            my_open = lambda inf : open(inf,'rb').read() if ext == '.yaml' else open(inf,'rb')
+            oout = pack.load(my_open(opts.output))
+        oout.append(out)
+        pack.dump(oout, open(opts.output, 'wb'))
+
