@@ -9,7 +9,7 @@ import numpy as np
 from glob import glob
 from progressbar import ProgressBar, ETA, Percentage, Bar
 from ROOT import TTree, TFile, gSystem
-from from rootpy.tree import Tree, TreeModel, FloatCol, IntCol
+from rootpy.tree import Tree, TreeModel, FloatCol, IntCol
 gSystem.Load("libDmpEvent.so")
 from ROOT import DmpChain, DmpEvent
 widgets = [Percentage(), Bar(), ETA()]
