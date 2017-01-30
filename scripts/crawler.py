@@ -302,7 +302,7 @@ if __name__ == '__main__':
         supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
         assert ext in supported_backends, "unsupported output format, {f}".format(f=ext)
         oout = []
-        pack = import_module(ext[supported_backends])
+        pack = import_module(supported_backends[ext])
         # this makes sure to support the various formats.
         if isfile(opts.output):
             my_open = lambda inf : open(inf,'rb').read() if ext == '.yaml' else open(inf,'rb')
