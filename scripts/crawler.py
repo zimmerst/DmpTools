@@ -107,6 +107,8 @@ def main(infile, debug=False):
                     pdg_id = int(pdg_id/10000.) - 100000
                 pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
                 particle = bn.replace("all","")
+                if "flat" in particle:
+                    particle = bn.replace("flat","")
                 #print particle
                 assert particle in pdgs.keys(), "particle type not supported"
                 if pdgs[particle] != pdg_id:
