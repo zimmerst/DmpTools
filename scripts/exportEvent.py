@@ -28,8 +28,9 @@ if not nevts: raise Exception("no events found in file.")
 if max(event_id) > nevts: raise Exception("Event ID > total number of events.")
 
 for i in event_id:
-    print 'getting event %i ...'%i
+    print 'getting event %i'%i
     pev = ch.GetDmpEvent(i)
+    ev_no = pev.pEvtSimuHeader().GetEventNuber()
+    print i, ev_no
     ch.SaveCurrentEvent()
-
 ch.Terminate()
