@@ -24,10 +24,10 @@ do
         pending=$(cat ${tmpfile} | awk '{print $10}' | grep -c "Q")
         suspend=$(cat ${tmpfile} | awk '{print $10}' | grep -c "S")
 
-        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_pending ${start_run}:${pending:-0}"
-        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_running ${start_run}:${running:-0}"
-        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_suspend ${start_run}:${suspend:-0}"
-        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_njobs ${start_run}:${njobs:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-pbs_pending ${start_run}:${pending:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-pbs_running ${start_run}:${running:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-pbs_suspend ${start_run}:${suspend:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-pbs_njobs ${start_run}:${njobs:-0}"
         rm -f ${tmpfile}
         let i++
         now=$(date +\%s)
