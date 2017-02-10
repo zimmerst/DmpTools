@@ -19,7 +19,7 @@ do
         #echo ${start_run}
         next_run=$((start_run + INTERVAL))
 
-        /bin/env bqueues ${EXPERIMENT} >> ${tmpfile}
+        /bin/env bqueues ${EXPERIMENT} > ${tmpfile}
         njobs=$(tail -n 1 ${tmpfile} | awk '{print $8}')
         pending=$(tail -n 1 ${tmpfile} | awk '{print $9}')
         running=$(tail -n 1 ${tmpfile} | awk '{print $10}')

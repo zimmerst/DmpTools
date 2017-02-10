@@ -18,7 +18,7 @@ do
         start_run=$(date +\%s)
         #echo ${start_run}
         next_run=$((start_run + INTERVAL))
-        /bin/env qstat -u ${USERNAME} >> ${tmpfile}
+        /bin/env qstat -u ${USERNAME} > ${tmpfile}
         njobs=$(grep -c ${USERNAME} ${tmpfile})
         running=$(cat ${tmpfile} | awk '{print $10}' | grep -c "R")
         pending=$(cat ${tmpfile} | awk '{print $10}' | grep -c "Q")

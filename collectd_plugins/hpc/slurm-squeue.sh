@@ -19,7 +19,7 @@ do
         #echo ${start_run}
         next_run=$((start_run + INTERVAL))
 
-        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended" >> ${tmpfile}
+        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended" > ${tmpfile}
 
         njobs=$(grep -c ${USERNAME} ${tmpfile})
         pending=$(grep -c "PD" ${tmpfile})
