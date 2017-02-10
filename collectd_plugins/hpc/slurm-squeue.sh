@@ -19,7 +19,7 @@ do
         #echo ${start_run}
         next_run=$((start_run + interval))
 
-        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended,CD,F" > ${tmpfile}
+        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended,CD,F" | sed /"NODELIST"/d > ${tmpfile}
 
         njobs=$(grep -c ${USERNAME} ${tmpfile})
         pending=$(grep -c "PD" ${tmpfile})
