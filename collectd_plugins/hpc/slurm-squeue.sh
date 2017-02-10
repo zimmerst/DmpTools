@@ -7,17 +7,17 @@ export PLUGIN_TYPE='counter'
 HOSTNAME="${COLLECTD_HOSTNAME:-`hostname -f`}"
 INTERVAL="${COLLECTD_INTERVAL:-15}"
 USERNAME="${USER:-zimmers}"
-
+interval=${INTERVAL%.*}
 start_run=$(date +\%s)
-next_run=$((start_run+INTERVAL))
-time_left=$((INTERVAL))
+next_run=$((start_run+interval))
+time_left=$((interval))
 i=0
 while [ $((time_left)) -gt 0 ];
 do
         tmpfile=/tmp/${EXPERIMENT}.squeue
         start_run=$(date +\%s)
         #echo ${start_run}
-        next_run=$((start_run + INTERVAL))
+        next_run=$((start_run + interval))
 
         /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended,CD,F" > ${tmpfile}
 
