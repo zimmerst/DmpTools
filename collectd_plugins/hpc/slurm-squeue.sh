@@ -19,16 +19,20 @@ do
         #echo ${start_run}
         next_run=$((start_run + INTERVAL))
 
-        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended" > ${tmpfile}
+        /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended,CD,F" > ${tmpfile}
 
         njobs=$(grep -c ${USERNAME} ${tmpfile})
         pending=$(grep -c "PD" ${tmpfile})
         running=$(grep -c "R" ${tmpfile})
         suspend=$(grep -c "Suspended" ${tmpfile})
+        completed=$(grep -c "CD" ${tmpfile})
+        failed=$(grep -c "F" ${tmpfile})
 
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_pending ${start_run}:${pending:-0}"
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_running ${start_run}:${running:-0}"
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_suspend ${start_run}:${suspend:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_completed ${start_run}:${completed:-0}"
+        echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_failed ${start_run}:${failed:-0}"
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_njobs ${start_run}:${njobs:-0}"
         rm -f ${tmpfile}
         let i++
