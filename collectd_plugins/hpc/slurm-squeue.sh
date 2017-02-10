@@ -22,9 +22,9 @@ do
         /bin/env squeue -u ${USERNAME} -t "PD,R,Suspended" >> ${tmpfile}
 
         njobs=$(grep -c ${USERNAME} ${tmpfile})
-        pending=$(grep -c "PD")
-        running=$(grep -c "R")
-        suspend=$(grep -c "Suspended")
+        pending=$(grep -c "PD" ${tmpfile})
+        running=$(grep -c "R" ${tmpfile})
+        suspend=$(grep -c "Suspended" ${tmpfile})
 
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_pending ${start_run}:${pending:-0}"
         echo "PUTVAL ${HOSTNAME}/${PLUGIN_NAME}/${PLUGIN_TYPE}-slurm_running ${start_run}:${running:-0}"
