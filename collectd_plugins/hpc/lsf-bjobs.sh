@@ -7,17 +7,18 @@ export PLUGIN_TYPE='counter'
 HOSTNAME="${COLLECTD_HOSTNAME:-`hostname -f`}"
 INTERVAL="${COLLECTD_INTERVAL:-15}"
 EXPERIMENT='dampe'
+interval=${INTERVAL%.*}
 
 start_run=$(date +\%s)
-next_run=$((start_run+INTERVAL))
-time_left=$((INTERVAL))
+next_run=$((start_run+interval))
+time_left=$((interval))
 i=0
 while [ $((time_left)) -gt 0 ];
 do
         tmpfile=/tmp/${EXPERIMENT}.bqueues
         start_run=$(date +\%s)
         #echo ${start_run}
-        next_run=$((start_run + INTERVAL))
+        next_run=$((start_run + interval))
 
         /bin/env bqueues ${EXPERIMENT} > ${tmpfile}
         njobs=$(tail -n 1 ${tmpfile} | awk '{print $8}')
