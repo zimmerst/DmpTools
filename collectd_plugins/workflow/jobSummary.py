@@ -1,4 +1,4 @@
-#!/opt/virtualenvs/DAMPE/bin/python
+#!/opt/virtualenvs/DAMPE/bin/python -W ignore::Warning
 from DmpWorkflow.core.models import JobInstance
 from datetime import datetime, timedelta
 from socket import getfqdn as gethostname  # use full domain name.
