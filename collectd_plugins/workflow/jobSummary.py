@@ -6,7 +6,7 @@ from time import mktime, sleep
 from os import getenv, environ
 
 def tstamp(dt):
-    if not isinstance(datetime): raise Exception("must be datetime object")
+    if not isinstance(dt,datetime): raise Exception("must be datetime object")
     return int(mktime(dt.timetuple()))
 
 environ['PLUGIN_NAME']='DmpWorkflow'
