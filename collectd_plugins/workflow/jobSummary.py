@@ -14,6 +14,7 @@ environ['PLUGIN_TYPE']='counter'
 
 HOSTNAME=getenv("COLLECTD_HOSTNAME",gethostname())
 INTERVAL=getenv("COLLECTD_INTERVAL",15)
+INTERVAL=120 # enough with this fidelity!
 
 start_run = tstamp(datetime.now())
 next_run  = start_run + INTERVAL
