@@ -28,7 +28,7 @@ while timeleft > 0:
     next_run = start_run + INTERVAL
     query = JobInstance.objects.filter(status__in=statii).item_frequencies("status")
     md = {key: query.get(key, 0) for key in statii}
-    for key,value in md:
+    for key,value in md.iteritems():
         val="PUTVAL {host}/{plugin}/{ptype}-status_{key} {start_run}:{value}".format(
             host=HOSTNAME, plugin=getenv("PLUGIN_NAME"), ptype=getenv("PLUGIN_TYPE"),
             key=key, start_run=start_run, value=value)
