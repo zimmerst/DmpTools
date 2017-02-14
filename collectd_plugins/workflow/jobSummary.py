@@ -1,4 +1,5 @@
 #!/opt/virtualenvs/DAMPE/bin/python -W ignore::Warning
+import warnings
 from DmpWorkflow.core.models import JobInstance
 from datetime import datetime, timedelta
 from socket import getfqdn as gethostname  # use full domain name.
@@ -29,7 +30,7 @@ while timeleft > 0:
     query = JobInstance.objects.filter(status__in=statii).item_frequencies("status")
     md = {key: query.get(key, 0) for key in statii}
     for key,value in md.iteritems():
-        val="PUTVAL {host}/{plugin}/{ptype}-status_{key} {start_run}:{value}".format(
+        val="PUTVAL {host}/{plugin}/{ptype}-JobStatus_{key} {start_run}:{value}".format(
             host=HOSTNAME, plugin=getenv("PLUGIN_NAME"), ptype=getenv("PLUGIN_TYPE"),
             key=key, start_run=start_run, value=value)
         print val
