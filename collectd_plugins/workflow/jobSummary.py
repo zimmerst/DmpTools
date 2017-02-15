@@ -9,7 +9,7 @@ def tstamp(dt):
     if not isinstance(dt,datetime): raise Exception("must be datetime object")
     return int(mktime(dt.timetuple()))
 
-environ['PLUGIN_NAME']='DmpWorkflow'
+environ['PLUGIN_NAME']='workflow'
 environ['PLUGIN_TYPE']='counter'
 
 HOSTNAME=getenv("COLLECTD_HOSTNAME",gethostname())
