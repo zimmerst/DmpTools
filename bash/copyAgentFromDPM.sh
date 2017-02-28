@@ -41,6 +41,8 @@ do
     tmpDir=`mktemp -d`
     mkdir -p ${tmpDir}
     cd ${tmpDir}
+    mkdir -p ${tmpDir}/error
+    mkdir -p ${tmpDir}/output
     touch allFiles.in allCommands.shell
     for task in $(xrdfs ${xrdprefix} ls ${input_dir} | grep ${mask});
     do
@@ -54,7 +56,7 @@ do
     do
         fdir=$(dirname ${ifile})
         fname=$(basename ${ifile})
-        dname=$(basename $(fdir)) # the directory
+        dname=$(basename ${fdir}) # the directory
         ofile=${output_root}/${dname}/${fname}
         if [ ! -f ${ofile} ];
         then
@@ -75,8 +77,7 @@ do
         echo "setProxy " >> ${tmpFile}
         cat ${f} >> ${tmpFile}
         chmod u+x ${tmpFile}
-
-        ./${tmpFile} 1>${tmpFile}.out 2>${tmpFile}.err &
+        bash ${tmpFile} 1>output/${tmpFile} 2>error/${tmpFile} &
         pids+="$! "
     done
     for pid in $pids; do
