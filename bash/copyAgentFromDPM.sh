@@ -69,7 +69,7 @@ do
     pids=""
     for f in $(find -name "input_*");
     do
-        tmpFile=`tempfile`
+        tmpFile=`mktemp -p ${tmpDir}`
         touch ${tmpFile}
         echo "#!/bin/bash" >> ${tmpFile}
         echo "setProxy " >> ${tmpFile}
