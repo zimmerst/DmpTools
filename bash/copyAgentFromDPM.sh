@@ -58,6 +58,7 @@ do
         fname=$(basename ${ifile})
         dname=$(basename ${fdir}) # the directory
         ofile=${output_root}/${dname}/${fname}
+        mkdir -p $(dirname ${ofile})
         if [ ! -f ${ofile} ];
         then
             echo "xrdcp root://${xrdprefix}/${ifile} ${ofile}" >> allCommands.shell
@@ -65,29 +66,33 @@ do
     done
     nf=$(wc -l allCommands.shell | awk '{print $1}')
     echo "$(date): splitting ${nf} files to copy in ${nstreams} parallel copy streams"
-    ((lines_per_file = (nf + nstreams - 1) / nstreams))
-    split --lines=${lines_per_file} allCommands.shell input_
+    if [ "$nf" -gt 0 ];
+    then
+        ((lines_per_file = (nf + nstreams - 1) / nstreams))
+        split --lines=${lines_per_file} allCommands.shell input_
 
-    pids=""
-    for f in $(find -name "input_*");
-    do
-        tmpFile=`mktemp -p ${tmpDir}`
-        touch ${tmpFile}
-        echo "#!/bin/bash" >> ${tmpFile}
-        echo "setProxy " >> ${tmpFile}
-        cat ${f} >> ${tmpFile}
-        chmod u+x ${tmpFile}
-        bash ${tmpFile} 1> ${tmpDir}/output/${tmpFile} 2> ${tmpDir}/error/${tmpFile} &
-        pids+="$! "
-    done
-    for pid in $pids; do
-        wait ${pid}
-        if [ $? -eq 0 ]; then
-            echo "SUCCESS - chunk $pid exited with a status of $?"
-        else
-            echo "FAILED - chunk $pid exited with a status of $?"
-        fi
-    done
+        pids=""
+        for f in $(find -name "input_*");
+        do
+            tmpFile=`mktemp -p ${tmpDir}`
+            tmpFile=$(basename ${tmpFile})
+            touch ${tmpFile}
+            echo "#!/bin/bash" >> ${tmpFile}
+            echo "setProxy " >> ${tmpFile}
+            cat ${f} >> ${tmpFile}
+            chmod u+x ${tmpFile}
+            bash ${tmpFile} 1> ${tmpDir}/output/${tmpFile} 2> ${tmpDir}/error/${tmpFile} &
+            pids+="$! "
+        done
+        for pid in $pids; do
+            wait ${pid}
+            if [ $? -eq 0 ]; then
+                echo "SUCCESS - chunk $pid exited with a status of $?"
+            else
+                echo "FAILED - chunk $pid exited with a status of $?"
+            fi
+        done
+    fi
     echo "$(date): done with cycle, sleeping 60s"
     sleep 60
     cd ${exec_dir}
