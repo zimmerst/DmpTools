@@ -25,6 +25,8 @@ do
         fi
     done
     if [ -f files_to_process.txt ]; then
+        nf=$(wc -l files_to_process.txt | awk '{print $2}')
+        echo "$(date): found ${nf} files to process this cycle"
         exe="python ${DMPSWSYS}/share/TestRelease/JobOption_MC_DigiReco_Prod.py -t $(readlink -f files_to_process.txt)"
         echo ${exe}
         time ${exe}
