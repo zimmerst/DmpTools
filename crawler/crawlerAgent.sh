@@ -27,6 +27,7 @@ do
         if [ -f ${tfile} ];
         then
             cp ${tfile} ${crawler_output}/old_runs/${task}.txt
+            rm -f ${tfile}
         fi
         find $(readlink -f ${task}) -type f >> ${tfile}
 
