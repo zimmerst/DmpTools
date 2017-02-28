@@ -44,6 +44,7 @@ do
     touch allFiles.in allCommands.shell
     for task in $(xrdfs ${xrdprefix} ls ${input_dir} | grep ${mask});
     do
+        echo "${task}..."
         xrdfs ${xrdprefix} ls ${task} >> allFiles.in
     done
 
