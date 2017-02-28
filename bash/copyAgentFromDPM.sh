@@ -77,7 +77,7 @@ do
         echo "setProxy " >> ${tmpFile}
         cat ${f} >> ${tmpFile}
         chmod u+x ${tmpFile}
-        bash ${tmpFile} 1>output/${tmpFile} 2>error/${tmpFile} &
+        bash ${tmpFile} 1> ${tmpDir}/output/${tmpFile} 2> ${tmpDir}/error/${tmpFile} &
         pids+="$! "
     done
     for pid in $pids; do
