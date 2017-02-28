@@ -31,6 +31,7 @@ cycle=1
 
 while [ "$cycle" -lt "$ncycles" ];
 do
+    echo "$(date): starting cycle ${cycle}/${ncycles}"
     # assemble task list
     echo "$(date): getting proxy"
     setProxy
@@ -84,7 +85,8 @@ do
             echo "FAILED - chunk $pid exited with a status of $?"
         fi
     done
-    echo "$(date): done with cycle"
+    echo "$(date): done with cycle, sleeping 60s"
+    sleep 60
     cd ${exec_dir}
     rm -rf ${tmpDir}
 done
