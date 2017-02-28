@@ -4,12 +4,11 @@
 #
 # NOTE: creates a file ${crawler_output}/badFiles.txt which should be removed
 # MODIFY ME
-CRAWLER_ROOT="/path/to/DmpTools/crawler"
+export CRAWLER_ROOT="/path/to/DmpTools/crawler"
 root_dir="/dampe/data3/mc/.../"
 crawler_output="/path/to/where/crawler/writes/json"
 
 # DO NOT MODIFY THIS!
-export CRAWLER="${CRAWLER_ROOT}/crawler.py"
 cycles=0
 
 mkdir -p ${crawler_output}/old_runs
