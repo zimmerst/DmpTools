@@ -13,8 +13,6 @@ rm -f ${errfile} ${badfile_tmp}
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
 dampe_init ${release}
 
-touch ${ofile}
-
 for f in $(cat ${infile});
 do
     python ${CRAWLER_ROOT}/crawler.py ${f} -o ${ofile} 2> ${errfile}
@@ -24,7 +22,10 @@ done
 python ${CRAWLER_ROOT}/analyze.py ${ofile} ${badfile_tmp} 2> ${errfile}
 RC2=$?
 
-cat ${badfile_tmp} >> ${global_badfile}
+if [ -f ${badfile_tmp} ];
+then
+    cat ${badfile_tmp} >> ${global_badfile}
+fi
 
 RC=$(( RC1 + RC2 ))
 

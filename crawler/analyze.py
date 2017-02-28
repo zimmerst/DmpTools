@@ -17,9 +17,10 @@ if isfile(infile):
     oout = pack.load(my_open(infile))
 
 bad_files = [o['lfn'] for o in oout if not o['good']]
-with open(badfile,'w') as fout:
-    fout.write("\n".join(bad_files))
-    fout.close()
+if len(bad_files):
+    with open(badfile,'w') as fout:
+        fout.write("\n".join(bad_files))
+        fout.close()
 
 
 
