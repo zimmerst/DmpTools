@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
+exec_dir=$(pwd)
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
 dampe_init DmpSoftware-5-4-0
 export DAMPE_LOGLEVEL="ERROR"
 cycles=0
 
+input_folder=/home/DAMPE/zimmer/dampe_prod/output/simu
+mask="v5r4p0"
+
 while true;
 do
     echo "$(date): started cycle ${cycles}"
-    rm -f input_files.txt files_to_process.txt
-    find /home/DAMPE/zimmer/dampe_prod/output/simu -type f | grep v5r4p0 >> input_files.txt
+    tmpDir=`mktemp -d`
+    mkdir -p ${tmpDir}
+    cd ${tmpDir}
+    find ${input_folder} -type f | grep ${mask} >> input_files.txt
     for f in $(cat input_files.txt);
     do
         inf=${f}
@@ -26,4 +32,6 @@ do
     let cycles++
     echo "$(date): cycle complete, sleeping 60s"
     sleep 60
+    cd ${exec_dir}
+    rm -rf ${tmpDir}
 done
