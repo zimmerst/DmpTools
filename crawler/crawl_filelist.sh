@@ -8,7 +8,7 @@ ofile=${infile/".txt"/".json"}
 errfile=${ofile/".json"/".err"}
 badfile_tmp=${ofile/".json"/".bad"}
 
-rm -f ${ofile} ${errfile} ${badfile_tmp}
+rm -f ${errfile} ${badfile_tmp}
 
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
 dampe_init ${release}
