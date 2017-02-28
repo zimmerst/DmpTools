@@ -2,6 +2,7 @@
 # should be dispatched in daemon mode:
 # setsid crawlerAgent > crawlerAgent.log 2>&1 < /dev/null &
 #
+# NOTE: creates a file ${crawler_output}/badFiles.txt which should be removed
 # MODIFY ME
 CRAWLER_ROOT="/path/to/DmpTools/crawler"
 root_dir="/dampe/data3/mc/.../"
@@ -15,6 +16,7 @@ mkdir -p ${crawler_output}/old_runs
 
 while true;
 do
+    touch ${crawler_output}/badFiles.txt
     pids=""
     echo "$(date): starting cycle ${cycles}"
     cd ${root_dir}
@@ -38,7 +40,7 @@ do
         if [ "$nf" -gt 0 ];
         then
             cd ${crawler_output}
-            bash ${CRAWLER_ROOT}/crawl_filelist.sh ${tfile} &
+            bash ${CRAWLER_ROOT}/crawl_filelist.sh ${tfile} ${crawler_output}/badFiles.txt &
             pids+="$! "
         else
             echo "nothing to do"
