@@ -52,9 +52,9 @@ do
 
     for ifile in $(cat allFiles.in);
     do
-        fdir=dirname ${ifile}
-        fname=basename ${ifile}
-        dname=basename $(fdir) # the directory
+        fdir=$(dirname ${ifile})
+        fname=$(basename ${ifile})
+        dname=$(basename $(fdir)) # the directory
         ofile=${output_root}/${dname}/${fname}
         if [ ! -f ${ofile} ];
         then
