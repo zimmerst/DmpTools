@@ -11,6 +11,7 @@ home="/atlas/users/${USER}"
 
 #### DO NOT CHANGE LINES BELOW ####
 exec_dir=$(pwd)
+source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
 setProxy(){
     source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup-cvmfs-ui.sh
     export HOME=${home}
