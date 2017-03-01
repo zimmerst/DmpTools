@@ -28,7 +28,7 @@ do
             cp ${tfile} ${crawler_output}/old_runs/${task}.txt
             rm -f ${tfile}
         fi
-        find $(readlink -f ${task}) -type f >> ${tfile}
+        find $(readlink -f ${root_dir}/${task}) -type f >> ${tfile}
 
         if [ -f ${crawler_output}/old_runs/${task}.txt ];
         then
@@ -56,4 +56,5 @@ do
             echo "FAILED - child process $pid exited with a status of $?"
         fi
     done
+    let cycles++
 done
