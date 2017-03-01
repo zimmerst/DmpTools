@@ -7,7 +7,7 @@
 export CRAWLER_ROOT="/path/to/DmpTools/crawler"
 root_dir="/dampe/data3/mc/.../"
 crawler_output="/path/to/where/crawler/writes/json"
-
+task_list="/path/to/textfile/containing/tasknames"
 # DO NOT MODIFY THIS!
 cycles=0
 
@@ -19,7 +19,7 @@ do
     pids=""
     echo "$(date): starting cycle ${cycles}"
     cd ${root_dir}
-    for task in $(ls .);
+    for task in $(cat ${task_list});
     do
         echo "crawling ${task} ..."
         tfile=${crawler_output}/${task}.txt
