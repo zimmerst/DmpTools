@@ -225,6 +225,9 @@ def main(infile, debug=False):
             if not is_ok.ok:
                 error_code = 2000
                 raise Exception(is_ok.message)
+            if res.flags == 0:
+                if debug: print '[!] FIXME: XRootD.client.FileSystem.stat() returned StatInfoFlags = 0, this flag is not supported'
+                res.flags = StatInfoFlags.IS_READABLE
             return True if res.flags >= StatInfoFlags.IS_READABLE else False
         else:
             return isfile(lfn)
