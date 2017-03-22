@@ -218,13 +218,24 @@ def main(infile, debug=False):
     def isFile(lfn):
         global error_code
         if debug: 'print checking file access'
+        if debug: print "LFN: ", lfn
         if lfn.startswith("root://"):
             server = "root://{server}".format(server=lfn.split("/")[2])
+            if debug: print "server: ", server
             xc = client.FileSystem(server)
-            is_ok, res = xc.stat(lfn.replace(server, ""))
+            fname = lfn.replace(server, "")
+            if debug: print "LFN: ", fname
+            if debug: print xc.stat(fname)
+            is_ok, res = xc.stat(fname)
+            if debug:
+                print 'is_ok: ', is_ok
+                print 'res: ', res
             if not is_ok.ok:
                 error_code = 2000
                 raise Exception(is_ok.message)
+            if debug:
+                print "res.flags: ", res.flags
+                print "StatInfoFlags.IS_READABLE: ", StatInfoFlags.IS_READABLE
             if res.flags == 0:
                 if debug: print '[!] FIXME: XRootD.client.FileSystem.stat() returned StatInfoFlags = 0, this flag is not supported'
                 res.flags = StatInfoFlags.IS_READABLE
