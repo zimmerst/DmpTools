@@ -17,8 +17,8 @@ def np2root(data, column_names, outname="output.root",tname="tree"):
     rows, cols = shape(data)
     for i in range(0, rows):
         for j in range(0, cols):
-            exec("tree.{col} = {val}".format(col=column_names[j], val=data[i,j])) in globals(), locals()
-            tree.Fill()
+            exec("tree.{col} = {val}".format(col=column_names[j], val=data[i,j])) in locals()
+        tree.Fill()
     fOut.Write()
     fOut.Close()
     print 'wrote ROOT file {name}'.format(name=outname)
@@ -26,18 +26,31 @@ def np2root(data, column_names, outname="output.root",tname="tree"):
 
 def test():
     print 'running test.'
+    o = "/tmp/mytest.root"
+    t = "mytree"
     from numpy import vstack, random as rd
-    col_names = ["A", "B", "C"]
+    col_names = ["A", "B", "C", "D", "E", "F", "G"]
     data = None
+    print '0: generate pseudo data.'
     for i in xrange(1000):
         row = rd.random(len(col_names))
-        if i == 0: print row
+        if i == 0:
+            print ' content of first row'
+            print row
         if data is None:
             data = row
         else:
             data = vstack((data, row))
-    print ' done generating pseudo data '
-    np2root(data, col_names, outname="/tmp/mytest.root", tname="mytree")
+    np2root(data, col_names, outname=o, tname=t)
+    print '1: re-open ROOT file and show content of event 0'
+    from ROOT import TFile
+    tf = TFile.Open(o)
+    tt = tf.Get(t)
+    print '2: content of TTree'
+    tt.Print()
+    print '3: content of event 0'
+    tt.Show(0)
+    print 'all done.'
 
 if __name__ == '__main__':
     test()
