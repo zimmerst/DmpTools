@@ -29,7 +29,7 @@ def test():
     o = "/tmp/mytest.root"
     t = "mytree"
     from numpy import vstack, random as rd
-    col_names = ["A", "B", "C", "D", "E", "F", "G"]
+    col_names = ["A", "B", "C"]
     data = None
     print '0: generate pseudo data.'
     for i in xrange(1000):
