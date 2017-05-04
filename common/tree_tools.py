@@ -1,18 +1,32 @@
-from rootpy.tree import Tree, FloatCol
+from rootpy.tree import Tree, FloatCol, IntCol
 from rootpy.io import root_open
 from numpy import ndenumerate, shape
 
-def np2root(data, column_names, outname="output.root",tname="tree"):
+def np2root(data, column_names, outname="output.root",tname="tree",dtype=float):
     """
     converts numpy array to ROOT TTree and file.
     :param data: the 2D array containing M variables for N events
     :param column_names: M variables
     :param outname: name of the output root file
+    :param dtype: float or int or list or dictionary. will map columns to data types in ROOT tree.
     :return:
     """
+    # adding support for different types.
+    branches = {}
+    if not (isinstance(dtype,dict) or isinstance(dtype,list)):
+        assert dtype in [float, int], "dtype not understood"
+        mtype = FloatCol
+        if dtype == int: mtype = IntCol
+        branches = {col: mtype() for col in column_names}
+    elif isinstance(dtype,dict):
+        my_map = { col : FloatCol if val == float else IntCol for col,val in dtype.iteritems()}
+        branches = {col: my_map[col]() for col in column_names}
+    else:
+        my_map = [ FloatCol if val == float else IntCol for val in dtype]
+        branches = {col: my_map[i]() for i,col in enumerate(column_names)}
+
     fOut = root_open(outname,"RECREATE")
     tree = Tree(tname)
-    branches = {col:FloatCol() for col in column_names}
     tree.create_branches(branches)
     rows, cols = shape(data)
     for i in range(0, rows):
@@ -41,7 +55,7 @@ def test():
             data = row
         else:
             data = vstack((data, row))
-    np2root(data, col_names, outname=o, tname=t)
+    np2root(data, col_names, outname=o, tname=t,dtype={"A":float,"B":int,"C":float})
     print '1: re-open ROOT file and show content of event 0'
     from ROOT import TFile
     tf = TFile.Open(o)
