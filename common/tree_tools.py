@@ -38,7 +38,7 @@ def np2root(data, column_names, outname="output.root",tname="tree",dtype=float):
     print 'wrote ROOT file {name}'.format(name=outname)
 
 
-def test():
+def example():
     print 'running test.'
     o = "/tmp/mytest.root"
     t = "mytree"
@@ -75,4 +75,4 @@ def test():
     print 'all done.'
 
 if __name__ == '__main__':
-    test()
+    example()
