@@ -55,7 +55,15 @@ def test():
             data = row
         else:
             data = vstack((data, row))
-    np2root(data, col_names, outname=o, tname=t,dtype={"A":float,"B":int,"C":float})
+    # automatically assign floats to variables
+    np2root(data, col_names, outname=o, tname=t)
+    # explicitly use floats
+    #np2root(data, col_names, outname=o, tname=t, dtype=float)
+    # mixed types (for e.g. pandas)
+    #np2root(data, col_names, outname=o, tname=t, dtype=[float,int,float])
+    # mixed types with dictionary
+    #np2root(data, col_names, outname=o, tname=t, dtype={"A": float, "B": int, "C": float})
+
     print '1: re-open ROOT file and show content of event 0'
     from ROOT import TFile
     tf = TFile.Open(o)
