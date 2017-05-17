@@ -28,7 +28,7 @@ from ROOT import gSystem
 from glob import glob
 from sys import argv
 gSystem.Load("libDmpEvent.so")
-from ROOT import DmpChain, TChain, TFile, DmpRunSimuHeader
+from ROOT import DmpChain, TChain, TFile, DmpRunSimuHeader, DmpEvtSimuPrimaries
 from os import mkdir
 from os.path import isdir, basename, isfile
 from time import time, strftime, gmtime
@@ -45,11 +45,13 @@ class Merger(object):
 	Initialise with the list of files to be merged, and the reduction factor (i.e. how many files to merge into a single one)
 	'''
 	
-	def __init__(self, textfile, reductionfactor, progress=True):
+	def __init__(self, textfile, reductionfactor, progress=True, checkPart=True):
 		
 		self.t0 = time()
 		self.progress = progress
 		self.debug = debug 
+		
+		self.checkPart = checkPart
 		
 		self.mergedfiles = []
 		self.notmerged = []
@@ -58,6 +60,7 @@ class Merger(object):
 		self.basefiles = deepcopy(self.tomerge)
 		
 		self.equivalence = {}
+		self.badPDGId = []
 		
 		temp_str = basename(self.tomerge[0])
 		temp_int = temp_str.find('.')				
@@ -79,6 +82,46 @@ class Merger(object):
 		return self.mergedfiles
 	def getToMerge(self):
 		return self.notmerged
+		
+	def testPdgId(self, fname):
+		'''
+		test if the particle ID is good. Adapted from Stephan's work on the crawler
+		'''
+        bn = basename(fname).split(".")[0].split("-")[0]
+        if (not bn.startswith("all")) or (("bkg" or "background" or "back") in bn.lower()):
+            return True
+        else:
+            try:
+                tree = mcprimaries = None
+                tree = TChain("CollectionTree")
+                tree.Add(fname)
+                tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
+                branch = tree.GetBranch("DmpEvtSimuPrimaries")
+                mcprimaries = DmpEvtSimuPrimaries()
+                tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
+                branch.GetEntry(0)
+                tree.GetEntry(0)
+                entry = tree.GetEntry(0)
+                pdg_id = int(mcprimaries.pvpart_pdg)
+                if pdg_id > 10000:
+                    pdg_id = int(pdg_id/10000.) - 100000
+                pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
+                particle = bn.replace("all","")
+                if "flat" in particle:
+                    particle = bn.replace("flat","")
+                assert particle in pdgs.keys(), "particle type not supported"
+                if pdgs[particle] != pdg_id:
+                    msg = "wrong PDG ID! particle_found={part_found} ({PID}); particle_expected={part_exp} ({particle})".format(part_exp=int(pdgs[particle]),
+                                                                                                          part_found=int(pdg_id),particle=particle,
+                                                                                                          PID=dict(zip(pdgs.values(),pdgs.keys()))[pdg_id])
+                    raise ValueError(msg)
+            except Exception as err:
+                del tree, mcprimaries
+                error_code = 1003
+                #~ raise Exception(err.message)
+                return False
+
+            return True
 		
 	def save(self):
 		'''
@@ -172,6 +215,10 @@ class Merger(object):
 		dmpch = DmpChain("CollectionTree")
 		metachain = TChain("RunMetadataTree")
 		for f in filelist:
+			if self.checkPart:
+				if not self.testPdgId(f):
+					self.badPDGId.append(f)
+					continue
 			dmpch.Add(f)
 		metachain.Add(filelist[0])
 		
