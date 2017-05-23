@@ -22,7 +22,7 @@ if res != 0:
 #    from pymongo import MongoClient
 #except ImportError:
 #    HASMONGO = False
-from ROOT import TMD5, TMath
+from ROOT import TMD5, TMath, TH1D
 from ROOT import TChain, TString, DmpChain, DmpEvent, DmpRunSimuHeader
 
 from importlib import import_module
@@ -53,7 +53,7 @@ def main(infile, debug=False):
     if not infile.startswith("root://"):
         infile = abspath(infile)
         try:
-            chksum = TMD5.FileChecksum(infile).Print()
+            chksum = TMD5.FileChecksum(infile).AsString()
         except ReferenceError: pass
     DmpChain.SetVerbose(-1)
     DmpEvent.SetVerbosity(-1)
@@ -117,12 +117,12 @@ def main(infile, debug=False):
             try:
                 particle = bn.replace("all","")
                 assert particle in pdgs.keys(), "particle type not supported"
-                part = pdg[part]
+                part = pdgs[particle]
                 ch = TChain("CollectionTree")
                 ch.Add(fname)
                 h1 = TH1D("h1","hPdgId",10,part-5,part+5)
                 if part < 10:
-                if debug: print 'Ion mode, subtract'
+                    if debug: print 'Ion mode, subtract'
                     ch.Project("h1","TMath::Floor(DmpEvtSimuPrimaries.pvpart_pdg/10000.) - 100000")
                 else:
                     ch.Project("h1","DmpEvtSimuPrimaries.pvpart_pdg")
@@ -135,7 +135,6 @@ def main(infile, debug=False):
                 del h1
                 del ch
             except Exception as err:
-                del tree, mcprimaries
                 error_code = 1003
                 raise Exception(err.message)
             return True
@@ -289,13 +288,6 @@ def main(infile, debug=False):
 
         fsize = getSize(infile)
         tag, svn_rev = extractVersion(infile)
-        eMin, eMax = extractEnergyBounds(infile)
-        if eMin != eMax:
-            try:
-                verifyEnergyBounds(infile,eMin,eMax)
-            except AssertionError as msg:
-                error_code = 1005
-                raise Exception(msg.Message)
         tch = TChain("CollectionTree")
         tch.Add(infile)
         nevts = int(tch.GetEntries())
@@ -323,6 +315,13 @@ def main(infile, debug=False):
             else:
                 f_type = "mc:simu"
             if(testPdgId(infile)): good = True
+            eMin, eMax = extractEnergyBounds(infile)
+            if eMin != eMax:
+                try:
+                    verifyEnergyBounds(infile,eMin,eMax)
+                except AssertionError as msg:
+                    error_code = 1005
+                    raise Exception(msg.Message)
         if good:
             assert f_type in types, "found non-supported dataset type!"
             good = checkBranches(tch, branches[f_type])
