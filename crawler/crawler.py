@@ -370,6 +370,10 @@ if __name__ == '__main__':
         out = [main(f.replace("\n",""), opts.debug) for f in open(argv[1],'r').readlines()]
     else:
         out = [main(argv[1], opts.debug)]
+    for pack in out:
+        if pack['comment'] == 'problem in C++; program state has been reset':
+            pack['error_code'] = 3000
+            pack['good'] = False
     if opts.outType == 'STDOUT' or opts.output == 'STDOUT':
         print out
     elif opts.outType == "DB":
