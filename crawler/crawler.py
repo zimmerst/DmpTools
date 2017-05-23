@@ -5,6 +5,7 @@
 @comment: a first implementation of a crawler of DAMPE data, depending on DAMPE framework.
 @todo: implement livetime calculation.
 
+
 """
 from sys import argv
 from ROOT import gSystem, gROOT
@@ -343,8 +344,8 @@ if __name__ == '__main__':
     description = "extract metadata from root files."
     parser.set_usage(usage)
     parser.set_description(description)
-    parser.add_option("--outType","-T",dest='outType',default='STDOUT',choices=['STDOUT','DB','FILE'],
-                      help='output, defaults to STDOUT')
+    parser.add_option("--outType","-T",dest='outType',default='FILE',choices=['STDOUT','DB','FILE'],
+                      help='output, defaults to FILE')
     parser.add_option("--output","-o",dest='output',default='STDOUT',help='output, defaults to STDOUT')
     parser.add_option("--db",dest='dbpath',default=None,help='name of mongodb if outType==DB')
     parser.add_option("--ftype",dest="ftype",default='mc',choices=['mc','flight'],
@@ -359,7 +360,7 @@ if __name__ == '__main__':
         out = [main(f.replace("\n",""), opts.debug) for f in open(argv[1],'r').readlines()]
     else:
         out = main(argv[1], opts.debug)
-    if opts.outType == 'STDOUT':
+    if opts.outType == 'STDOUT' or opts.output == 'STDOUT':
         print out
     #elif opts.outType == "DB":
     #    assert HASMONGO, "pymongo not found, DB mode disabled"
