@@ -27,6 +27,9 @@ then
     cat ${badfile_tmp} >> ${global_badfile}
 fi
 
-RC=$(( RC1 + RC2 ))
+python ${CRAWLER_ROOT}/errorcodes.py ${ofile}
+RC3=$?
+
+RC=$(( RC1 + RC2 + RC3 ))
 
 exit ${RC}
