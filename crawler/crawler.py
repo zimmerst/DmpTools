@@ -362,10 +362,10 @@ if __name__ == '__main__':
         out = main(argv[1], opts.debug)
     if opts.outType == 'STDOUT':
         print out
-    elif opts.outType == "DB":
-        assert HASMONGO, "pymongo not found, DB mode disabled"
-        cl = MongoClient(opts.dbpath)
-        db = client.fileCatalog
+    #elif opts.outType == "DB":
+    #    assert HASMONGO, "pymongo not found, DB mode disabled"
+    #    cl = MongoClient(opts.dbpath)
+    #    db = client.fileCatalog
     elif opts.outType == "FILE":
         ext = splitext(opts.output)[1]
         supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
