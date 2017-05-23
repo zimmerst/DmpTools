@@ -10,6 +10,7 @@ from sys import argv
 from ROOT import gSystem, gROOT
 from os.path import getsize, abspath, isfile, splitext
 #from tqdm import tqdm
+#HASMONGO=True
 gROOT.SetBatch(True)
 gROOT.ProcessLine("gErrorIgnoreLevel = 3002;")
 from XRootD import client
@@ -17,7 +18,12 @@ from XRootD.client.flags import StatInfoFlags
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
-from ROOT import TChain, TString, DmpChain, DmpEvent
+#try:
+#    from pymongo import MongoClient
+#except ImportError:
+#    HASMONGO = False
+from ROOT import TMD5, TMath
+from ROOT import TChain, TString, DmpChain, DmpEvent, DmpRunSimuHeader
 
 from importlib import import_module
 
@@ -40,11 +46,15 @@ from importlib import import_module
 error_code = 0
 
 def main(infile, debug=False):
+    pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
+    chksum = None
     global error_code
 
     if not infile.startswith("root://"):
         infile = abspath(infile)
-
+        try:
+            chksum = TMD5.FileChecksum(infile).Print()
+        except ReferenceError: pass
     DmpChain.SetVerbose(-1)
     DmpEvent.SetVerbosity(-1)
     if debug:
@@ -82,6 +92,20 @@ def main(infile, debug=False):
                 raise Exception("missing branch %s",b)
         return True
 
+    def verifyEnergyBounds(fname,emin,emax):
+        if debug: print 'verify energy range from DmpRunSimuHeader'
+        ch = TChain("CollectionTree")
+        ch.Add(fname)
+        nentries = ch.GetEntries()
+        h1 = TH1D("h1","hEnergy",10,TMath.Log10(emin),TMath.Log10(emax))
+        ch.Project("h1","TMath::Log10(DmpEvtSimuPrimaries.pvpart_ekin)")
+        underflow = h1.GetBinContent(0)
+        overflow  = h1.GetBinContent(11)
+        assert (underflow == 0), "{n} events found below emin={emin} MeV".format(n=int(underflow),emin=emin)
+        assert (overflow == 0), "{n} events found above emax={emax} MeV".format(n=int(overflow),emax=emax)
+        del h1
+        del ch
+
     def testPdgId(fname):
         global error_code
         if debug: print 'testing for PDG id'
@@ -91,36 +115,29 @@ def main(infile, debug=False):
             return True
         else:
             try:
-                from ROOT import DmpEvtSimuPrimaries
-                tree = mcprimaries = None
-                tree = TChain("CollectionTree")
-                tree.Add(fname)
-                tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
-                branch = tree.GetBranch("DmpEvtSimuPrimaries")
-                mcprimaries = DmpEvtSimuPrimaries()
-                tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
-                branch.GetEntry(0)
-                tree.GetEntry(0)
-                entry = tree.GetEntry(0)
-                pdg_id = int(mcprimaries.pvpart_pdg)
-                if pdg_id > 10000:
-                    pdg_id = int(pdg_id/10000.) - 100000
-                pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
                 particle = bn.replace("all","")
-                if "flat" in particle:
-                    particle = bn.replace("flat","")
-                #print particle
                 assert particle in pdgs.keys(), "particle type not supported"
-                if pdgs[particle] != pdg_id:
-                    msg = "wrong PDG ID! particle_found={part_found} ({PID}); particle_expected={part_exp} ({particle})".format(part_exp=int(pdgs[particle]),
-                                                                                                          part_found=int(pdg_id),particle=particle,
-                                                                                                          PID=dict(zip(pdgs.values(),pdgs.keys()))[pdg_id])
-                    raise ValueError(msg)
+                part = pdg[part]
+                ch = TChain("CollectionTree")
+                ch.Add(fname)
+                h1 = TH1D("h1","hPdgId",10,part-5,part+5)
+                if part < 10:
+                if debug: print 'Ion mode, subtract'
+                    ch.Project("h1","TMath::Floor(DmpEvtSimuPrimaries.pvpart_pdg/10000.) - 100000")
+                else:
+                    ch.Project("h1","DmpEvtSimuPrimaries.pvpart_pdg")
+                delta = TMath.Abs(part - h1.GetMean())
+                width = h1.GetRMS()
+                if width > 0.1: raise ValueError("pdg Id verification failed, distribution too broad, expect delta")
+                if delta > 0.1: raise ValueError("pdg Id verification failed, distribution not centered on %i but on %1.1f"%(part,h1.GetMean()))
+                if debug:
+                    print "Pdg Hist: Mean = {mean}, RMS = {rms}".format(mean=h1.GetMean(), rms=h1.GetRMS())
+                del h1
+                del ch
             except Exception as err:
                 del tree, mcprimaries
                 error_code = 1003
                 raise Exception(err.message)
-
             return True
 
     def isNull(ptr):
@@ -180,6 +197,16 @@ def main(infile, debug=False):
         ch.SetBranchAddress("tag",tag)
         ch.GetEntry(0)
         return str(tag), str(svn_rev)
+
+    def extractEnergyBounds(fname):
+        if debug: print 'extract energy boundaries'
+        ch = TChain("RunMetadataTree")
+        ch.Add(fname)
+        simuHeader = DmpRunSimuHeader()
+        b_sH = ch.GetBranch("DmpRunSimuHeader")
+        ch.SetBranchAddress("DmpRunSimuHeader",simuHeader)
+        b_sH.GetEntry(0)
+        return simuHeader.GetMinEne(), simuHeader.GetMaxEne()
 
     def isFlight(fname):
         if debug: print 'check if data is flight data'
@@ -247,6 +274,8 @@ def main(infile, debug=False):
     tstop = -1.
     fsize = 0.
     good = True
+    eMax = -1.
+    eMin = -1.
     comment = "NONE"
     f_type = "Other"
     svn_rev = "None"
@@ -260,6 +289,13 @@ def main(infile, debug=False):
 
         fsize = getSize(infile)
         tag, svn_rev = extractVersion(infile)
+        eMin, eMax = extractEnergyBounds(infile)
+        if eMin != eMax:
+            try:
+                verifyEnergyBounds(infile,eMin,eMax)
+            except AssertionError as msg:
+                error_code = 1005
+                raise Exception(msg.Message)
         tch = TChain("CollectionTree")
         tch.Add(infile)
         nevts = int(tch.GetEntries())
@@ -296,7 +332,8 @@ def main(infile, debug=False):
         good = False
 
     f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
-                 comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev)
+                 comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev, emax=eMax, emin=eMin,
+                 checksum=chksum)
     return f_out
 
 if __name__ == '__main__':
@@ -307,13 +344,29 @@ if __name__ == '__main__':
     description = "extract metadata from root files."
     parser.set_usage(usage)
     parser.set_description(description)
+    parser.add_option("--outType","-T",dest='outType',default='STDOUT',choices=['STDOUT','DB','FILE'],
+                      help='output, defaults to STDOUT')
     parser.add_option("--output","-o",dest='output',default='STDOUT',help='output, defaults to STDOUT')
+    parser.add_option("--db",dest='dbpath',default=None,help='name of mongodb if outType==DB')
+    parser.add_option("--ftype",dest="ftype",default='mc',choices=['mc','flight'],
+                      help='type of data, will go into separate collections if in DB mode')
     parser.add_option("--debug",dest="debug",action="store_true",default=False, help="run in debug mode")
+    parser.add_option("--bulk","-b",dest="bulk",action="store_true",
+                      default=False,
+                      help="run in bulk mode, here it is assumed that the input file is a qualified list of files")
     (opts, arguments) = parser.parse_args()
-    out = main(argv[1], opts.debug)
-    if opts.output == 'STDOUT':
-        print out
+    out = []
+    if opts.bulk:
+        out = [main(f.replace("\n",""), opts.debug) for f in open(argv[1],'r').readlines()]
     else:
+        out = main(argv[1], opts.debug)
+    if opts.outType == 'STDOUT':
+        print out
+    #elif opts.outType == "DB":
+    #    assert HASMONGO, "pymongo not found, DB mode disabled"
+    #    cl = MongoClient(opts.dbpath)
+    #    db = client.fileCatalog
+    elif opts.outType == "FILE":
         ext = splitext(opts.output)[1]
         supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
         assert ext in supported_backends, "unsupported output format, {f}".format(f=ext)
@@ -323,6 +376,7 @@ if __name__ == '__main__':
         if isfile(opts.output):
             my_open = lambda inf : open(inf,'rb').read() if ext == '.yaml' else open(inf,'rb')
             oout = pack.load(my_open(opts.output))
-        oout.append(out)
+        for fpack in out:
+            oout.append(fpack)
         pack.dump(oout, open(opts.output, 'wb'))
-
+    else: raise NotSupportedError("not supported type")
