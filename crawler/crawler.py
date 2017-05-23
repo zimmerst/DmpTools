@@ -4,7 +4,7 @@
 @date: 2017-01-19
 @comment: a first implementation of a crawler of DAMPE data, depending on DAMPE framework.
 @todo: implement livetime calculation.
-
+@todo: reduce verbosity (check with Valerio)
 
 """
 from sys import argv
