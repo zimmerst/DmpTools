@@ -29,6 +29,7 @@ from ROOT import TChain, TString, DmpChain, DmpEvent, DmpRunSimuHeader
 from importlib import import_module
 from os import getenv
 from os.path import basename, dirname
+from datetime import datetime
 
 def insertDocuments(mongopath,docs, debug=False):
     site = getenv("EXECUTION_SITE","UNIGE")
@@ -50,6 +51,7 @@ def insertDocuments(mongopath,docs, debug=False):
         doc['site']=site
         doc['filename']=fname
         if not query:
+            doc['creation_date']=datetime.now()
             objs_to_insert.append(doc)
     if len(objs_to_insert):
         result = coll.insert_many(objs_to_insert)
