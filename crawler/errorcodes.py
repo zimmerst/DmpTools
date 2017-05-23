@@ -6,7 +6,7 @@ To run after the crawler. Either
 	> python errorcodes.py file.json
 
 Script will browse the json file(s) and make filelists based on error code. Also includes good files.
-Output under  ./output/*dataset*/
+Output under  ./outputs/*dataset*/
 
 Error codes:
 0 : No error, file is good
@@ -54,9 +54,9 @@ def _ana(filename,boolwrite=False):
 		diclist = json_load_byteified(f)
 	
 	
-	fichiers = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[]}
+	fichiers = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[],'1005':[],'3000':[]}
 	tailles = []
-	for i in range(6):
+	for i in range(8):
 		tailles.append([])
 	
 	for iteration in diclist:
@@ -78,7 +78,13 @@ def _ana(filename,boolwrite=False):
 			tailles[4].append(iteration['nevts'])
 		elif iteration['error_code'] == 2000:
 			fichiers['2000'].append(iteration['lfn'])
-			tailles[-1].append(iteration['nevts'])
+			tailles[5].append(iteration['nevts'])
+		elif iteration['error_code'] == 1005:
+			fichiers['1005'].append(iteration['lfn'])
+			tailles[6].append(iteration['nevts'])
+		elif iteration['error_code'] == 3000:
+			fichiers['3000'].append(iteration['lfn'])
+			tailles[7].append(iteration['nevts'])
 		else:
 			raise Exception('Unmanaged error code:' + str(iteration['error_code']))
 			
@@ -88,7 +94,7 @@ def _ana(filename,boolwrite=False):
 			if not os.path.isdir('outputs'):
 				os.mkdir('outputs')
 			
-			dirname = './output/' + os.path.splitext(os.path.basename(filename))[0]
+			dirname = './outputs/' + os.path.splitext(os.path.basename(filename))[0]
 			if not os.path.isdir(dirname):
 				os.mkdir(dirname)
 			outstring = dirname + '/' + 'error' + blarg + '.txt'
@@ -113,7 +119,7 @@ if __name__ == '__main__':
 		
 			filecounts = []
 			filesizes = []
-			totals = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[]}
+			totals = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[],'1005':[],'3000':[]}
 		
 		# Loop on .json files	
 		for fichier in inputlist:
