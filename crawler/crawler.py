@@ -359,7 +359,7 @@ if __name__ == '__main__':
     if opts.bulk:
         out = [main(f.replace("\n",""), opts.debug) for f in open(argv[1],'r').readlines()]
     else:
-        out = main(argv[1], opts.debug)
+        out = [main(argv[1], opts.debug)]
     if opts.outType == 'STDOUT' or opts.output == 'STDOUT':
         print out
     #elif opts.outType == "DB":
