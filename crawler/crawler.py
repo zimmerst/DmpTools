@@ -19,16 +19,16 @@ from XRootD.client.flags import StatInfoFlags
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
-#try:
-#    from pymongo import MongoClient
-#except ImportError:
-#    HASMONGO = False
+try:
+    from pymongo import MongoClient
+except ImportError:
+    HASMONGO = False
 from ROOT import TMD5, TMath, TH1D
 from ROOT import TChain, TString, DmpChain, DmpEvent, DmpRunSimuHeader
 
 from importlib import import_module
-
-
+from os import getenv
+from os.path import basename, dirname
 
 
 #from yaml import load as yload, dump as ydump
@@ -44,8 +44,30 @@ from importlib import import_module
 #def yaml_dump(infile,out_object):
 #    ydump(out_object,open(infile,'wb'))
 
-error_code = 0
+def insertDocuments(mongopath,docs, debug=False):
+    site = getenv("EXECUTION_SITE","UNIGE")
+    assert HASMONGO, "pymongo not found, DB mode disabled"
+    if debug: print 'establishing db connection'
+    cl = MongoClient(mongopath)
+    if debug: print cl
+    db = client.DampeDC2
+    coll = db.crawlerFiles
+    objs_to_insert = []
+    if debug: print '# objects to insert',len(docs)
+    if debug: print 'checking if docs already exist in db'
+    for doc in docs:
+        fname = basename(doc['lfn'])
+        checksum = doc['chksum']
+        tname = basename(dirname(doc['lfn']))
+        query = coll.find({'cheksum':checksum,'fname':fname}).count()
+        if not query:
+            objs_to_insert.append(doc)
+    if len(objs_to_insert):
+        result = coll.insert_many(objs_to_insert)
+        if debug: print 'inserted #docs:',len(result)
 
+
+error_code = 0
 def main(infile, debug=False):
     pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
     chksum = None
@@ -337,7 +359,6 @@ def main(infile, debug=False):
     return f_out
 
 if __name__ == '__main__':
-
     from optparse import OptionParser
     parser = OptionParser()
     usage = "Usage: %prog [options]"
@@ -362,10 +383,8 @@ if __name__ == '__main__':
         out = [main(argv[1], opts.debug)]
     if opts.outType == 'STDOUT' or opts.output == 'STDOUT':
         print out
-    #elif opts.outType == "DB":
-    #    assert HASMONGO, "pymongo not found, DB mode disabled"
-    #    cl = MongoClient(opts.dbpath)
-    #    db = client.fileCatalog
+    elif opts.outType == "DB":
+        insertDocuments(opts.dbpath,out)
     elif opts.outType == "FILE":
         ext = splitext(opts.output)[1]
         supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
