@@ -30,20 +30,6 @@ from importlib import import_module
 from os import getenv
 from os.path import basename, dirname
 
-
-#from yaml import load as yload, dump as ydump
-
-#def yaml_load(infile):
-    ##print 'attempting to load {inf}'.format(inf=abspath(infile))
-    #if isfile(infile):
-   #     return yload(open(infile,'rb').read())
-  #  else:
-  #      print 'output file does not exist yet.'
- #       return []
-#
-#def yaml_dump(infile,out_object):
-#    ydump(out_object,open(infile,'wb'))
-
 def insertDocuments(mongopath,docs, debug=False):
     site = getenv("EXECUTION_SITE","UNIGE")
     assert HASMONGO, "pymongo not found, DB mode disabled"
@@ -60,6 +46,9 @@ def insertDocuments(mongopath,docs, debug=False):
         checksum = doc['chksum']
         tname = basename(dirname(doc['lfn']))
         query = coll.find({'cheksum':checksum,'fname':fname}).count()
+        doc['task']=tname
+        doc['site']=site
+        doc['filename']=fname
         if not query:
             objs_to_insert.append(doc)
     if len(objs_to_insert):
