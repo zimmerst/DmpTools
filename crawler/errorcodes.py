@@ -15,6 +15,8 @@ Error codes:
 1003 : Bad particle
 1004 : Zero events - file is readable
 2000 : Cannot access file / cannot read file
+1005 : Events outside of energy range
+3000 : C++ internal error
 
 '''
 
@@ -109,7 +111,7 @@ def _ana(filename,boolwrite=False):
 if __name__ == '__main__':
 	
 	if ".json" in sys.argv[1]:		# Only one json file provided
-		filecount, filesize = _ana(sys.argv[1],boolwrite=False)
+		filecount, filesize = _ana(sys.argv[1],boolwrite=True)
 		
 	else:							# ASCII list of json files provided
 		inputlist = []
