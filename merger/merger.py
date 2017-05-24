@@ -47,7 +47,7 @@ class Merger(object):
 	Initialise with the list of files to be merged, and the reduction factor (i.e. how many files to merge into a single one)
 	'''
 	
-	def __init__(self, textfile, reductionfactor, progress=True, checkPart=True, rld=True, i=0):
+	def __init__(self, textfile, reductionfactor, progress=True, checkPart=False, rld=True, i=0):
 		
 		self.t0 = time()
 		self.progress = progress
