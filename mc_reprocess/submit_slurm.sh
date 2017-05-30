@@ -7,4 +7,5 @@
 #SBATCH --array=${SARR}
 #SBATCH --export=SWPATH=${SWPATH}
 #SBATCH --export=WORKDIR=${WORKDIR}
+#SBATCH --export=SCRATCH=${SCRATCHDIR}
 bash ${SLURM_EXEC_DIR}/wrapper.sh

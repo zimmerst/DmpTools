@@ -4,6 +4,7 @@ outputdir: /dampe/data3/XROOTD_DIR/MC/reco/v5r4p2
 DMPSWSYS: /cvmfs/dampe.cern.ch/rhel6-64/opt/releases/DmpSoftware-5-4-2
 tag: v5r4p2
 workdir:   /tmp/zimmers/repro/
+scratch_dir: /tmp/zimmers/scratch
 files_per_job : 100
 max_jobs : 100
 time_per_job  : 2:00:00

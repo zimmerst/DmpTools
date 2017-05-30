@@ -68,6 +68,8 @@ slurm_exec_dir=dirname(abspath(__file__))
 environ["SLURM_EXEC_DIR"]=slurm_exec_dir
 wrapper=opjoin(slurm_exec_dir,"submit_slurm.sh")
 
+environ["SCRATCHDIR"]=cfg.get("scratch_dir","${HOME}/scratch")
+
 ### LOOP OVER CYCLES ####
 for i in xrange(ncycles):
     print '++++ CYCLE %i ++++'%i
