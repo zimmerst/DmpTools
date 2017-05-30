@@ -90,8 +90,10 @@ for i in xrange(ncycles):
             ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
             assert isfile(ofile), "yaml file missing!"
             print 'size of chunk: ',len(out_c)
-
-    environ["SARR"]="1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=int(cfg.get("max_jobs",10)))
+    max_jobs = int(cfg.get("max_jobs",10))
+    sarr = "1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=max_jobs) if \
+            chunk+1 > max_jobs else "1-{nchunks}".format(nchunks=chunk+1)
+    environ["SARR"]=sarr
     print '*** ENV DUMP ***'
     system("env | sort")
 #### DONE
