@@ -10,9 +10,8 @@ echo "WORKDIR: ${WORKDIR}"
 echo "start time: $(date)"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
-cd ${SWPATH}/bin
-source thisdmpsw.sh
-cd ${SCRATCH}
+cd ${SWPATH}
+source bin/thisdmpsw.sh
 WORK_DIR=$(mktemp -d -p ${SCRATCH})
 cd ${WORK_DIR}
 ## EXECUTABLE BELOW ##
