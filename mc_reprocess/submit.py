@@ -58,8 +58,7 @@ for i in xrange(ncycles):
     mkdir(wd)
     print '%i: found %i files to process this cycle.'%(i+1, len(files_to_process))
     print 'check if files exist already'
-    all_files = [f for f in files_to_process if not isfile(mc2reco(f,version=version,newpath=cfg['outputdir']))]
-    files_to_process = len(files_to_process)
+    files_to_process = [f for f in files_to_process if not isfile(mc2reco(f,version=version,newpath=cfg['outputdir']))]
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
     chunk = 1
