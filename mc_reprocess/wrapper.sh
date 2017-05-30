@@ -16,11 +16,12 @@ cd ${SCRATCH}
 WORK_DIR=$(mktemp -d -p ${SCRATCH})
 cd ${WORK_DIR}
 ## EXECUTABLE BELOW ##
-echo "time python ${DMPSWSYS}/share/TestRelease/JobOption_MC_DigiReco_Prod.py -y ${WORKDIR}/chunk_${SLURM_ARRAY_TASK_ID}.yaml"
+time python ${DMPSWSYS}/share/TestRelease/JobOption_MC_DigiReco_Prod.py -y ${WORKDIR}/chunk_${SLURM_ARRAY_TASK_ID}.yaml
 echo "stop time: $(date)"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "cleanup..."
 cd ${SCRATCH}
+rm -vrf ${WORK_DIR}/*
 rm -vrf ${WORK_DIR}
 echo "all done. good bye!"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
