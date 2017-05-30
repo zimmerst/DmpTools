@@ -48,7 +48,7 @@ for i in xrange(ncycles):
 
     files_to_process = []
     for t in txtfiles:
-        files_to_process+=[f.replace("\n") for f in open(t,"r").read()]
+        files_to_process+=[f.replace("\n","") for f in open(t,"r").read()]
 
     wd=opjoin(cfg['workdir'],cfg['tag'])
     wd=opjoin(wd,"cycle_%i"%(i+1))
