@@ -37,7 +37,7 @@ def make_wrapper(infile,outfile):
         var = research("\$\{\D+\}",line)
         tline = line
         if not var is None:
-            var_val = (var.replace("$","")).format(environ)
+            var_val = (var.group(0).replace("$","")).format(environ)
             tline = tline.replace(var,var_val)
         lines_out.append(tline)
     of=open(outfile,'w')
