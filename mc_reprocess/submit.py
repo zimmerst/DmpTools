@@ -77,8 +77,8 @@ for i in xrange(ncycles):
     #    print 'added chunk, size %i'%len(chunks[-1])
     print 'created %i chunks this cycle'%len(chunks)
     for j,ch in enumerate(chunks):
-        print '** working on chunk %i **'
-        ofile = opjoin(wd,"chunk_%i.yaml"%j+1)
+        print '** working on chunk %i, size: %i **'%(j+1,len(ch))
+        ofile = opjoin(wd,"chunk_%i.yaml"%(j+1))
         inf_c = ch
         for fi in inf_c:
             if fi.startswith("root:"):
