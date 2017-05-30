@@ -1,0 +1,92 @@
+from sys import argv
+from yaml import load as yload, dump as ydump
+from glob import glob
+from os.path import isfile, abspath, basename, dirname, join as opjoin
+from re import search as research
+from os import environ
+from datetime import datetime, timedelta
+from tempfile import NamedTemporaryFile
+
+def mkdir(pwd):
+    from os import system
+    system("mkdir -p {p}".format(p=pwd))
+
+def mc2reco(fi,version="v5r4p0",newpath=""):
+    """ converts allGamma-vXrYpZ_100GeV_10TeV-p2.noOrb.740485.mc.root to allGamma-v5r4p0_100GeV_10TeV-p2.noOrb.740485.reco.root"""
+    vtag = research("v\dr\dp\d",fi).group(0)
+    # lastly, replace the path
+    if fi.startswith("root:"):
+        fi = ("/%s"%fi.split("//")[2])
+    fname = basename(fi)
+    path = dirname(fi)
+    task = basename(path)
+    npath = opjoin(newpath,task)
+    fout = opjoin(npath,fname)
+    fout = fout.replace(".mc",".reco")
+    while vtag in fout:
+        fout = fout.replace(vtag,version)
+    return fout
+
+cfg = yload(open(argv[1],"rb"))
+
+
+environ["STIME"]=str( timedelta(seconds=int(cfg.get("time_per_job","3600.") ) ) )
+environ["SMEM"] =cfg.get("mem_per_job","2G")
+environ["SWPATH"]=cfg.get("DMPSWSYS","/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/trunk")
+g_maxfiles = cfg.get("files_per_job")
+
+ncycles = 1
+
+version=cfg.get("tag","trunk")
+
+
+### LOOP OVER CYCLES ####
+for i in xrange(ncycles):
+    txtfiles = []
+    for _d in cfg['inputloc']:
+        txtfiles+=glob(_d)
+
+    files_to_process = []
+    for t in txtfiles:
+        files_to_process+=[f.replace("\n") for f in open(t,"r").read()]
+
+    wd=opjoin(cfg['workdir'],cfg['tag'])
+    wd=opjoin(wd,"cycle_%i"%(i+1))
+    environ["WORKDIR"]=abspath(wd)
+    mkdir(wd)
+    print '%i: found %i files to process this cycle.'%(i+1, len(files_to_process))
+    print 'check if files exist already'
+    all_files = [f for f in files_to_process if not isfile(mc2reco(f,version=version,newpath=cfg['outputdir']))]
+    files_to_process = len(files_to_process)
+    print 'after check: found %i files to process this cycle.'%len(files_to_process)
+    nfiles = len(files_to_process)
+    chunk = 1
+    ### LOOP OVER CHUNKS
+    while nfiles > 0:
+        ### this is the chunk now
+        nfiles = len(files_to_process)
+        ofile = opjoin(wd,"chunk_%i.yaml"%chunk)
+        inf_c = out_c = []
+        if nfiles > g_maxfiles:
+            inf_c = [files_to_process.pop(i) for i in xrange(g_maxfiles)]
+        else:
+            inf_c = files_to_process
+        for fi in inf_c:
+            if fi.startswith("root:"):
+                fi = ("/%s"%fi.split("//")[2])
+            path = dirname(fi)
+            task= basename(path) # makes sure to keep the task
+            opath= opjoin(cfg['outputdir'],task)
+            out_c= [opjoin(opath,mc2reco(basename(f),version=cfg['tag'])) for f in inf_c]
+            ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
+            assert isfile(ofile), "yaml file missing!"
+        chunk+=1
+        environ["SARR"]="1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=int(cfg.get("max_jobs",10)))
+
+
+    while nhandled < nfiles:
+        infiles_cycle = []
+        outfiles_cycle= []
+        while len(infiles_cycle) <= cfg['files_per_job']:
+
+#### DONE
