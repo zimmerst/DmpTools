@@ -87,12 +87,13 @@ for i in xrange(ncycles):
             task= basename(path) # makes sure to keep the task
             opath= opjoin(cfg['outputdir'],task)
             out_c= [opjoin(opath,mc2reco(basename(f),version=cfg['tag'])) for f in inf_c]
-            ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
-            assert isfile(ofile), "yaml file missing!"
-            print 'size of chunk: ',len(out_c)
+        ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
+        assert isfile(ofile), "yaml file missing!"
+        print 'size of chunk: ',len(out_c)
     max_jobs = int(cfg.get("max_jobs",10))
-    sarr = "1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=max_jobs) if \
-            chunk+1 > max_jobs else "1-{nchunks}".format(nchunks=chunk+1)
+    nch = len(chunks)
+    sarr = "1-{nchunks}%{jobs}".format(nchunks=nch+1,jobs=max_jobs) if \
+            chunk+1 > max_jobs else "1-{nchunks}".format(nchunks=nch+1)
     environ["SARR"]=sarr
     print '*** ENV DUMP ***'
     system("env | sort")
