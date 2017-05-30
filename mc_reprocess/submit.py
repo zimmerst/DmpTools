@@ -107,9 +107,9 @@ for i in xrange(ncycles):
             nch > max_jobs else "1-{nchunks}".format(nchunks=nch)
     environ["SARR"]=sarr
 
-    print '*** ENV DUMP ***'
+    #print '*** ENV DUMP ***'
     #system("env | sort")
     new_wrapper = opjoin(wd,"submit_slurm.sh")
     make_wrapper(wrapper,new_wrapper)
-    system("#sbatch {wrapper}".format(wrapper=new_wrapper))
+    system("sbatch {wrapper}".format(wrapper=new_wrapper))
 #### DONE
