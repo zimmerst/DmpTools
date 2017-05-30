@@ -81,6 +81,7 @@ for i in xrange(ncycles):
             out_c= [opjoin(opath,mc2reco(basename(f),version=cfg['tag'])) for f in inf_c]
             ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
             assert isfile(ofile), "yaml file missing!"
+            print 'size of chunk: ',len(out_c)
         chunk+=1
     environ["SARR"]="1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=int(cfg.get("max_jobs",10)))
     print '*** ENV DUMP ***'
