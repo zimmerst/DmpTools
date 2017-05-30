@@ -29,7 +29,8 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     #print "*** DBG ***: ",fout
     return fout
 
-def make_wrapper(infile,outfile)
+def make_wrapper(infile,outfile):
+    """ creates new wrapper file, expands variables as they are there."""
     lines = open(infile,'r').readlines()
     lines_out = []
     for line in lines:
@@ -44,8 +45,6 @@ def make_wrapper(infile,outfile)
     of.close()
 
 cfg = yload(open(argv[1],"rb"))
-
-
 
 time_per_job = cfg.get("time_per_job",3600.)
 if ":" in time_per_job:
@@ -88,20 +87,7 @@ for i in xrange(ncycles):
     print 'check if files exist already'
 
     reco_file = lambda f : mc2reco(f,version=version,newpath=cfg['outputdir'])
-    #files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
     files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
-    #for f in files_to_process:
-    #    fsimu = f
-    #    freco = reco_file(f)
-    #    flag = isfile(freco)
-    #    print '*** '
-    #    print 'fsimu {fsimu}'.format(fsimu=fsimu)
-    #    print 'freco {freco}'.format(freco=freco)
-    #    print 'is_file: ',flag
-    #    print '*** '
-    #    if not flag:
-    #        files.append(fsimu)
-    #files_to_process = files
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
     chunks = [files_to_process[x:x+g_maxfiles] for x in xrange(0, len(files_to_process), g_maxfiles)]
