@@ -5,4 +5,4 @@
 #SBATCH --time=${STIME}
 #SBATCH --mem=${SMEM}
 #SBATCH --array=${SARR}
-bash wrapper.sh
+bash ${SLURM_EXEC_DIR}/wrapper.sh

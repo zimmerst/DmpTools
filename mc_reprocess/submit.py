@@ -41,6 +41,9 @@ ncycles = 1
 
 version=cfg.get("tag","trunk")
 
+slurm_exec_dir=dirname(abspath(__file__))
+environ["SLURM_EXEC_DIR"]=slurm_exec_dir
+wrapper=opjoin(slurm_exec_dir,"submit_slurm.sh")
 
 ### LOOP OVER CYCLES ####
 for i in xrange(ncycles):
@@ -94,7 +97,6 @@ for i in xrange(ncycles):
             nch > max_jobs else "1-{nchunks}".format(nchunks=nch)
     environ["SARR"]=sarr
     print '*** ENV DUMP ***'
-    print 'CURRENT EXEC DIR',__file__
     #system("env | sort")
-
+    system("sbatch {wrapper}".format(wrapper=wrapper))
 #### DONE
