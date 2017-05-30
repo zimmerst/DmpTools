@@ -5,7 +5,7 @@
 #SBATCH --time=${STIME}
 #SBATCH --mem=${SMEM}
 #SBATCH --array=${SARR}
-#SBATCH --export=SWPATH=${SWPATH}
-#SBATCH --export=WORKDIR=${WORKDIR}
-#SBATCH --export=SCRATCH=${SCRATCHDIR}
+#SBATCH --export=SWPATH
+#SBATCH --export=WORKDIR
+#SBATCH --export=SCRATCH
 bash ${SLURM_EXEC_DIR}/wrapper.sh
