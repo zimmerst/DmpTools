@@ -6,9 +6,9 @@ from re import search as research
 from os import environ
 from datetime import datetime, timedelta
 from tempfile import NamedTemporaryFile
+from os import system
 
 def mkdir(pwd):
-    from os import system
     system("mkdir -p {p}".format(p=pwd))
 
 def mc2reco(fi,version="v5r4p0",newpath=""):
