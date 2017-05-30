@@ -66,12 +66,13 @@ for i in xrange(ncycles):
     while nfiles > 0:
         ### this is the chunk now
         nfiles = len(files_to_process)
+        print '*working on chunk %i*'%chunk
         ofile = opjoin(wd,"chunk_%i.yaml"%chunk)
         inf_c = out_c = []
-        if nfiles > g_maxfiles:
-            inf_c = [files_to_process.pop(i) for i in xrange(g_maxfiles)]
-        else:
+        if nfiles <= g_maxfiles:
             inf_c = files_to_process
+        else:
+            inf_c = [files_to_process.pop(i) for i in xrange(g_maxfiles)]
         for fi in inf_c:
             if fi.startswith("root:"):
                 fi = ("/%s"%fi.split("//")[2])
