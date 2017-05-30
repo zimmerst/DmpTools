@@ -34,7 +34,7 @@ cfg = yload(open(argv[1],"rb"))
 environ["STIME"]=str( timedelta(seconds=int(cfg.get("time_per_job","3600.") ) ) )
 environ["SMEM"] =cfg.get("mem_per_job","2G")
 environ["SWPATH"]=cfg.get("DMPSWSYS","/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/trunk")
-g_maxfiles = cfg.get("files_per_job")
+g_maxfiles = int(cfg.get("files_per_job",10))
 
 ncycles = 1
 
@@ -62,19 +62,19 @@ for i in xrange(ncycles):
     files_to_process = [f for f in files_to_process if not isfile(mc2reco(f,version=version,newpath=cfg['outputdir']))]
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
-    chunks = []
+    chunks = [files_to_process[x:x+g_maxfiles] for x in xrange(0, len(files_to_process), g_maxfiles)]
     ### assemble chunks
-    while len(chunks) >= 0:
-        ### this is the chunk now
-        nfiles = len(files_to_process)
-        if not(nfiles): break
-        inf_c = out_c = []
-        if nfiles <= g_maxfiles:
-            inf_c = files_to_process
-        else:
-            inf_c = [files_to_process.pop(0) for j in xrange(g_maxfiles)]
-        chunks.append(inf_c)
-        print 'added chunk, size %i'%len(chunks[-1])
+    ##while len(chunks) >= 0:
+    ##    ### this is the chunk now
+    #    nfiles = len(files_to_process)
+    #    if nfiles == 0: break
+    #    inf_c = out_c = []
+    #    if nfiles <= g_maxfiles:
+    #        inf_c = files_to_process
+    #    else:
+    #        inf_c = [files_to_process.pop(0) for j in xrange(g_maxfiles+1)]
+    #    chunks.append(inf_c)
+    #    print 'added chunk, size %i'%len(chunks[-1])
     print 'created %i chunks this cycle'%len(chunks)
     for j,ch in enumerate(chunks):
         print '** working on chunk %i **'
