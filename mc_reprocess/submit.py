@@ -32,7 +32,16 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
 cfg = yload(open(argv[1],"rb"))
 
 
-environ["STIME"]=str( timedelta(seconds=cfg.get("time_per_job","3600.") ) )
+
+time_per_job = cfg.get("time_per_job",3600.)
+if ":" in time_per_job:
+    now = datetime(day=1,month=1,year=1900,hour=0,minute=0,second=0)
+    dt  = datetime.strptime(time_per_job,"%H:%M:%S")
+    time_per_job = str(dt-now)
+else:
+    time_per_job = str(timedelta(seconds=time_per_job))
+
+environ["STIME"]=time_per_job
 environ["SMEM"] =cfg.get("mem_per_job","2G")
 environ["SWPATH"]=cfg.get("DMPSWSYS","/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/trunk")
 g_maxfiles = int(cfg.get("files_per_job",10))
