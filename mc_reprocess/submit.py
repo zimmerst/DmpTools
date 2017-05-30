@@ -93,7 +93,7 @@ for i in xrange(ncycles):
     max_jobs = int(cfg.get("max_jobs",10))
     nch = len(chunks)
     sarr = "1-{nchunks}%{jobs}".format(nchunks=nch+1,jobs=max_jobs) if \
-            chunk+1 > max_jobs else "1-{nchunks}".format(nchunks=nch+1)
+            nch+1 > max_jobs else "1-{nchunks}".format(nchunks=nch+1)
     environ["SARR"]=sarr
     print '*** ENV DUMP ***'
     system("env | sort")
