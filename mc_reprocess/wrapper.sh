@@ -7,6 +7,7 @@ echo "SLURM ARRAY TASK ID: ${SLURM_ARRAY_TASK_ID}"
 echo "SWPATH: ${SWPATH}"
 echo "SCRATCH: ${SCRATCH}"
 echo "WORKDIR: ${WORKDIR}"
+echo "LOG LEVEL: ${DAMPE_LOGLEVEL}"
 echo "start time: $(date)"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh

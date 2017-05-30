@@ -66,6 +66,7 @@ version=cfg.get("tag","trunk")
 
 slurm_exec_dir=dirname(abspath(__file__))
 environ["SLURM_EXEC_DIR"]=slurm_exec_dir
+environ["DLOG"]=cfg.get("log_level","INFO")
 wrapper=opjoin(slurm_exec_dir,"submit_slurm.sh")
 
 environ["SCRATCH"]=cfg.get("scratch_dir","${HOME}/scratch")

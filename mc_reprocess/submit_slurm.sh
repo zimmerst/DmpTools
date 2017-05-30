@@ -9,7 +9,9 @@
 export WORKDIR=${WORKDIR}
 export SWPATH=${SWPATH}
 export SCRATCH=${SCRATCH}
+export DAMPE_LOGLEVEL=${DLOG}
 #SBATCH --export=SWPATH
 #SBATCH --export=WORKDIR
 #SBATCH --export=SCRATCH
+#SBATCH --export=DAMPE_LOGLEVEL
 bash ${SLURM_EXEC_DIR}/wrapper.sh
