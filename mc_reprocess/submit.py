@@ -43,6 +43,7 @@ version=cfg.get("tag","trunk")
 
 ### LOOP OVER CYCLES ####
 for i in xrange(ncycles):
+    print '++++ CYCLE %i ++++'%i
     txtfiles = []
     for _d in cfg['inputloc']:
         txtfiles+=glob(_d)
@@ -61,18 +62,22 @@ for i in xrange(ncycles):
     files_to_process = [f for f in files_to_process if not isfile(mc2reco(f,version=version,newpath=cfg['outputdir']))]
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
-    chunk = 1
-    ### LOOP OVER CHUNKS
+    chunks = []
+    ### assemble chunks
     while nfiles > 0:
         ### this is the chunk now
         nfiles = len(files_to_process)
-        print '*working on chunk %i*'%chunk
-        ofile = opjoin(wd,"chunk_%i.yaml"%chunk)
         inf_c = out_c = []
         if nfiles <= g_maxfiles:
             inf_c = files_to_process
         else:
-            inf_c = [files_to_process.pop(i) for i in xrange(g_maxfiles)]
+            inf_c = [files_to_process.pop(j) for j in xrange(g_maxfiles)]
+        chunks.append(inf_c)
+    print 'created %i chunks this cycle'%len(chunks)
+    for j,ch in enumerate(chunks):
+        print '** working on chunk %i **'
+        ofile = opjoin(wd,"chunk_%i.yaml"%j+1)
+        inf_c = ch
         for fi in inf_c:
             if fi.startswith("root:"):
                 fi = ("/%s"%fi.split("//")[2])
@@ -83,7 +88,7 @@ for i in xrange(ncycles):
             ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
             assert isfile(ofile), "yaml file missing!"
             print 'size of chunk: ',len(out_c)
-        chunk+=1
+
     environ["SARR"]="1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=int(cfg.get("max_jobs",10)))
     print '*** ENV DUMP ***'
     system("env | sort")
