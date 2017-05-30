@@ -63,19 +63,19 @@ for i in xrange(ncycles):
 
     reco_file = lambda f : mc2reco(f,version=version,newpath=cfg['outputdir'])
     #files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
-    files = []
-    for f in files_to_process:
-        fsimu = f
-        freco = reco_file(f)
-        flag = isfile(freco)
-        print '*** '
-        print 'fsimu {fsimu}'.format(fsimu=fsimu)
-        print 'freco {freco}'.format(freco=freco)
-        print 'is_file: ',flag
-        print '*** '
-        if not flag:
-            files.append(fsimu)
-    files_to_process = files
+    files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
+    #for f in files_to_process:
+    #    fsimu = f
+    #    freco = reco_file(f)
+    #    flag = isfile(freco)
+    #    print '*** '
+    #    print 'fsimu {fsimu}'.format(fsimu=fsimu)
+    #    print 'freco {freco}'.format(freco=freco)
+    #    print 'is_file: ',flag
+    #    print '*** '
+    #    if not flag:
+    #        files.append(fsimu)
+    #files_to_process = files
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
     chunks = [files_to_process[x:x+g_maxfiles] for x in xrange(0, len(files_to_process), g_maxfiles)]
