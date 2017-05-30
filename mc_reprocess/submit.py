@@ -26,6 +26,7 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     fout = fout.replace(".mc",".reco")
     while vtag in fout:
         fout = fout.replace(vtag,version)
+    print "*** DBG ***: ",fout
     return fout
 
 cfg = yload(open(argv[1],"rb"))
@@ -60,36 +61,18 @@ for i in xrange(ncycles):
     print '%i: found %i files to process this cycle.'%(i+1, len(files_to_process))
     print 'check if files exist already'
 
-    ofile = lambda f : mc2reco(f,version=version,newpath=cfg['outputdir'])
+    reco_file = lambda f : mc2reco(f,version=version,newpath=cfg['outputdir'])
 
-    files_to_process = [f for f in files_to_process if not isfile(ofile(f))]
+    files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
     chunks = [files_to_process[x:x+g_maxfiles] for x in xrange(0, len(files_to_process), g_maxfiles)]
-    ### assemble chunks
-    ##while len(chunks) >= 0:
-    ##    ### this is the chunk now
-    #    nfiles = len(files_to_process)
-    #    if nfiles == 0: break
-    #    inf_c = out_c = []
-    #    if nfiles <= g_maxfiles:
-    #        inf_c = files_to_process
-    #    else:
-    #        inf_c = [files_to_process.pop(0) for j in xrange(g_maxfiles+1)]
-    #    chunks.append(inf_c)
-    #    print 'added chunk, size %i'%len(chunks[-1])
     print 'created %i chunks this cycle'%len(chunks)
     for j,ch in enumerate(chunks):
         print '** working on chunk %i, size: %i **'%(j+1,len(ch))
         ofile = opjoin(wd,"chunk_%i.yaml"%(j+1))
         inf_c = ch
-        for fi in inf_c:
-            if fi.startswith("root:"):
-                fi = ("/%s"%fi.split("//")[2])
-            path = dirname(fi)
-            task= basename(path) # makes sure to keep the task
-            opath= opjoin(cfg['outputdir'],task)
-            out_c= [opjoin(opath,mc2reco(basename(f),version=cfg['tag'])) for f in inf_c]
+        out_c = [reco_file(f) for f in inf_c]
         ydump(dict(zip(inf_c,out_c)),open(ofile,'wb'))
         assert isfile(ofile), "yaml file missing!"
         print 'size of chunk: ',len(out_c)
