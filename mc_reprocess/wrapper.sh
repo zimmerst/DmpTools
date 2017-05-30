@@ -7,12 +7,12 @@ echo "SLURM ARRAY TASK ID: ${SLURM_ARRAY_TASK_ID}"
 echo "SWPATH: ${SWPATH}"
 echo "SCRATCH: ${SCRATCH}"
 echo "WORKDIR: ${WORKDIR}"
+echo "start time: $(date)"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 source /cvmfs/dampe.cern.ch/rhel6-64/etc/setup.sh
 cd ${SWPATH}/bin
 source thisdmpsw.sh
 cd ${SCRATCH}
 ## EXECUTABLE BELOW ##
-exe="python ${DMPSWSYS}/share/TestRelease/JobOption_MC_DigiReco_Prod.py -y ${WORKDIR}/chunk_${SLURM_ARRAY_TASK_ID}.yaml"
-
-echo ${exe}
+time python ${DMPSWSYS}/share/TestRelease/JobOption_MC_DigiReco_Prod.py -y ${WORKDIR}/chunk_${SLURM_ARRAY_TASK_ID}.yaml
+echo "stop time: $(date)"
