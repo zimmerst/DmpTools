@@ -82,11 +82,6 @@ for i in xrange(ncycles):
             assert isfile(ofile), "yaml file missing!"
         chunk+=1
         environ["SARR"]="1-{nchunks}%{jobs}".format(nchunks=chunk+1,jobs=int(cfg.get("max_jobs",10)))
-
-
-    while nhandled < nfiles:
-        infiles_cycle = []
-        outfiles_cycle= []
-        while len(infiles_cycle) <= cfg['files_per_job']:
-
+        print '*** ENV DUMP ***'
+        system("env | sort")
 #### DONE
