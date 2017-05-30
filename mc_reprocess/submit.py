@@ -49,8 +49,9 @@ for i in xrange(ncycles):
 
     files_to_process = []
     for t in txtfiles:
+        print 'reading %s...'%t
         files_to_process+=[f.replace("\n","") for f in open(t,"r").read()]
-
+        print 'size: ',len(files_to_process)
     wd=opjoin(cfg['workdir'],cfg['tag'])
     wd=opjoin(wd,"cycle_%i"%(i+1))
     environ["WORKDIR"]=abspath(wd)
