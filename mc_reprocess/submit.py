@@ -64,9 +64,10 @@ for i in xrange(ncycles):
     nfiles = len(files_to_process)
     chunks = []
     ### assemble chunks
-    while nfiles > 0:
+    while len(chunks) >= 0:
         ### this is the chunk now
         nfiles = len(files_to_process)
+        if not(nfiles): break
         inf_c = out_c = []
         if nfiles <= g_maxfiles:
             inf_c = files_to_process
