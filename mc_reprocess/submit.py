@@ -38,7 +38,7 @@ def make_wrapper(infile,outfile):
         tline = line
         if not var is None:
             match = var.group(0)
-            key   = ((match.replace("$")).replace("{","")).replace("}","")
+            key   = ((match.replace("$","")).replace("{","")).replace("}","")
             tline = tline.replace(val,"{KEY}".format(KEY=environ[key]))
         lines_out.append(tline)
     of=open(outfile,'w')
