@@ -71,7 +71,7 @@ for i in xrange(ncycles):
         if nfiles <= g_maxfiles:
             inf_c = files_to_process
         else:
-            inf_c = [files_to_process.pop(j) for j in xrange(g_maxfiles)]
+            inf_c = [files_to_process.pop(0) for j in xrange(g_maxfiles)]
         chunks.append(inf_c)
     print 'created %i chunks this cycle'%len(chunks)
     for j,ch in enumerate(chunks):
