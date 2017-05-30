@@ -29,6 +29,20 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     #print "*** DBG ***: ",fout
     return fout
 
+def make_wrapper(infile,outfile)
+    lines = open(infile,'r').readlines()
+    lines_out = []
+    for line in lines:
+        var = research("\$\{\D+\}",line)
+        tline = line
+        if not var is None:
+            var_val = (var.replace("$","")).format(environ)
+            tline = tline.replace(var,var_val)
+        lines_out.append(tline)
+    of=open(outfile,'w')
+    of.write("".join(lines_out))
+    of.close()
+
 cfg = yload(open(argv[1],"rb"))
 
 
@@ -105,7 +119,10 @@ for i in xrange(ncycles):
     sarr = "1-{nchunks}%{jobs}".format(nchunks=nch,jobs=max_jobs) if \
             nch > max_jobs else "1-{nchunks}".format(nchunks=nch)
     environ["SARR"]=sarr
+
     print '*** ENV DUMP ***'
     #system("env | sort")
-    system("sbatch {wrapper}".format(wrapper=wrapper))
+    new_wrapper = opjoin(wd,"submit_slurm.sh")
+    make_wrapper(wrapper,new_wrapper)
+    system("#sbatch {wrapper}".format(wrapper=new_wrapper))
 #### DONE
