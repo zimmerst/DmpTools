@@ -1,4 +1,8 @@
 #!/bin/sh
+export WORKDIR=${WORKDIR}
+export SWPATH=${SWPATH}
+export SCRATCH=${SCRATCH}
+###### below is SLURM specific stuff #######
 #SBATCH --output=${WORKDIR}/%A_%a.out
 #SBATCH --output=${WORKDIR}/%A_%a.err
 #SBATCH --partition=mono-shared
