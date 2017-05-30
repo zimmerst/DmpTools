@@ -1,7 +1,7 @@
 #!/bin/sh
 ###### below is SLURM specific stuff #######
-#SBATCH --output=${WORKDIR}/%A_%a.out
-#SBATCH --error=${WORKDIR}/%A_%a.err
+#SBATCH --output=${WORKDIR}/chunk_%a.out
+#SBATCH --error=${WORKDIR}/chunk_%a.err
 #SBATCH --partition=mono-shared
 #SBATCH --time=${STIME}
 #SBATCH --mem=${SMEM}
