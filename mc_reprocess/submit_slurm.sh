@@ -5,5 +5,4 @@
 #SBATCH --time=${STIME}
 #SBATCH --mem=${SMEM}
 #SBATCH --array=${SARR}
-
-bash wrapper.sh ${variant} $(od -vAn -N4 -tu4 < /dev/urandom)
+bash wrapper.sh

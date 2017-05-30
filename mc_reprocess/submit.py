@@ -94,5 +94,7 @@ for i in xrange(ncycles):
             nch > max_jobs else "1-{nchunks}".format(nchunks=nch)
     environ["SARR"]=sarr
     print '*** ENV DUMP ***'
-    system("env | sort")
+    print 'CURRENT EXEC DIR',__file__
+    #system("env | sort")
+
 #### DONE
