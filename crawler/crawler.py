@@ -4,7 +4,7 @@
 @date: 2017-01-19
 @comment: a first implementation of a crawler of DAMPE data, depending on DAMPE framework.
 @todo: implement livetime calculation.
-
+@todo: reduce verbosity (check with Valerio)
 
 """
 from sys import argv
@@ -19,33 +19,46 @@ from XRootD.client.flags import StatInfoFlags
 res = gSystem.Load("libDmpEvent")
 if res != 0:
     raise ImportError("could not import libDmpEvent, mission failed.")
-#try:
-#    from pymongo import MongoClient
-#except ImportError:
-#    HASMONGO = False
+try:
+    from pymongo import MongoClient
+except ImportError:
+    HASMONGO = False
 from ROOT import TMD5, TMath, TH1D
 from ROOT import TChain, TString, DmpChain, DmpEvent, DmpRunSimuHeader
 
 from importlib import import_module
+from os import getenv
+from os.path import basename, dirname
+from datetime import datetime
 
+def insertDocuments(mongopath,docs, debug=False):
+    site = getenv("EXECUTION_SITE","UNIGE")
+    assert HASMONGO, "pymongo not found, DB mode disabled"
+    if debug: print 'establishing db connection'
+    cl = MongoClient(mongopath)
+    if debug: print cl
+    db = client.DampeDC2
+    coll = db.crawlerFiles
+    objs_to_insert = []
+    if debug: print '# objects to insert',len(docs)
+    if debug: print 'checking if docs already exist in db'
+    for doc in docs:
+        fname = basename(doc['lfn'])
+        checksum = doc['chksum']
+        tname = basename(dirname(doc['lfn']))
+        query = coll.find({'cheksum':checksum,'fname':fname}).count()
+        doc['task']=tname
+        doc['site']=site
+        doc['filename']=fname
+        if not query:
+            doc['creation_date']=datetime.now()
+            objs_to_insert.append(doc)
+    if len(objs_to_insert):
+        result = coll.insert_many(objs_to_insert)
+        if debug: print 'inserted #docs:',len(result)
 
-
-
-#from yaml import load as yload, dump as ydump
-
-#def yaml_load(infile):
-    ##print 'attempting to load {inf}'.format(inf=abspath(infile))
-    #if isfile(infile):
-   #     return yload(open(infile,'rb').read())
-  #  else:
-  #      print 'output file does not exist yet.'
- #       return []
-#
-#def yaml_dump(infile,out_object):
-#    ydump(out_object,open(infile,'wb'))
 
 error_code = 0
-
 def main(infile, debug=False):
     pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
     chksum = None
@@ -337,7 +350,6 @@ def main(infile, debug=False):
     return f_out
 
 if __name__ == '__main__':
-
     from optparse import OptionParser
     parser = OptionParser()
     usage = "Usage: %prog [options]"
@@ -359,13 +371,15 @@ if __name__ == '__main__':
     if opts.bulk:
         out = [main(f.replace("\n",""), opts.debug) for f in open(argv[1],'r').readlines()]
     else:
-        out = main(argv[1], opts.debug)
+        out = [main(argv[1], opts.debug)]
+    for pack in out:
+        if pack['comment'] == 'problem in C++; program state has been reset':
+            pack['error_code'] = 3000
+            pack['good'] = False
     if opts.outType == 'STDOUT' or opts.output == 'STDOUT':
         print out
-    #elif opts.outType == "DB":
-    #    assert HASMONGO, "pymongo not found, DB mode disabled"
-    #    cl = MongoClient(opts.dbpath)
-    #    db = client.fileCatalog
+    elif opts.outType == "DB":
+        insertDocuments(opts.dbpath,out)
     elif opts.outType == "FILE":
         ext = splitext(opts.output)[1]
         supported_backends = {".json":"json",".yaml":"yaml",".pkl":"pickle"}
