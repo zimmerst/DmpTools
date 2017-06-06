@@ -99,9 +99,9 @@ def _ana(filename,boolwrite=False):
 			emaxs.append(iteration['emax'])
 			
 	if len(set(emins)) > 1 or len(set(emaxs)) > 1:		# Multiple energy ranges found
-		print "Energies found, lower bound: ", len(set(emins))
-		print "Energies found, upper bound: ", len(set(emaxs))
-		raise Exception("Found multiple energy ranges!")
+		print "Energies found, lower bound: ", list(set(emins))
+		print "Energies found, upper bound: ", list(set(emaxs))
+		raise Exception("Found multiple energy ranges! File: " + filename)
 			
 	if boolwrite:
 		for blarg in fichiers.keys():
