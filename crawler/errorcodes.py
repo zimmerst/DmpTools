@@ -99,8 +99,8 @@ def _ana(filename,boolwrite=False):
 			emaxs.append(iteration['emax'])
 			
 	if len(set(emins)) > 1 or len(set(emaxs)) > 1:		# Multiple energy ranges found
-		print "Energies found, lower bound: ", emins
-		print "Energies found, upper bound: ", emax
+		print "Energies found, lower bound: ", len(set(emins))
+		print "Energies found, upper bound: ", len(set(emaxs))
 		raise Exception("Found multiple energy ranges!")
 			
 	if boolwrite:
