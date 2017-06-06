@@ -60,13 +60,13 @@ def _ana(filename,boolwrite=False):
 	
 	# Identify energy range:
 	if "10TeV_100TeV" in diclist[0]['lfn']:
-		energyMin = 1e+8
-	elif "10GeV_100GeV" in diclist[0]['lfn']:
-		energyMin = 1e+5
-	elif "100GeV_10TeV" in diclist[0]['lfn']:
 		energyMin = 1e+7
-	elif "1GeV_100GeV" in diclist[0]['lfn']:
+	elif "10GeV_100GeV" in diclist[0]['lfn']:
+		energyMin = 1e+4
+	elif "100GeV_10TeV" in diclist[0]['lfn']:
 		energyMin = 1e+5
+	elif "1GeV_100GeV" in diclist[0]['lfn']:
+		energyMin = 1e+3
 	else:
 		raise Exception("Energy range not recognised")
 	
