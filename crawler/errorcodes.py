@@ -60,11 +60,13 @@ def _ana(filename,boolwrite=False):
 	
 	# Identify energy range:
 	if "10TeV_100TeV" in diclist[0]['lfn']:
-		energyMax = 1e+8
+		energyMin = 1e+8
 	elif "10GeV_100GeV" in diclist[0]['lfn']:
-		energyMax = 1e+5
+		energyMin = 1e+5
 	elif "100GeV_10TeV" in diclist[0]['lfn']:
-		energyMax = 1e+7
+		energyMin = 1e+7
+	elif "1GeV_100GeV" in diclist[0]['lfn']:
+		energyMin = 1e+5
 	else:
 		raise Exception("Energy range not recognised")
 	
@@ -116,8 +118,9 @@ def _ana(filename,boolwrite=False):
 		print "Energies found, upper bound: ", list(set(emaxs))
 		print "Found multiple energy ranges! File: ", filename.replace('.json','')
 		badEnergies = True
-	elif energyMax not in emaxs: 		# Wrong energy range
+	elif energyMin not in emins: 		# Wrong energy range
 		badEnergies = True
+		print "Found bad energy range! File: ", filename.replace('.json','')
 	else:
 		badEnergies = False
 	
