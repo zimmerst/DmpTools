@@ -150,6 +150,7 @@ def _ana(filename,boolwrite=False):
 				if float(key) == 1e+5: erange='10GeV_100GeV.txt'
 				elif float(key) == 1e+7: erange='100GeV_10TeV.txt'
 				elif float(key) == 1e+8: erange='10TeV_100TeV.txt'
+				else: raise Exception("Energy range not recognised!")
 				outstring = dirname + '/energies/' + erange
 				
 				with open(outstring,'w') as thefile:
