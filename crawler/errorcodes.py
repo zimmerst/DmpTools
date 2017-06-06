@@ -8,6 +8,8 @@ To run after the crawler. Either
 Script will browse the json file(s) and make filelists based on error code. Also includes good files.
 Output under  ./outputs/*dataset*/
 
+If multiple energy ranges found, additional output under   ./outputs/*dataset*/energies/
+
 Error codes:
 0 : No error, file is good
 1001 : Missing branches
@@ -56,6 +58,17 @@ def _ana(filename,boolwrite=False):
 		diclist = json_load_byteified(f)
 	
 	
+	# Identify energy range:
+	if "10TeV_100TeV" in diclist[0]['lfn']:
+		energyMax = 1e+8
+	elif "10GeV_100GeV" in diclist[0]['lfn']:
+		energyMax = 1e+5
+	elif "100GeV_10TeV" in diclist[0]['lfn']:
+		energyMax = 1e+7
+	else:
+		raise Exception("Energy range not recognised")
+	
+	
 	fichiers = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[],'1005':[],'3000':[]}
 	tailles = []
 	for i in range(8):
@@ -101,8 +114,14 @@ def _ana(filename,boolwrite=False):
 	if len(set(emins)) > 1 or len(set(emaxs)) > 1:		# Multiple energy ranges found
 		print "Energies found, lower bound: ", list(set(emins))
 		print "Energies found, upper bound: ", list(set(emaxs))
-		raise Exception("Found multiple energy ranges! File: " + filename)
-			
+		print "Found multiple energy ranges! File: ", filename.replace('.json','')
+		badEnergies = True
+	elif energyMax not in emaxs: 		# Wrong energy range
+		badEnergies = True
+	else:
+		badEnergies = False
+	
+	# Write results		
 	if boolwrite:
 		for blarg in fichiers.keys():
 			
@@ -112,11 +131,30 @@ def _ana(filename,boolwrite=False):
 			dirname = './outputs/' + os.path.splitext(os.path.basename(filename))[0]
 			if not os.path.isdir(dirname):
 				os.mkdir(dirname)
-			outstring = dirname + '/' + 'error' + blarg + '.txt'
+			outstring = dirname + '/error' + blarg + '.txt'
 				
 			with open(outstring,'w') as thefile:
 				for item in fichiers[blarg]:
 					thefile.write("%s\n" % item)
+		if badEnergies:
+			if not os.path.isdir(dirname+'/energies'): os.mkdir(dirname+'/energies')
+			
+			dicEnergy = {}
+			for x in list(set(emaxs)):
+				dicEnergy[str(x)] = []
+			for iteration in diclist:
+				if iteration['error_code'] == 0:
+					dicEnergy[str(iteration['emax'])].append(iteration['lfn'])
+			
+			for key in dicEnergy.keys():
+				if float(key) == 1e+5: erange='10GeV_100GeV.txt'
+				elif float(key) == 1e+7: erange='100GeV_10TeV.txt'
+				elif float(key) == 1e+8: erange='10TeV_100TeV.txt'
+				outstring = dirname + '/energies/' + erange
+				
+				with open(outstring,'w') as thefile:
+					for item in dicEnergy[key]:
+						thefile.write("%s\n" % item)
 				
 	return fichiers, tailles
 	
