@@ -60,9 +60,12 @@ def _ana(filename,boolwrite=False):
 	tailles = []
 	for i in range(8):
 		tailles.append([])
+	emins = []
+	emaxs = []
 	
 	for iteration in diclist:
 		
+		# List error codes
 		if iteration['error_code'] == 0:
 			fichiers['0'].append(iteration['lfn'])
 			tailles[0].append(iteration['nevts'])
@@ -89,6 +92,16 @@ def _ana(filename,boolwrite=False):
 			tailles[7].append(iteration['nevts'])
 		else:
 			raise Exception('Unmanaged error code:' + str(iteration['error_code']))
+			
+		# Check for energy range
+		if iteration['error_code'] == 0:
+			emins.append(iteration['emin'])
+			emaxs.append(iteration['emax'])
+			
+	if len(set(emins)) > 1 or len(set(emaxs)) > 1:		# Multiple energy ranges found
+		print "Energies found, lower bound: ", emins
+		print "Energies found, upper bound: ", emax
+		raise Exception("Found multiple energy ranges!")
 			
 	if boolwrite:
 		for blarg in fichiers.keys():
