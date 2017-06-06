@@ -143,16 +143,17 @@ def _ana(filename,boolwrite=False):
 			if not os.path.isdir(dirname+'/energies'): os.mkdir(dirname+'/energies')
 			
 			dicEnergy = {}
-			for x in list(set(emaxs)):
+			for x in list(set(emins)):
 				dicEnergy[str(x)] = []
 			for iteration in diclist:
 				if iteration['error_code'] == 0:
-					dicEnergy[str(iteration['emax'])].append(iteration['lfn'])
+					dicEnergy[str(iteration['emin'])].append(iteration['lfn'])
 			
 			for key in dicEnergy.keys():
-				if float(key) == 1e+5: erange='10GeV_100GeV.txt'
-				elif float(key) == 1e+7: erange='100GeV_10TeV.txt'
-				elif float(key) == 1e+8: erange='10TeV_100TeV.txt'
+				if float(key) == 1e+4: erange='10GeV_100GeV.txt'
+				elif float(key) == 1e+5: erange='100GeV_10TeV.txt'
+				elif float(key) == 1e+7: erange='10TeV_100TeV.txt'
+				elif float(key) == 1e+3: erange='1GeV_100GeV.txt'
 				else: raise Exception("Energy range not recognised!")
 				outstring = dirname + '/energies/' + erange
 				
