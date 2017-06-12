@@ -30,21 +30,21 @@ def json_load_byteified(file_handle):
 	'''
 	Crawler output is unicode. Change to UTF-8 for better handling
 	'''
-    return _byteify(
-        json.load(file_handle, object_hook=_byteify),
-        ignore_dicts=True
-    )
+	return _byteify(
+		json.load(file_handle, object_hook=_byteify),
+		ignore_dicts=True
+	)
 def _byteify(data, ignore_dicts = False):
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-    if isinstance(data, list):
-        return [ _byteify(item, ignore_dicts=True) for item in data ]
-    if isinstance(data, dict) and not ignore_dicts:
-        return {
-            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-        }
-    return data
+	if isinstance(data, unicode):
+		return data.encode('utf-8')
+	if isinstance(data, list):
+		return [ _byteify(item, ignore_dicts=True) for item in data ]
+	if isinstance(data, dict) and not ignore_dicts:
+		return {
+			_byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+			for key, value in data.iteritems()
+			}
+	return data
 
 def identifyEnergyRange(filename):
 	'''
@@ -98,7 +98,7 @@ def ana(filename):
 	
 	# Write results	
 	dirname = './ana/' + os.path.splitext(os.path.basename(filename))[0]
-	for d in ['ana',dirname]
+	for d in ['ana',dirname]:
 		if not os.path.isdir(d): os.mkdir(d)
 		
 	for k in fichiers.keys():
@@ -132,7 +132,7 @@ def ana(filename):
 if __name__ == '__main__':
 	
 	if ".json" in sys.argv[1]:		# Only one json file provided
-		ana(sys.argv[1],boolwrite=True)
+		ana(sys.argv[1])
 	else:							# ASCII list of json files provided
 		inputlist = []
 		with open(sys.argv[1],'r') as f:
