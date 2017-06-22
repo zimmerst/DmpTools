@@ -48,9 +48,9 @@ def make_wrapper(infile,outfile):
 cfg = yload(open(argv[1],"rb"))
 
 time_per_job = cfg.get("time_per_job",3600.)
-if ":" in time_per_job:
+if ":" in str(time_per_job):
     now = datetime(day=1,month=1,year=1900,hour=0,minute=0,second=0)
-    dt  = datetime.strptime(time_per_job,"%H:%M:%S")
+    dt  = datetime.strptime(str(time_per_job),"%H:%M:%S")
     time_per_job = str(dt-now)
 else:
     time_per_job = str(timedelta(seconds=time_per_job))
