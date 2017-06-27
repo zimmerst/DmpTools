@@ -1,4 +1,5 @@
 from sys import argv
+from tqdm import tqdm
 from yaml import load as yload, dump as ydump
 from glob import glob
 from os.path import isfile, abspath, basename, dirname, join as opjoin
@@ -24,8 +25,13 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     npath = opjoin(newpath,task)
     fout = opjoin(npath,fname)
     fout = fout.replace(".mc",".reco")
+    max_occ = 10 # version tag shouldn't be there more than 10 times;
+    # if we do not include this criterion, if MC-version == reco version this would yield an infinite loop!
+    occ = 0
     while vtag in fout:
         fout = fout.replace(vtag,version)
+        occ+=1
+        if occ >= max_occ: break
     #print "*** DBG ***: ",fout
     return fout
 
@@ -91,7 +97,11 @@ for i in xrange(ncycles):
     print 'check if files exist already'
 
     reco_file = lambda f : mc2reco(f,version=version,newpath=cfg['outputdir'])
-    files_to_process = [f for f in files_to_process if not isfile(reco_file(f))]
+    #files_to_process = tqdm([f for f in files_to_process if not isfile(reco_file(f))])
+    _files_to_process = []
+    for f in tqdm(files_to_process):
+        if not isfile(reco_file(f)): _files_to_process.append(f)
+    files_to_process = _files_to_process
     print 'after check: found %i files to process this cycle.'%len(files_to_process)
     nfiles = len(files_to_process)
     chunks = [files_to_process[x:x+g_maxfiles] for x in xrange(0, len(files_to_process), g_maxfiles)]
