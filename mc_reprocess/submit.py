@@ -25,7 +25,7 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     npath = opjoin(newpath,task)
     fout = opjoin(npath,fname)
     fout = fout.replace(".mc",".reco")
-    max_occ = 10 # version tag shouldn't be there more than 10 times;
+    max_occ = 5 # version tag shouldn't be there more than 5 times;
     # if we do not include this criterion, if MC-version == reco version this would yield an infinite loop!
     occ = 0
     while vtag in fout:
