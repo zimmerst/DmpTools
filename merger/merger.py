@@ -1,33 +1,35 @@
 '''
 
-Merger v0.2.0
+Merger v0.3.0
 
 How to run:
-> python merger.py files.txt reductionfactor
-        files.txt is an ASCII list of files
-        reductionfactor is a number, how many files you want to merge into a single one (if 100, then one new file corresponds to 100 old)
+> python merger.py files.txt  -r 100 -i 0 --progress
+		files.txt is an ASCII list of files
+		-r 			: 	 	How many files you want to merge into a single one (if 100, then one new file corresponds to 100 old)
+		-i 			: 		Starting index for the name of the outputs
+		--progress 	: 		Shows a progress bar on std out
+		--reload	:		Reload previous state if any is found
 
 Terminal output:
-    A lot of output caused by the DmpSoftware. At the end, the run time is written to terminal
+	A lot of output caused by the DmpSoftware. At the end, the run time is written to terminal
 
 Files output:
-    Creates two directories:
-        ./merger_out/*dataset*/  contains the output root files, using the 5-digits convention we discussed.
-        ./merger_data/*dataset*/  contains:
-                                        - notmerged.txt : a text file containing the list of files that have not been merged (end of chunk). Empty if everything has been merged.
-                                        - merged.yaml :  a dictionary which maps new files to old files
-                                        - fmerged.txt : list of files that got merged
+	Creates two directories:
+		./merger_out/*dataset*/  contains the output root files, using the 5-digits convention we discussed.
+		./merger_data/*dataset*/  contains:
+										- notmerged.txt : a text file containing the list of files that have not been merged 
+															(end of chunk). Empty if everything has been merged.
+										- merged.yaml :  a dictionary which maps new files to old files
+										- fmerged.txt : list of files that got merged
 
 Other features:
-    The script checks for existence of output files, and does not run on files that already exist. So it can resume where it stopped
-	Checks the input files to look for bad PDG ID. Can be disabled to gain computation time
+	The script checks for existence of output files, and does not run on files that already exist. So it can resume where it stopped
 	Can be called with a custom file number index
 
 '''
 
 
 from ROOT import gSystem
-from glob import glob
 from sys import argv
 gSystem.Load("libDmpEvent.so")
 from ROOT import DmpChain, TChain, TFile, DmpRunSimuHeader, DmpEvtSimuPrimaries
@@ -38,6 +40,7 @@ import cPickle as pickle
 from yaml import dump as ydump
 from tqdm import tqdm
 from copy import deepcopy
+import argparse
 
 
 class Merger(object):
@@ -47,13 +50,12 @@ class Merger(object):
 	Initialise with the list of files to be merged, and the reduction factor (i.e. how many files to merge into a single one)
 	'''
 	
-	def __init__(self, textfile, reductionfactor, progress=True, checkPart=False, rld=True, i=0):
+	def __init__(self, textfile, reductionfactor, progress=True, rld=True, i=0, debug=False):
 		
 		self.t0 = time()
 		self.progress = progress
 		self.debug = debug 
 		
-		self.checkPart = checkPart
 		self.rld = rld
 		
 		self.index = i
@@ -67,7 +69,6 @@ class Merger(object):
 		self.nrofsteps = self.nroffiles / self.rf
 		
 		self.equivalence = {}
-		self.badPDGId = []
 		
 		temp_str = basename(self.tomerge[0])
 		temp_int = temp_str.find('.')				
@@ -89,45 +90,6 @@ class Merger(object):
 		return self.mergedfiles
 	def getToMerge(self):
 		return self.notmerged
-		
-	def testPdgId(self, fname):
-		'''
-		test if the particle ID is good. Adapted from Stephan's work on the crawler
-		'''
-		bn = basename(fname).split(".")[0].split("-")[0]
-		if (not bn.startswith("all")) or (("bkg" or "background" or "back") in bn.lower()):
-			return True
-		else:
-			try:
-				tree = mcprimaries = None
-				tree = TChain("CollectionTree")
-				tree.Add(fname)
-				tree.SetBranchStatus("DmpEvtSimuPrimaries",1)
-				branch = tree.GetBranch("DmpEvtSimuPrimaries")
-				mcprimaries = DmpEvtSimuPrimaries()
-				tree.SetBranchAddress("DmpEvtSimuPrimaries", mcprimaries)
-				branch.GetEntry(0)
-				tree.GetEntry(0)
-				entry = tree.GetEntry(0)
-				pdg_id = int(mcprimaries.pvpart_pdg)
-				if pdg_id > 10000:
-					pdg_id = int(pdg_id/10000.) - 100000
-				pdgs = dict(Proton=2212, Electron=11, Muon=13, Gamma=22,He = 2, Li = 3, Be = 4, B = 5, C = 6, N = 7, O = 8)
-				particle = bn.replace("all","")
-				if "flat" in particle:
-					particle = bn.replace("flat","")
-				assert particle in pdgs.keys(), "particle type not supported"
-				if pdgs[particle] != pdg_id:
-					msg = "wrong PDG ID! particle_found={part_found} ({PID}); particle_expected={part_exp} ({particle})".format(part_exp=int(pdgs[particle]),
-																										  part_found=int(pdg_id),particle=particle,
-																										  PID=dict(zip(pdgs.values(),pdgs.keys()))[pdg_id])
-					raise ValueError(msg)
-			except Exception as err:
-				del tree, mcprimaries
-				#~ raise Exception(err.message)
-				return False
-
-			return True
 		
 	def save(self):
 		'''
@@ -197,19 +159,16 @@ class Merger(object):
 		'''
 		# String manipulation to build output name
 		outfile = 'merger_out' + self.subdir + '/'
+		temp_index = "%05d" % (i,)
 		if 'reco' in filelist[0]:
 			temp_int = basename(filelist[0]).find('.reco') - 6
-			temp_index = "%05d" % (i,)
 			outfile = outfile + basename(filelist[0])[0:temp_int] + temp_index + '.reco.root'
-			del temp_int, temp_index
 		elif 'mc' in filelist[0]:
 			temp_int = basename(filelist[0]).find('.mc') - 6
-			temp_index = "%05d" % (i,)
 			outfile = outfile + basename(filelist[0])[0:temp_int] + temp_index + '.mc.root'
-			del temp_int, temp_index
 		else:
 			raise Exception("Could not identify file type. Looking for '.reco.root' or '.mc.root'")
-		
+		del temp_int, temp_index
 		if isfile(outfile): 
 			return
 		
@@ -217,10 +176,6 @@ class Merger(object):
 		dmpch = DmpChain("CollectionTree")
 		metachain = TChain("RunMetadataTree")
 		for f in filelist:
-			if self.checkPart:
-				if not self.testPdgId(f):
-					self.badPDGId.append(f)
-					continue
 			dmpch.Add(f)
 		metachain.Add(filelist[0])
 		
@@ -294,7 +249,17 @@ class Merger(object):
 
 if __name__ == '__main__' :
 	
-	with open(sys.argv[1],'r') as g:
+	
+	parser = argparse.ArgumentParser()
+	parser.add_argument('infile', help="Input file list")
+	parser.add_argument("-r", "--reductionfactor", help="How many inputs per output",default=100,type=int)
+	parser.add_argument("--progress", help="Progress bar to std out",action='store_true',default=False)
+	parser.add_argument("--reload", help="Reload previous run if any is found",action='store_true',default=False)
+	parser.add_argument("-i", "--index", help="Start of counting index for output files",default=0,type=int)
+		
+	args = parser.parse_args()
+	
+	with open(args.infile,'r') as g:
 		for line in g:
 			configfile = line.replace('\n','')
 			break
@@ -307,7 +272,7 @@ if __name__ == '__main__' :
 		a = Merger.unpickle(configfile)
 		a.run()
 	else:
-		a = Merger(argv[1],argv[2])
+		a = Merger(args.infile,args.reductionfactor,progress=args.progress,rld=args.reload,i=args.index)
 		a.run()
 	
 	print 'Run time: ', str(strftime('%H:%M:%S', gmtime( a.getRunTime() )))
