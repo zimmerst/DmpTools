@@ -9,7 +9,7 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
-from os.path import getsize, abspath, isfile, splitext
+from os.path import getsize, abspath, isfile, splitext, getmtime
 #from tqdm import tqdm
 #HASMONGO=True
 gROOT.SetBatch(True)
@@ -123,7 +123,6 @@ def main(infile, debug=False):
     def testPdgId(fname):
         global error_code
         if debug: print 'testing for PDG id'
-        from os.path import basename
         bn = basename(fname).split(".")[0].split("-")[0]
         if (not bn.startswith("all")) or (("bkg" or "background" or "back") in bn.lower()):
             return True
@@ -156,7 +155,7 @@ def main(infile, debug=False):
     def isNull(ptr):
         if debug: print 'test if pointer is null.'
         try:
-            heap = ptr.IsOnHeap()
+            ptr.IsOnHeap()
         except ReferenceError:
             return True
         else:
@@ -221,7 +220,8 @@ def main(infile, debug=False):
         b_sH.GetEntry(0)
         return simuHeader.GetMinEne(), simuHeader.GetMaxEne()
 
-    def isFlight(fname):
+    def isFlight():
+        global error_code
         if debug: print 'check if data is flight data'
         ch = DmpChain("CollectionTree")
         ch.Add(infile)
@@ -243,7 +243,7 @@ def main(infile, debug=False):
 
     def getSize(lfn):
         global error_code
-        if debug: 'print extracting file size'
+        if debug: print 'extracting file size'
         if lfn.startswith("root://"):
             server = "root://{server}".format(server=lfn.split("/")[2])
             xc = client.FileSystem(server)
@@ -255,9 +255,31 @@ def main(infile, debug=False):
         else:
             return getsize(lfn)
 
+    def getModDate(lfn):
+        from datetime import datetime
+        global error_code
+        if debug: print 'creation date'
+        if lfn.startswith("root://"):
+            server = "root://{server}".format(server=lfn.split("/")[2])
+            xc = client.FileSystem(server)
+            is_ok, res = xc.stat(lfn.replace(server,""))
+            if not is_ok.ok:
+                error_code = 2000
+                raise Exception(is_ok.message)
+            return datetime.strptime(res.modtimestr,"%Y-%m-%d %H:%M:%S")
+        else:
+            return datetime.fromtimestamp(getmtime(lfn))
+
+    def getTaskName(lfn):
+        url = lfn
+        if lfn.startswith("root://"):
+            server = "root://{server}".format(server=lfn.split("/")[2])
+            url = lfn.replace(server,"")
+        return url.split("/")[-2]
+
     def isFile(lfn):
         global error_code
-        if debug: 'print checking file access'
+        if debug: print 'checking file access'
         if debug: print "LFN: ", lfn
         if lfn.startswith("root://"):
             server = "root://{server}".format(server=lfn.split("/")[2])
@@ -286,6 +308,8 @@ def main(infile, debug=False):
     tstart = -1.
     tstop = -1.
     fsize = 0.
+    moddate = "NONE"
+    tname = "None"
     good = True
     eMax = -1.
     eMin = -1.
@@ -301,6 +325,7 @@ def main(infile, debug=False):
             raise Exception("could not access file")
 
         fsize = getSize(infile)
+        moddate= getModDate(infile)
         tag, svn_rev = extractVersion(infile)
         tch = TChain("CollectionTree")
         tch.Add(infile)
@@ -309,13 +334,14 @@ def main(infile, debug=False):
             error_code = 1004
             good = False
             raise IOError("zero events.")
-        flight_data, stat = isFlight(infile)
+        flight_data, stat = isFlight()
         if flight_data:
             good = checkHKD(infile)
             tstart = stat.get("tstart",-1.)
             tstop  = stat.get("tstop",-1.)
             f_type = "2A"
         else:
+            tname = getTaskName(infile)
             #print 'mc data'
             simu_branches = [tch.FindBranch(b) for b in branches['mc:simu']]
             reco_branches = [tch.FindBranch(b) for b in branches['mc:reco']]
@@ -346,7 +372,7 @@ def main(infile, debug=False):
 
     f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
                  comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev, emax=eMax, emin=eMin,
-                 checksum=chksum)
+                 checksum=chksum, last_modified=moddate, task=tname)
     return f_out
 
 if __name__ == '__main__':
@@ -393,4 +419,4 @@ if __name__ == '__main__':
         for fpack in out:
             oout.append(fpack)
         pack.dump(oout, open(opts.output, 'wb'))
-    else: raise NotSupportedError("not supported type")
+    else: raise RuntimeError("not supported type")

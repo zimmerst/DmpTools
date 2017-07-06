@@ -1,7 +1,6 @@
 # simple script to export event by #id
 
 from sys import argv
-from os.path import abspath
 from ROOT import gSystem, gROOT
 from os.path import getsize, abspath, isfile, splitext
 #from tqdm import tqdm
