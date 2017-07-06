@@ -8,6 +8,9 @@ To run after the crawler. Either
 Script will browse the json file(s) and make filelists based on error code. Also includes good files.
 Output under  ./outputs/*dataset*/
 
+Secondary output:  file.good.json
+	List of dictionaries containing only good files
+
 If multiple energy ranges found, additional output under   ./outputs/*dataset*/energies/
 
 Error codes:
@@ -68,7 +71,7 @@ def identifyEnergyRange(filename):
 
 
 def ana(filename):
-	if not '.json' in filename:
+	if '.json' not in filename:
 		raise IOError('Not a .json file')
 	
 	with open(filename,'r') as f:	
@@ -80,12 +83,18 @@ def ana(filename):
 	
 	# Explicitly have one list per possible error code - at the end I want empty files for error codes that did not appear (instead of having no file at all)
 	fichiers = {'0':[],'1001':[],'1002':[],'1003':[],'1004':[],'2000':[],'1005':[],'3000':[]}
+	
+	goodDicList = [] 		# Build a new json file with only good files
 
 	for iteration in diclist:
 		fichiers[str(iteration['error_code'])].append(iteration['lfn'])
 		if iteration['error_code'] == 0:
 			emins.append(iteration['emin'])
 			emaxs.append(iteration['emax'])
+			goodDicList.append(iteration)
+			
+	with open(filename.replace('.json','.good.json'),'w') as f:
+		json.dump(goodDicList,f)
 			
 	if len(set(emins)) > 1 or len(set(emaxs)) > 1:		# Multiple energy ranges found
 		print "Found multiple energy ranges! File: ", filename.replace('.json','')
@@ -127,7 +136,9 @@ def ana(filename):
 			with open(outstring,'w') as thefile:
 				for item in dicEnergy[key]:
 					thefile.write("%s\n" % item)
-
+	
+	
+	
 
 if __name__ == '__main__':
 	
