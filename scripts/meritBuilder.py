@@ -14,7 +14,7 @@ gSystem.Load("libDmpEvent.so")
 from ROOT import DmpChain, DmpEvent
 widgets = [Percentage(), Bar(), ETA()]
 
-class MeritTree(TreeModel)
+class MeritTree(TreeModel):
     # let's start with Psd variables
     PsdNhits       = IntCol()     # NEvtPsdHits 
 
