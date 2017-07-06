@@ -9,7 +9,7 @@
 """
 from sys import argv
 from ROOT import gSystem, gROOT
-from os.path import getsize, abspath, isfile, splitext
+from os.path import getsize, abspath, isfile, splitext, getmtime
 #from tqdm import tqdm
 #HASMONGO=True
 gROOT.SetBatch(True)
@@ -255,6 +255,28 @@ def main(infile, debug=False):
         else:
             return getsize(lfn)
 
+    def getModDate(lfn):
+        from datetime import datetime
+        global error_code
+        if debug: print 'creation date'
+        if lfn.startswith("root://"):
+            server = "root://{server}".format(server=lfn.split("/")[2])
+            xc = client.FileSystem(server)
+            is_ok, res = xc.stat(lfn.replace(server,""))
+            if not is_ok.ok:
+                error_code = 2000
+                raise Exception(is_ok.message)
+            return datetime.strptime(res.modtimestr,"%Y-%m-%d %H:%M:%S")
+        else:
+            return datetime.fromtimestamp(getmtime(lfn))
+
+    def getTaskName(lfn):
+        url = lfn
+        if lfn.startswith("root://"):
+            server = "root://{server}".format(server=lfn.split("/")[2])
+            url = lfn.replace(server,"")
+        return url.split("/")[-2]
+
     def isFile(lfn):
         global error_code
         if debug: print 'checking file access'
@@ -286,6 +308,8 @@ def main(infile, debug=False):
     tstart = -1.
     tstop = -1.
     fsize = 0.
+    moddate = "NONE"
+    tname = "None"
     good = True
     eMax = -1.
     eMin = -1.
@@ -301,6 +325,7 @@ def main(infile, debug=False):
             raise Exception("could not access file")
 
         fsize = getSize(infile)
+        moddate= getModData(infile)
         tag, svn_rev = extractVersion(infile)
         tch = TChain("CollectionTree")
         tch.Add(infile)
@@ -316,6 +341,7 @@ def main(infile, debug=False):
             tstop  = stat.get("tstop",-1.)
             f_type = "2A"
         else:
+            tname = getTaskName(infile)
             #print 'mc data'
             simu_branches = [tch.FindBranch(b) for b in branches['mc:simu']]
             reco_branches = [tch.FindBranch(b) for b in branches['mc:reco']]
@@ -346,7 +372,7 @@ def main(infile, debug=False):
 
     f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
                  comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev, emax=eMax, emin=eMin,
-                 checksum=chksum)
+                 checksum=chksum, last_modified=moddate, task=tname)
     return f_out
 
 if __name__ == '__main__':
