@@ -21,18 +21,19 @@ next_run  = start_run + INTERVAL
 timeleft  = INTERVAL
 
 statii = ('New','Submitted',"Running")
-
+sites = ['CNAF','BARI']
 while timeleft > 0:
     # do query
     start_run = tstamp(datetime.now())
     next_run = start_run + INTERVAL
-    query = JobInstance.objects.filter(status__in=statii).item_frequencies("status")
-    md = {key: query.get(key, 0) for key in statii}
-    for key,value in md.iteritems():
-        val="PUTVAL {host}/{plugin}/{ptype}-JobStatus_{key} {start_run}:{value}".format(
-            host=HOSTNAME, plugin=getenv("PLUGIN_NAME"), ptype=getenv("PLUGIN_TYPE"),
-            key=key, start_run=start_run, value=value)
-        print val
+    for site in sites:
+        query = JobInstance.objects.filter(status__in=statii,site=site).item_frequencies("status")
+        md = {key: query.get(key, 0) for key in statii}
+        for key,value in md.iteritems():
+            val="PUTVAL {host}/{plugin}/{ptype}-JobStatus_{key} {start_run}:{value}".format(
+                host=site, plugin=getenv("PLUGIN_NAME"), ptype=getenv("PLUGIN_TYPE"),
+                key=key, start_run=start_run, value=value)
+            print val
 
     timeleft = next_run - tstamp(datetime.now())
     sleep(timeleft)
