@@ -325,7 +325,7 @@ def main(infile, debug=False):
             raise Exception("could not access file")
 
         fsize = getSize(infile)
-        moddate= getModDate(infile)
+        moddate= getModDate(infile).strftime("%Y-%m%-d_%H:%M:%S")
         tag, svn_rev = extractVersion(infile)
         tch = TChain("CollectionTree")
         tch.Add(infile)
