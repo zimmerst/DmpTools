@@ -335,7 +335,7 @@ def main(infile, debug=False):
                     verifyEnergyBounds(infile,eMin,eMax)
                 except AssertionError as msg:
                     error_code = 1005
-                    raise Exception(msg.Message)
+                    raise Exception(msg.message)
         if good:
             assert f_type in types, "found non-supported dataset type!"
             good = checkBranches(tch, branches[f_type])
