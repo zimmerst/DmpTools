@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "" > nohup.out
+
+skim_version="`cat parameters.txt | grep skim_version | awk '{print $2}'`"
+
+nohup ./run.bash run ${skim_version} &
+
+tailf nohup.out
+
+

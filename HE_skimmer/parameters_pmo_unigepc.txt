@@ -1,0 +1,52 @@
+-----------------------------------------------------------------------------
+### Location of 2A data files
+2A_data_location	/data/skim/cache/PMO_cluster/2A
+-----------------------------------------------------------------------------
+### Location of output files, file lists and bookeeping files
+output_location		/data/skim/2A/5.4.0/v1
+-----------------------------------------------------------------------------
+### Dates to process
+year_start		2016
+year_end		2016
+month_start		12
+month_end		12
+day_start		1
+day_end			10
+-----------------------------------------------------------------------------
+### DAMPE softeare realease and installation path
+dampe_sw_release	DmpSoftware-5-4-0
+dampe_sw_path		/home/dampe/Soft/DmpSoftware/tags
+-----------------------------------------------------------------------------
+### ROOT		
+root_sw_path		/home/dampe/Soft/DAMPE_externals/root_v5.34.34.build
+-----------------------------------------------------------------------------
+### Time interval within which execution start is sampled
+start_execution_delay   10 seconds
+-----------------------------------------------------------------------------
+### Locaiton of the skimmer executable
+exec_location		/home/dampe/Soft/skimmer_3/code
+-----------------------------------------------------------------------------
+### Files to process
+file_start		1
+file_end		-1 ### set to -1 to process all available files
+-----------------------------------------------------------------------------
+### Events to process
+event_start		0
+event_end		-1 ### set to -1 to process all events
+-----------------------------------------------------------------------------
+### Cut ID for skimmer
+apply_cut		3
+-----------------------------------------------------------------------------
+### Cluster type:	unige_pbs
+#			unige_local
+#			pmo_lsf
+#			pmo_local
+system_type		pmo_local
+-----------------------------------------------------------------------------
+### Maximum number of jobs to be submitted at a time
+max_n_jobs		8
+-----------------------------------------------------------------------------
+### Job menagement system cridentials
+submit_user		dampe
+submit_queue		none
+-----------------------------------------------------------------------------
