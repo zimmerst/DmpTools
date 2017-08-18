@@ -373,6 +373,9 @@ def main(infile, debug=False):
     f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
                  comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev, emax=eMax, emin=eMin,
                  checksum=chksum, last_modified=moddate, task=tname)
+    # convert True / False to 0/1
+    for key, value in f_out.iteritems():
+        if isinstance(value,bool): f_out[key]=int(value)
     return f_out
 
 if __name__ == '__main__':
