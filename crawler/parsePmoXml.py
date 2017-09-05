@@ -4,6 +4,7 @@ from collections import OrderedDict
 from xmltodict import parse
 from ast import literal_eval
 from datetime import datetime
+HASMONGO = True
 try:
     from pymongo import MongoClient
 except ImportError:
@@ -100,12 +101,12 @@ def readOne(fname,dtype="2A"):
     meta = file_meta(doc,dtype=dtype)
     return meta.export2DB()
 
-def insertDocuments(mongopath,docs, debug=False,file_type="2A"):
+def insertDocuments(mongopath,docs, debug=False,file_type="2A",dbname="FlightData"):
     assert HASMONGO, "pymongo not found, DB mode disabled"
     if debug: print 'establishing db connection'
-    cl = MongoClient(mongopath)
+    cl = MongoClient(mongopath+"/{db}".format(db=dbname))
     if debug: print cl
-    db = client.FlightData
+    db = client[dbname]
     coll = literal_eval("db.%s"%file_type)
     objs_to_insert = []
     if debug: print '# objects to insert',len(docs)
