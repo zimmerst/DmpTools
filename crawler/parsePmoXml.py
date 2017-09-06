@@ -36,7 +36,7 @@ class file_meta(object):
             for key, value in val.iteritems():
                 if isinstance(value,OrderedDict):
                     if "#text" in value:
-                        val[key] = float(value.get("#text",0.))
+                        val[key] = float(value.split(".")[0])
         return val
 
     def parseBasicAtts(self,val):
