@@ -4,6 +4,7 @@ from collections import OrderedDict
 from xmltodict import parse
 from ast import literal_eval
 from datetime import datetime
+from pprint import pprint
 HASMONGO = True
 try:
     from pymongo import MongoClient
@@ -55,7 +56,7 @@ class file_meta(object):
         p = literal_eval(self.parseDict(val))
         md5 = "None"
         if "md5" in p: md5 = p.pop("md5")
-        p['md5'] = md5
+        self.md5 = md5
         calib = p.get("Calibration",{})
         if 'STK' in calib:
             stk = calib.get("STK",{})
@@ -63,7 +64,7 @@ class file_meta(object):
                 if "TimeStamp" in key:
                     stk[key] = int(value)
             calib['STK'] = stk
-        return calib
+        return p
 
 
     def export2DB(self):
@@ -71,6 +72,7 @@ class file_meta(object):
         p = self.BasicAttribute
         p.update(self.Time)
         p['Calibrations']=self.Calibrations
+        p['md5'] = self.md5
         for key, value in p.iteritems():
             if "Time" in key:
                 try:
@@ -79,6 +81,7 @@ class file_meta(object):
                 except ValueError:
                     p[key] = float(value)
                 except Exception: pass
+
         return p
 
 def readOne(fname,dtype="2A"):
@@ -104,10 +107,10 @@ def readOne(fname,dtype="2A"):
 def insertDocuments(mongopath,docs, debug=False,file_type="2A",dbname="FlightData"):
     assert HASMONGO, "pymongo not found, DB mode disabled"
     if debug: print 'establishing db connection'
-    cl = MongoClient(mongopath+"/{db}".format(db=dbname))
-    if debug: print cl
+    client = MongoClient(mongopath+"/{db}".format(db=dbname))
+    if debug: print client
     db = client[dbname]
-    coll = literal_eval("db.%s"%file_type)
+    coll = db[file_type]
     objs_to_insert = []
     if debug: print '# objects to insert',len(docs)
     if debug: print 'checking if docs already exist in db'
@@ -119,8 +122,8 @@ def insertDocuments(mongopath,docs, debug=False,file_type="2A",dbname="FlightDat
             objs_to_insert.append(doc)
     if len(objs_to_insert):
         result = coll.insert_many(objs_to_insert)
-        if debug: print 'inserted #docs:',len(result)
-    cl.close()
+        if debug: print result #print 'inserted #docs:',len(result)
+    client.close()
 
 def main(args=None):
     usage = "Usage: %(prog)s [options]"
@@ -143,10 +146,13 @@ def main(args=None):
         else:
             files_to_process.append(f)
     docs = []
-    for fi in files_to_process:
-        docs.append(readOne(fi,dtype=opts.dtype))
-    if opts.debug:
-        print docs
+    for i,fi in enumerate(files_to_process):
+        if opts.debug:
+            print "%i/%i: processing %s  ++++++++++++++++++++++++++"%(i,len(files_to_process),fi)
+        di = readOne(fi,dtype=opts.dtype)
+        if opts.debug:
+            pprint(di)
+        docs.append(di)
     insertDocuments(mp,docs,debug=opts.debug,file_type=opts.dtype)
 
 if __name__ == '__main__':
