@@ -62,7 +62,11 @@ class file_meta(object):
             stk = calib.get("STK",{})
             for key, value in stk.iteritems():
                 if "TimeStamp" in key:
-                    stk[key] = int(value.split(".")[0])
+                    ret = value.split(".")[0]
+                    if len(ret):
+                        stk[key] = int(ret)
+                    else:
+                        stk[key] = -1
             calib['STK'] = stk
         return p
 
