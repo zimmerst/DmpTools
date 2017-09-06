@@ -82,7 +82,8 @@ class file_meta(object):
                     try:
                         p[key] = float(value)
                     except ValueError:
-                        print "WARNING: %s returned strange format for time stamp: %s, round off before comma"%(p.get("FileName","NONE"),str(value))
+                        print "WARNING: {fname} returned strange format for time stamp: {key}:{value}, \
+                               round off before comma".format(fname=p.get("FileName","NONE"),key=key,value=str(value))
                         p[key] = float(value.split(".")[0])
                 except Exception: pass
 
