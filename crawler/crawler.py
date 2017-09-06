@@ -325,7 +325,7 @@ def main(infile, debug=False):
             raise Exception("could not access file")
 
         fsize = getSize(infile)
-        moddate= getModDate(infile).strftime("%Y-%m%-d_%H:%M:%S")
+        moddate= getModDate(infile).strftime("%Y-%m-%d_%H:%M:%S")
         tag, svn_rev = extractVersion(infile)
         tch = TChain("CollectionTree")
         tch.Add(infile)
@@ -373,6 +373,9 @@ def main(infile, debug=False):
     f_out = dict(lfn=infile, nevts=nevts, tstart=tstart, tstop=tstop, good=good, error_code = error_code,
                  comment=comment, size=fsize, type=f_type, version=tag, SvnRev=svn_rev, emax=eMax, emin=eMin,
                  checksum=chksum, last_modified=moddate, task=tname)
+    # convert True / False to 0/1
+    for key, value in f_out.iteritems():
+        if isinstance(value,bool): f_out[key]=int(value)
     return f_out
 
 if __name__ == '__main__':

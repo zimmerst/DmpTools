@@ -1,0 +1,52 @@
+-----------------------------------------------------------------------------
+### Location of 2A data files
+2A_data_location	/data/FM/FlightData/2A
+-----------------------------------------------------------------------------
+### Location of output files, file lists and bookeeping files
+output_location		/data/FM/FlightData/GenevaSkim/data/2A/5.4.0/v1
+-----------------------------------------------------------------------------
+### Dates to process
+year_start		2016
+year_end		2016
+month_start		4
+month_end		4
+day_start		1
+day_end			5
+-----------------------------------------------------------------------------
+### DAMPE softeare realease and installation path
+dampe_sw_release	svn_rep1
+dampe_sw_path		/data/home/sas/
+-----------------------------------------------------------------------------
+### ROOT
+root_sw_path		/data/software/root
+-----------------------------------------------------------------------------
+### Time interval within which execution start is sampled
+start_execution_delay   10 seconds
+-----------------------------------------------------------------------------
+### Locaiton of the skimmer executable
+exec_location		/data/FM/FlightData/GenevaSkim/skimmer_3/code
+-----------------------------------------------------------------------------
+### Files to process
+file_start		1
+file_end		1 ### set to -1 to process all available files
+-----------------------------------------------------------------------------
+### Events to process
+event_start		0
+event_end		1000 ### set to -1 to process all events
+-----------------------------------------------------------------------------
+### Cut ID for skimmer
+apply_cut		3
+-----------------------------------------------------------------------------
+### Cluster type:	unige_pbs
+#			unige_local
+#			pmo_lsf
+#			pmo_local
+system_type		pmo_lsf
+-----------------------------------------------------------------------------
+### Maximum number of jobs to be submitted at a time
+max_n_jobs		1000
+-----------------------------------------------------------------------------
+### Job menagement system cridentials
+submit_user		dampe
+submit_queue		none
+-----------------------------------------------------------------------------
