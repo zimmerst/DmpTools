@@ -62,7 +62,7 @@ class file_meta(object):
             stk = calib.get("STK",{})
             for key, value in stk.iteritems():
                 if "TimeStamp" in key:
-                    stk[key] = int(value)
+                    stk[key] = int(value.split(".")[0])
             calib['STK'] = stk
         return p
 
@@ -82,7 +82,7 @@ class file_meta(object):
                     try:
                         p[key] = float(value)
                     except ValueError:
-                        print "WARNING: %s returned strange format for time stamp, round off before comma"%p.get("FileName","NONE")
+                        print "WARNING: %s returned strange format for time stamp: %s, round off before comma"%(p.get("FileName","NONE"),str(value))
                         p[key] = float(value.split(".")[0])
                 except Exception: pass
 
