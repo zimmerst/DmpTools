@@ -36,7 +36,7 @@ class file_meta(object):
             for key, value in val.iteritems():
                 if isinstance(value,OrderedDict):
                     if "#text" in value:
-                        val[key] = float(value.get("#text",0.))
+                        val[key] = float(value.get("#text",0.).split(".")[0])
         return val
 
     def parseBasicAtts(self,val):
@@ -62,7 +62,11 @@ class file_meta(object):
             stk = calib.get("STK",{})
             for key, value in stk.iteritems():
                 if "TimeStamp" in key:
-                    stk[key] = int(value)
+                    ret = value.split(".")[0]
+                    if len(ret):
+                        stk[key] = int(ret)
+                    else:
+                        stk[key] = -1
             calib['STK'] = stk
         return p
 
@@ -79,7 +83,12 @@ class file_meta(object):
                     dt = datetime.strptime(value,'%Y%m%d%H%M%S')
                     p[key] = dt
                 except ValueError:
-                    p[key] = float(value)
+                    try:
+                        p[key] = float(value)
+                    except ValueError:
+                        print "WARNING: {fname} returned strange format for time stamp: {key}:{value}, \
+                               round off before comma".format(fname=p.get("FileName","NONE"),key=key,value=str(value))
+                        p[key] = float(value.split(".")[0])
                 except Exception: pass
 
         return p
