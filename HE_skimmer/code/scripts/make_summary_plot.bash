@@ -82,3 +82,5 @@ ndays=`cat raw_summary.txt | wc -l`
 
 root ${param} "plot_summary.C(${ndays})"
 
+#root ${param} "plot_summary.C(${year_start},${month_start},${day_start},${ndays})"
+

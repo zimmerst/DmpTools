@@ -1,1 +1,56 @@
-parameters_unige.txt
+-----------------------------------------------------------------------------
+### Location of 2A data files
+2A_data_location	/dampe/data2/releases/5.4.2
+## fix xrootd ingest first!
+-----------------------------------------------------------------------------
+### Location of output files, file lists and bookeeping files
+output_location		/dampe/data4/users/public/HE_skim/5.4.2/v2
+-----------------------------------------------------------------------------
+### Version of the skim
+skim_version		v2
+-----------------------------------------------------------------------------
+### Dates to process
+year_start		2017
+year_end		2017
+month_start		6
+month_end		9
+day_start		1
+day_end			31
+-----------------------------------------------------------------------------
+### DAMPE softeare realease and installation path
+dampe_sw_release	DmpSoftware-5-4-2
+dampe_sw_path		/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/
+-----------------------------------------------------------------------------
+### ROOT
+root_sw_path		/cvmfs/dampe.cern.ch/rhel6-64/opt/externals/root/latest/
+-----------------------------------------------------------------------------
+### Time interval within which execution start is sampled
+start_execution_delay   60 seconds
+-----------------------------------------------------------------------------
+### Locaiton of the skimmer executable
+exec_location		/dampe/data3/users/zimmer/HE_skim/code/
+-----------------------------------------------------------------------------
+### Files to process
+file_start		1
+file_end		-1 # set to -1 to process all available files
+-----------------------------------------------------------------------------
+### Events to process
+event_start		0
+event_end		-1 # set to -1 to process all events
+-----------------------------------------------------------------------------
+### Cut ID for skimmer
+apply_cut		3
+-----------------------------------------------------------------------------
+### Cluster type:	unige_pbs
+#			unige_local
+#			pmo_lsf
+#			pmo_local
+system_type		unige_pbs
+-----------------------------------------------------------------------------
+### Maximum number of jobs to be submitted at a time
+max_n_jobs		150
+-----------------------------------------------------------------------------
+### Job menagement system cridentials
+submit_user		zimmer
+submit_queue		verylong
+-----------------------------------------------------------------------------

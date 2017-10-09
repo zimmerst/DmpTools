@@ -1,5 +1,5 @@
-DMPSWRELEASE  = DmpSoftware-5-4-0
-DMPSWPATH = /dampe/data2/users/russlan/soft/DmpSoftware
+DMPSWRELEASE  = DmpSoftware-5-4-2
+DMPSWPATH = /cvmfs/dampe.cern.ch/rhel6-64/opt/releases/
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit -lProof
@@ -11,11 +11,11 @@ LDFLAGS      = -g -lm
 SOFLAGS      = -shared 
 
 # Local Includes
-INCDIR      += -Iincludes -I${DMPSWPATH}/${DMPSWRELEASE}/Install/include
+INCDIR      += -Iincludes -I${DMPSWPATH}/${DMPSWRELEASE}/include
 
 # Libraries
-DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/Install/lib/
-DMPLIBS = -lDmpKernel `ls ${DMPSWPATH}/${DMPSWRELEASE}/Install/lib/ | grep so | grep -v Kernel | sed -e 's/lib/-l/g' | sed -e 's/\.so//g' | tr '\n' ' '`
+DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/lib/
+DMPLIBS = -lDmpKernel `ls ${DMPSWPATH}/${DMPSWRELEASE}/lib/ | grep so | grep -v Kernel | sed -e 's/lib/-l/g' | sed -e 's/\.so//g' | tr '\n' ' '`
 LIBS      += $(ROOTLIBS) ${DMPLIBDIR} ${DMPLIBS}
 
 # Direct to make the directories with the sources:

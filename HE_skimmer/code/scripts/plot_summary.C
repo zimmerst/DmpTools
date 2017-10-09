@@ -2,9 +2,20 @@
 #include "TDatime.h"
 #include <stdio.h>
 #include <time.h> 
+/*
+void plot_summary(int year_start,
+		  int month_start,
+		  int day_start,   
+                  int ndays) {
 
+*/
 void plot_summary(int ndays) {
-
+  /*
+  TDatime da(year_start,  
+	     month_start, 
+	     day_start,   
+	     00,00,00);
+  */
   TDatime da(2015,12,26,00,00,00);
   gStyle->SetTimeOffset(da.Convert());
   gStyle->SetOptStat(0);
@@ -31,9 +42,15 @@ void plot_summary(int ndays) {
 			365+366+365}; // 2018 - 2015
 
   tm date = {};
+  /*
+  date.tm_year = year_start - 1900;
+  date.tm_mon = month_start - 1;
+  date.tm_mday = day_start;
+  */
   date.tm_year = 2015 - 1900;
   date.tm_mon = 11;
   date.tm_mday = 26;
+
   mktime( &date );
   int first_day = date.tm_yday;
 
