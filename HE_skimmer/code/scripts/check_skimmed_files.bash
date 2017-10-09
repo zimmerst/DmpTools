@@ -17,8 +17,8 @@ source setup-externals_${system_type}.sh
 release_name="`cat ../../parameters.txt | grep dampe_sw_release | awk '{print $2}'`"
 release_path="`cat ../../parameters.txt | grep dampe_sw_path | awk '{print $2}'`"
 echo "Set up DMPSW"
-echo "cd ${release_path}/${release_name}/Install"
-cd ${release_path}/${release_name}/Install
+echo "cd ${release_path}/${release_name}/"
+cd ${release_path}/${release_name}/
 echo "source bin/thisdmpsw.sh"
 source bin/thisdmpsw.sh
 cd - >& /dev/null

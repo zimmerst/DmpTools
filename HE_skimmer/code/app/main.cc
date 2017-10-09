@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     long int files_added = 0;
     while ( getline (datafilelist_file,line) ){
       if (file_id >= first_file && file_id <= last_file ) {
-	//line = "root://grid05.unige.ch:1094/" + line;
+       	if (line.find("dmp")!=std::string::npos) line = "root://grid05.unige.ch:1094" + line;
 	t_in->Add(line.data());
 	rm_in->Add(line.data());
 	for (int i=0; i<n_hk_in; i++) hk_in[i]->Add(line.data());
