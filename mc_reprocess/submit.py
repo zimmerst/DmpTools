@@ -15,7 +15,10 @@ def mkdir(pwd):
 def mc2reco(fi,version="v5r4p0",newpath=""):
     """ converts allGamma-vXrYpZ_100GeV_10TeV-p2.noOrb.740485.mc.root to allGamma-v5r4p0_100GeV_10TeV-p2.noOrb.740485.reco.root"""
     #print '*** DEBUG: file: ',fi
-    vtag = research("v\dr\dp\d",fi).group(0)
+    vtag = research("v\dr\dp\d",fi)
+    # this is the case when we use *trunk* processings, these are 4 digits long.
+    if vtag is None: vtag = research("r\d{4}",fi)
+    vtag = vtag.group(0)
     # lastly, replace the path
     if fi.startswith("root:"):
         fi = ("/%s"%fi.split("//")[2])

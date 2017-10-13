@@ -1,4 +1,22 @@
 #!/bin/bash
+pidtree() (
+    [ -n "$ZSH_VERSION"  ] && setopt shwordsplit
+    declare -A CHILDS
+    while read P PP;do
+        CHILDS[$PP]+=" $P"
+    done < <(ps -e -o pid= -o ppid=)
+
+    walk() {
+        echo $1
+        for i in ${CHILDS[$1]};do
+            walk $i
+        done
+    }
+
+    for i in "$@";do
+        walk $i
+    done
+)
 
 printf "\n>>>> Execute unige_pbs_kill_jobs.bash \n\n"
 
@@ -18,7 +36,10 @@ if [ ${njobs} -ne 0 ]
 then
     for pid in `ps -ef | grep "/bin/bash ./run.bash run ${skim_version}" | grep -v 'grep' | grep -v kill | awk '{print $2}'`
     do
-	echo "Kill job ${pid}"
-	kill -9 ${pid}
+	echo "Kill job ${pid} and children"
+	for p in $(pidtree ${pid})
+	do
+	    kill -9 ${p}
+	done 
     done
 fi

@@ -25,17 +25,15 @@ release_name=`cat ../makefile | grep DMPSWRELEASE | head -n1 | awk '{print $3}'`
 release_path=`cat ../makefile | grep DMPSWPATH | head -n1 | awk '{print $3}'`
 
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@ Setup DMPSW"
-echo "cd ${release_path}/${release_name}/Install"
-cd ${release_path}/${release_name}/Install
+echo "cd ${release_path}/${release_name}"
+cd ${release_path}/${release_name}
 echo "source bin/thisdmpsw.sh"
 source bin/thisdmpsw.sh
 cd - >& /dev/null
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@ Start processing files..."
 
-system_type="`cat ../parameters.txt | grep system_type | awk '{print $2}'`"
-
-source scripts/setup-externals_${system_type}.sh
-
+#system_type="`cat ../parameters.txt | grep system_type | awk '{print $2}'`"
+#source scripts/setup-externals_${system_type}.sh
 
 #make clean
 #make -j8

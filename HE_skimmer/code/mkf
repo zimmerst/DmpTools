@@ -9,11 +9,11 @@ LDFLAGS      = -g -lm
 SOFLAGS      = -shared 
 
 # Local Includes
-INCDIR      += -Iincludes -I${DMPSWPATH}/${DMPSWRELEASE}/Install/include
+INCDIR      += -Iincludes -I${DMPSWPATH}/${DMPSWRELEASE}/include
 
 # Libraries
-DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/Install/lib/
-DMPLIBS = -lDmpKernel `ls ${DMPSWPATH}/${DMPSWRELEASE}/Install/lib/ | grep so | grep -v Kernel | sed -e 's/lib/-l/g' | sed -e 's/\.so//g' | tr '\n' ' '`
+DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/lib/
+DMPLIBS = -lDmpKernel `ls ${DMPSWPATH}/${DMPSWRELEASE}/lib/ | grep so | grep -v Kernel | sed -e 's/lib/-l/g' | sed -e 's/\.so//g' | tr '\n' ' '`
 LIBS      += $(ROOTLIBS) ${DMPLIBDIR} ${DMPLIBS}
 
 # Direct to make the directories with the sources:
