@@ -52,22 +52,33 @@ def _byteify(data, ignore_dicts = False):
 def identifyEnergyRange(filename):
 	'''
 	Identifies energy range by looking at the name of the file (not at the event header)
+	
+	String manipulations are evil
 	'''
-	if "10TeV_100TeV" in filename:
-		energyMin = 1e+7
-		energyMax = 1e+8
-	elif "10GeV_100GeV" in filename:
-		energyMin = 1e+4
-		energyMax = 1e+5
-	elif "100GeV_10TeV" in filename:
-		energyMin = 1e+5
-		energyMax = 1e+7
-	elif "1GeV_100GeV" in filename:
-		energyMin = 1e+3
-		energyMax = 1e+5
-	else:
-		raise Exception("Energy range not recognised")
-	return energyMin, energyMax
+	#allHe-v6r0p0_10TeV_100TeV
+	#allProton-v5r4p0_1TeV_3TeV
+	#allElectron-v6r0p0_100GeV_10TeV_NeutronHP
+	#allElectron-v6r0p0_100GeV_10TeV-p3
+	
+	start = filename.find('_')+1
+	mid = filename.find('V_')+1
+	emin_str = filename[start:mid]
+	
+	secondhalf = filename[mid+1:]
+	end_2 = secondhalf.find('V')+1
+	emax_str = secondhalf[0:end_2]
+	
+	if "MeV" in emin_str: e_min = int(emin_str.split('M')[0]) * 1.
+	elif "GeV" in emin_str: e_min = int(emin_str.split('G')[0]) * 1e+3
+	elif "TeV" in emin_str: e_min = int(emin_str.split('T')[0]) * 1e+6
+	else: raise Exception("Energy min - not recognised. "+emin_str)
+	
+	if "MeV" in emax_str: e_max = int(emax_str.split('M')[0]) * 1.
+	elif "GeV" in emax_str: e_max = int(emax_str.split('G')[0]) * 1e+3
+	elif "TeV" in emax_str: e_max = int(emax_str.split('T')[0]) * 1e+6
+	else: raise Exception("Energy max - not recognised. "+emax_str)
+	
+	return e_min, e_max
 
 
 def ana(filename):
