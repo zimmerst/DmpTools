@@ -49,16 +49,14 @@ def _byteify(data, ignore_dicts = False):
 			}
 	return data
 
-def identifyEnergyRange(filename):
+def identifyEnergyRange(filenamedir):
 	'''
 	Identifies energy range by looking at the name of the file (not at the event header)
 	
 	String manipulations are evil
 	'''
-	#allHe-v6r0p0_10TeV_100TeV
-	#allProton-v5r4p0_1TeV_3TeV
-	#allElectron-v6r0p0_100GeV_10TeV_NeutronHP
-	#allElectron-v6r0p0_100GeV_10TeV-p3
+	
+	filename = os.path.basename(filenamedir)
 	
 	start = filename.find('_')+1
 	mid = filename.find('V_')+1
@@ -134,15 +132,23 @@ def ana(filename):
 			dicEnergy[str(x)] = []
 		for iteration in diclist:
 			if iteration['error_code'] == 0:
-				dicEnergy[str(iteration['emin'])].append(iteration['lfn'])
-		
+				
+				if iteration['emin'] > 1e+6: key1 = str(iteration['emin']/1e+6)+'TeV'
+				elif iteration['emin'] > 1e+3: key1 = str(iteration['emin']/1e+3)+'GeV'
+				else: key1 = str(iteration['emin'])+'MeV'
+				
+				if iteration['emax'] > 1e+6: key2 = str(iteration['emax']/1e+6)+'TeV'
+				elif iteration['emax'] > 1e+3: key2 = str(iteration['emax']/1e+3)+'GeV'
+				else: key1 = str(iteration['emax'])+'MeV'
+				
+				key = key1 + '_' + key2
+				try: 
+					dicEnergy[key].append(iteration['lfn'])
+				except KeyError:
+					dicEnergy[key] = [iteration['lfn']]
+					
 		for key in dicEnergy.keys():
-			if float(key) == 1e+4: erange='10GeV_100GeV.txt'
-			elif float(key) == 1e+5: erange='100GeV_10TeV.txt'
-			elif float(key) == 1e+7: erange='10TeV_100TeV.txt'
-			elif float(key) == 1e+3: erange='1GeV_100GeV.txt'
-			else: raise Exception("Energy range not recognised!")
-			outstring = dirname + '/energies/' + erange
+			outstring = dirname + '/energies/' + key + '.txt'
 			
 			with open(outstring,'w') as thefile:
 				for item in dicEnergy[key]:
