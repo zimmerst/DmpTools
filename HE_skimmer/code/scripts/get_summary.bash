@@ -128,7 +128,7 @@ do
 	done
 
 
-	erange="002_010 010_025 025_050 050_100 100_500 500_000"
+	erange="002_010 010_025 025_050 050_100 100_500 500_000 photon"
 	for e in ${erange}
 	do
 	    printf "\n%10s" "${e}"
@@ -159,7 +159,8 @@ do
 			    if [ "${e}" = "050_100" -a ${n0} -lt   800 ]; then CYA=${PUR}; not_enough_events=1; fi
 			    if [ "${e}" = "100_500" -a ${n0} -lt   350 ]; then CYA=${PUR}; not_enough_events=1; fi
 			    if [ "${e}" = "500_000" -a ${n0} -lt    20 ]; then CYA=${PUR}; not_enough_events=1; fi
-			    
+			    if [ "${e}" = "photon" -a ${n0}  -lt    10 ]; then CYA=${PUR}; not_enough_events=1; fi
+
 			    printf "${CYA}%6d${NC}" ${n0} 
 			    printf "${CYA}%6d${NC}" ${n0}  >> ${skim_location}/summary.txt
 			    

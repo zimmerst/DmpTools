@@ -83,6 +83,7 @@ rsync -av data/tmp/data_025_050.root \${output_dir}/${day}_data_025_050.root
 rsync -av data/tmp/data_050_100.root \${output_dir}/${day}_data_050_100.root
 rsync -av data/tmp/data_100_500.root \${output_dir}/${day}_data_100_500.root
 rsync -av data/tmp/data_500_000.root \${output_dir}/${day}_data_500_000.root
+rsync -av data/tmp/data_photon.root \${output_dir}/${day}_data_photon.root
 rsync -av log \${output_dir}/${day}.log
 
 ls -lh \${output_dir}/${day}*
