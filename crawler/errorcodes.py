@@ -139,7 +139,7 @@ def ana(filename):
 				
 				if iteration['emax'] > 1e+6: key2 = str(iteration['emax']/1e+6)+'TeV'
 				elif iteration['emax'] > 1e+3: key2 = str(iteration['emax']/1e+3)+'GeV'
-				else: key1 = str(iteration['emax'])+'MeV'
+				else: key2 = str(iteration['emax'])+'MeV'
 				
 				key = key1 + '_' + key2
 				try: 
