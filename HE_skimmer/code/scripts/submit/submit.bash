@@ -104,7 +104,7 @@ EOF
 	    if [ "${submit}" = "submit" ]
 	    then 
 		nfiles=`cat ${list} | wc -l`
-		if [ ${nfiles} -gt $((${max_files}-5)) -a ${nfiles} -lt $((${max_files}+5)) ]
+		if [ ${nfiles} -gt ${files_lo} -a ${nfiles} -lt ${files_hi} ]
 		then
 		    ./launch.bash ${job_file} ${system_type}
 		elif [ ${nfiles} -lt ${files_lo} ]

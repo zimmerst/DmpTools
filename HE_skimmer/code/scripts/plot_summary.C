@@ -98,7 +98,8 @@ void plot_summary(int ndays) {
   nevt_4_total->SetLineColor(kBlue);    nevt_4_total->Draw("SAME");
   nevt_5_total->SetLineColor(kGreen);   nevt_5_total->Draw("SAME");
   nevt_6_total->SetLineColor(kRed);     nevt_6_total->Draw("SAME");
-  nevt_7_total->SetLineColor(kPurple);  nevt_7_total->Draw("SAME");
+  nevt_7_total->SetLineColor(kPink);  nevt_7_total->Draw("SAME");
+  nevt_7_total->SetLineStyle(kDashed);  nevt_7_total->Draw("SAME");
   canv1->SetLogy();
 
   TCanvas *canv2 = new TCanvas("canv2","canv2",800,600);
