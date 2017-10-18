@@ -20,6 +20,8 @@ apply_cut="`cat ../../../parameters.txt | grep apply_cut | awk '{print $2}'`"
 system_type="`cat ../../../parameters.txt | grep system_type | awk '{print $2}'`"
 skim_version="`cat ../../../parameters.txt | grep skim_version | awk '{print $2}'`"
 max_files="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
+files_lo=$((${max_files}-10))
+files_hi=$((${max_files}+10))
 
 for year in $(seq $year_start $year_end)
 do
@@ -105,7 +107,7 @@ EOF
 		if [ ${nfiles} -gt $((${max_files}-5)) -a ${nfiles} -lt $((${max_files}+5)) ]
 		then
 		    ./launch.bash ${job_file} ${system_type}
-		elif [ ${nfiles} -lt $((${max_files}-10)) ]
+		elif [ ${nfiles} -lt ${files_lo} ]
 		then
 		    printf "NOT ENOUGH FILES\n"
 		else
