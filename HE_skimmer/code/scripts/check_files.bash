@@ -11,6 +11,7 @@ month_end="`cat ../../parameters.txt | grep month_end | awk '{print $2}'`"
 day_start="`cat ../../parameters.txt | grep day_start | awk '{print $2}'`"
 day_end="`cat ../../parameters.txt | grep day_end | awk '{print $2}'`"
 system_type="`cat ../../parameters.txt | grep system_type | awk '{print $2}'`"
+max_files="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
 
 source setup-externals_${system_type}.sh
 
@@ -59,7 +60,7 @@ do
 		nchecked=`cat ${list}.stats | grep root | grep -v ERROR | wc -l`
 	    fi
 
-	    if [ ${nfiles} -lt 29 ]
+	    if [ ${nfiles} -lt $((${max_files}-5)) ]
 	    then
 		printf "NOT ENOUGH FILES\n"
 		continue

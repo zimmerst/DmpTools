@@ -16,6 +16,7 @@ month_end="`cat ../../parameters.txt | grep month_end | awk '{print $2}'`"
 day_start="`cat ../../parameters.txt | grep day_start | awk '{print $2}'`"
 day_end="`cat ../../parameters.txt | grep day_end | awk '{print $2}'`"
 system_type="`cat ../../parameters.txt | grep system_type | awk '{print $2}'`"
+max_files="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
 
 source setup-externals_${system_type}.sh
 
@@ -60,7 +61,7 @@ do
 		then
 		    printf "%6d" 0 
 		    printf "%6d" 0  >> ${skim_location}/summary.txt
-		elif [ ${nfiles} -lt 30 -o ${nfiles} -gt 31 ]
+		elif [ ${nfiles} -lt $((${max_files}-5)) -o ${nfiles} -gt $((${max_files}+5)) ]
 		then
 		    printf "${PUR}%6d${NC}" ${nfiles} 
 		    printf "${PUR}%6d${NC}" ${nfiles}  >> ${skim_location}/summary.txt		

@@ -19,6 +19,7 @@ event_end="`cat ../../../parameters.txt | grep event_end | awk '{print $2}'`"
 apply_cut="`cat ../../../parameters.txt | grep apply_cut | awk '{print $2}'`"
 system_type="`cat ../../../parameters.txt | grep system_type | awk '{print $2}'`"
 skim_version="`cat ../../../parameters.txt | grep skim_version | awk '{print $2}'`"
+max_files="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
 
 for year in $(seq $year_start $year_end)
 do
@@ -101,10 +102,10 @@ EOF
 	    if [ "${submit}" = "submit" ]
 	    then 
 		nfiles=`cat ${list} | wc -l`
-		if [ ${nfiles} -gt 29 -a ${nfiles} -lt 32 ]
+		if [ ${nfiles} -gt $((${max_files}-5)) -a ${nfiles} -lt $((${max_files}+5)) ]
 		then
 		    ./launch.bash ${job_file} ${system_type}
-		elif [ ${nfiles} -lt 30 ]
+		elif [ ${nfiles} -lt $((${max_files}-10)) ]
 		then
 		    printf "NOT ENOUGH FILES\n"
 		else

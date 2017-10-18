@@ -11,6 +11,7 @@ month_end="`cat ../../parameters.txt | grep month_end | awk '{print $2}'`"
 day_start="`cat ../../parameters.txt | grep day_start | awk '{print $2}'`"
 day_end="`cat ../../parameters.txt | grep day_end | awk '{print $2}'`"
 system_type="`cat ../../parameters.txt | grep system_type | awk '{print $2}'`"
+max_files="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
 
 source setup-externals_${system_type}.sh
 
@@ -77,10 +78,10 @@ do
 		if [ ${n} -gt 0 ]; then printf "%d" ${n}; fi
 	    fi
 	    
-	    if [ ${n} -gt 0 -a ${n} -lt 29 ]
+	    if [ ${n} -gt 0 -a ${n} -lt $((${max_files}-10)) ]
 	    then
 		printf " NOT ENOUGH FILES\n"
-	    elif [ ${n} -gt 31 ]
+	    elif [ ${n} -gt $((${max_files}+10)) ]
 	    then
 		printf " TOO MANY FILES\n"
 	    elif [ ${n} -le 0 ]
