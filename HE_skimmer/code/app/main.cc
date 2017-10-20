@@ -1,3 +1,13 @@
+/*
+    original author: R. Asfandiyarov, UniGE
+    modifications: S. Zimmer, UniGE
+    history:
+    20170712: initial commit to GitHub
+    20171009: bugfixes
+    20171017: adding dummy photon filter
+    20171018: add Maria's v4 of photon selection
+*/
+
 //@@ C++ includes
 #include <sstream>
 #include <utility>
@@ -24,8 +34,80 @@ using namespace std;
 #include <TChain.h>
 #include <TBranch.h>
 #include <TDirectory.h>
+#include <TMath.h>
+
+double Ecore3(DmpEvtBgoRec *bgorec){
+    // compute Ecore3 according to Maria's definition
+    double elayer[14],core3_me[14],num_bar[14],max_bar[14];
+    double maxelayer=-5,num_maxlayer=-5;
+
+    float maxelayer = -5.;
+    int num_maxlayer = -5;
+    for(int k=0; k<14; k++){
+        elayer[k]=-5;
+        core3_me[k]=-5;
+        num_bar[k]=-5;
+        max_bar[k]=-5;
+    }
+    for(int k=0; k<14; k++){
+        elayer[k]=bgorec->GetELayer(k);
+        if(elayer[k]<1) elayer[k]=-5;//insert a minumum energy cut to avoid probelms with defauls values set ot zero
+    }
+
+    for(int j=0; j<14; j++){
+        if(elayer[j]==-5) continue;//if the value was zero so everything stay with the -5 value;
+        if(elayer[j]>=maxelayer)
+        {
+            maxelayer=elayer[j];
+            num_maxlayer=j;
+        }
+        max_bar[j]=bgorec->GetELayerMaxBar(j);
+
+        for(int l=0;l<22;l++)
+        {
+            if(max_bar[j]==bgorec->GetEdep(j,l)) num_bar[j]=l;
+        }
+    }
+    if(num_maxlayer>4) continue;
+    //calculation of core3 -> Still considering the events that are located in the  extreme bars i think with this I could recover events that are lost in the corners
+    double core_f=0;
+    for(int z =0 ; z<14; z++){
+        core3_me[z]=bgorec->GetEdep(z,num_bar[z]);
+        if(num_bar[z]==0){
+            core3_me[z]+=bgorec->GetEdep(z,num_bar[z]+1);
+        }
+        else if (num_bar[z]==21){
+            core3_me[z]+=bgorec->GetEdep(z,num_bar[z]-1);
+        }
+        else if (num_bar[z]>0||num_bar[z]<21){
+            core3_me[z]+=bgorec->GetEdep(z,num_bar[z]-1)+bgorec->GetEdep(z,num_bar[z]+1);
+        }
+        core_f+=core3_me[z];
+    }
+    return core_f;
+}
+
 
 bool photon_filter(DmpEvent *pev){
+    DmpEvtBgoRec* prec = pev->pEvtBgoRec();
+    // will return true for any event that passes the photon filter
+    double etot = prec->GetTotalEnergy();
+    double slope_xz = prec->GetSlopeXZ();
+    double slope_yz = prec->GetSlopeYZ();
+    double intercept_xz = prec->GetInterceptXZ();
+    double intercept_yz = prec->GetInterceptYZ();
+    double e3 = Ecore3(prec);
+    // position of fiducial volume cut
+    double z1 = -298.5;
+    double z2 = -324.7;
+    double traj_xz = slope_xz * z1 + intercept_xz;
+    double traj_yz = slope_yz * z2 + intercept_yz;
+    // fiducial volume cut
+    if ( (TMath::Abs(traj_xz) > 420.) || (TMath::Abs(traj_yz) > 420.) ) return false;
+    // energy cut
+    if ( (etot > 1e5) || (etot < 1e3) ) return false;
+    // finally the E3 core cut
+    if (e3/etot <= 0.9) return false;
     return true;
 }
 
