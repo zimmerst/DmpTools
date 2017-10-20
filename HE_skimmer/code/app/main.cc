@@ -65,7 +65,7 @@ double Ecore3(DmpEvtBgoRec *bgorec){
             if(max_bar[j]==bgorec->GetEdep(j,l)) num_bar[j]=l;
         }
     }
-    if(num_maxlayer>4) continue;
+    //if(num_maxlayer>4) continue;
     //calculation of core3 -> Still considering the events that are located in the  extreme bars i think with this I could recover events that are lost in the corners
     double core_f=0;
     for(int z =0 ; z<14; z++){
@@ -357,10 +357,11 @@ int main(int argc, char **argv)
         }
         //////// 3
         bool passed_Xtr_cut = true;
+        /* SKIP XTR
         if (apply_cut>2) {
             if (Xtr>150) passed_Xtr_cut = false;
         }
-
+        */
 
         //////////////////////////////////////
 
