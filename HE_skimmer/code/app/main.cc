@@ -40,9 +40,6 @@ double Ecore3(DmpEvtBgoRec *bgorec){
     // compute Ecore3 according to Maria's definition
     double elayer[14],core3_me[14],num_bar[14],max_bar[14];
     double maxelayer=-5,num_maxlayer=-5;
-
-    float maxelayer = -5.;
-    int num_maxlayer = -5;
     for(int k=0; k<14; k++){
         elayer[k]=-5;
         core3_me[k]=-5;
