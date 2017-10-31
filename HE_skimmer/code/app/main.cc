@@ -6,6 +6,7 @@
     20171009: bugfixes
     20171017: adding dummy photon filter
     20171018: add Maria's v4 of photon selection
+    20171020: re-remove Xtrl>150 cut.
 */
 
 //@@ C++ includes

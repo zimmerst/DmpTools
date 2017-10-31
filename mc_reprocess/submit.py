@@ -54,6 +54,14 @@ def make_wrapper(infile,outfile):
     of.write("".join(lines_out))
     of.close()
 
+def parseMultiDays(md):
+    """ computes multiples of days, similar to 1 days, 18:00:00 """
+    if not "days, " in md: return md
+    days, rest = md.split("days, ")
+    hrs, mins, secs = rest.split(":")
+    out = "%i:%02i:%02i"%(int(hrs)+24.*int(days), int(mins), int(secs))
+    return out
+
 cfg = yload(open(argv[1],"rb"))
 
 time_per_job = cfg.get("time_per_job",3600.)
@@ -64,7 +72,7 @@ if ":" in str(time_per_job):
 else:
     time_per_job = str(timedelta(seconds=time_per_job))
 
-environ["STIME"]=time_per_job
+environ["STIME"]=parseMultiDays(time_per_job)
 environ["SMEM"] =cfg.get("mem_per_job","2G")
 environ["SWPATH"]=cfg.get("DMPSWSYS","/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/trunk")
 g_maxfiles = int(cfg.get("files_per_job",10))
