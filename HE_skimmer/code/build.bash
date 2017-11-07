@@ -20,7 +20,9 @@ DMPSWPATH = ${release_path}
 EOF
 
 cat tmp mkf > makefile
-
+echo "creating directories"
+mkdir -vp lib bin
+mkdir -vp ../code/scripts/plots
 make clean
 make -j8
 

@@ -33,6 +33,7 @@ exec_location		/dampe/data3/users/zimmer/HE_skim/code/
 ### Files to process
 file_start		1
 file_end		-1 # set to -1 to process all available files
+max_files		90 # files per day
 -----------------------------------------------------------------------------
 ### Events to process
 event_start		0

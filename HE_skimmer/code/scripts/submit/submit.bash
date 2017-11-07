@@ -19,6 +19,9 @@ event_end="`cat ../../../parameters.txt | grep event_end | awk '{print $2}'`"
 apply_cut="`cat ../../../parameters.txt | grep apply_cut | awk '{print $2}'`"
 system_type="`cat ../../../parameters.txt | grep system_type | awk '{print $2}'`"
 skim_version="`cat ../../../parameters.txt | grep skim_version | awk '{print $2}'`"
+max_files="`cat ../../../parameters.txt | grep max_files | awk '{print $2}'`"
+files_lo=$((${max_files}-10))
+files_hi=$((${max_files}+10))
 
 for year in $(seq $year_start $year_end)
 do
@@ -83,6 +86,7 @@ rsync -av data/tmp/data_025_050.root \${output_dir}/${day}_data_025_050.root
 rsync -av data/tmp/data_050_100.root \${output_dir}/${day}_data_050_100.root
 rsync -av data/tmp/data_100_500.root \${output_dir}/${day}_data_100_500.root
 rsync -av data/tmp/data_500_000.root \${output_dir}/${day}_data_500_000.root
+rsync -av data/tmp/data_photon.root \${output_dir}/${day}_data_photon.root
 rsync -av log \${output_dir}/${day}.log
 
 ls -lh \${output_dir}/${day}*
@@ -100,10 +104,10 @@ EOF
 	    if [ "${submit}" = "submit" ]
 	    then 
 		nfiles=`cat ${list} | wc -l`
-		if [ ${nfiles} -gt 29 -a ${nfiles} -lt 32 ]
+		if [ ${nfiles} -gt ${files_lo} -a ${nfiles} -lt ${files_hi} ]
 		then
 		    ./launch.bash ${job_file} ${system_type}
-		elif [ ${nfiles} -lt 30 ]
+		elif [ ${nfiles} -lt ${files_lo} ]
 		then
 		    printf "NOT ENOUGH FILES\n"
 		else

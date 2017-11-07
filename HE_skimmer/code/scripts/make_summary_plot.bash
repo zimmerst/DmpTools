@@ -50,7 +50,8 @@ do
 	    f_out_4="${skim_location}/${year}/${month0}/${day0}_data_050_100.root.stats"
 	    f_out_5="${skim_location}/${year}/${month0}/${day0}_data_100_500.root.stats"
 	    f_out_6="${skim_location}/${year}/${month0}/${day0}_data_500_000.root.stats"
-	    
+	    f_out_7="${skim_location}/${year}/${month0}/${day0}_data_photon.root.stats"
+
 	    if [ -f ${f_in} ]
 	    then
 		n1=`cat ${f_in} | grep Total | awk '{print $8}'`
@@ -61,6 +62,7 @@ do
 		if [ -f ${f_out_4} ]; then n6=`cat ${f_out_4} | awk '{print $7}'`; else n6=0; fi
 		if [ -f ${f_out_5} ]; then n7=`cat ${f_out_5} | awk '{print $7}'`; else n7=0; fi
 		if [ -f ${f_out_6} ]; then n8=`cat ${f_out_6} | awk '{print $7}'`; else n8=0; fi
+		if [ -f ${f_out_7} ]; then n8=`cat ${f_out_7} | awk '{print $7}'`; else n9=0; fi
 	    else
 		n1=0
 		n2=0
@@ -70,10 +72,11 @@ do
 		n6=0
 		n7=0
 		n8=0
+		n9=0
 	    fi
 	    echo "${n1} in ${n2} files"
 
-	    echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8}" >> raw_summary.txt
+	    echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} ${n9}" >> raw_summary.txt
 	done
     done
 done

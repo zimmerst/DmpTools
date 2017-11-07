@@ -2,7 +2,7 @@
 ###### below is SLURM specific stuff #######
 #SBATCH --output=${WORKDIR}/chunk_%a.out
 #SBATCH --error=${WORKDIR}/chunk_%a.err
-#SBATCH --partition=mono-shared
+#SBATCH --partition=${SLURM_PARTITION}
 #SBATCH --time=${STIME}
 #SBATCH --mem=${SMEM}
 #SBATCH --array=${SARR}

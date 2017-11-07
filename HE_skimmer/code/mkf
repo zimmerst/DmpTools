@@ -37,7 +37,7 @@ main : main.o
 # but are here redefined to add an "echo"
 ############################################################################
 
-%.o : %.cc %.h 
+%.o : %.cc %.h
 	@echo "compiling $<"
 	@echo "$(CXX) $(CXXFLAGS) -c $<"
 	@$(CXX) $(CXXFLAGS) -c $< 

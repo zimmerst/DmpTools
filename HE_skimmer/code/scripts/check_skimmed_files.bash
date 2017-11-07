@@ -41,7 +41,7 @@ do
 
 	    printf "Checking ${output_location}/${year}/${month}/${day}...\n"
 
-	    erange="002_010 010_025 025_050 050_100 100_500 500_000"
+	    erange="002_010 010_025 025_050 050_100 100_500 500_000 photon"
 
 	    for e in ${erange}
 	    do

@@ -24,7 +24,7 @@ void plot_summary(int ndays) {
   in.open("raw_summary.txt");
 
   int year, month, day, i=1;
-  long int nevt,nevt_1,nevt_2,nevt_3,nevt_4,nevt_5,nevt_6;
+  long int nevt,nevt_1,nevt_2,nevt_3,nevt_4,nevt_5,nevt_6, nevt_7;
   long int nfiles;
   TFile *f = new TFile("plots/summary.root","RECREATE");
   TH1F *nfiles_total = new TH1F("nfiles_total","nfiles_total",ndays,0,ndays*24*60*60);
@@ -35,6 +35,7 @@ void plot_summary(int ndays) {
   TH1F *nevt_4_total = new TH1F("nevt_050_100_total","nevt_050_100_total",ndays,0,ndays*24*60*60);
   TH1F *nevt_5_total = new TH1F("nevt_100_500_total","nevt_100_500_total",ndays,0,ndays*24*60*60);
   TH1F *nevt_6_total = new TH1F("nevt_500_000_total","nevt_500_000_total",ndays,0,ndays*24*60*60);
+  TH1F *nevt_7_total = new TH1F("nevt_photon_total","nevt_photon_total",ndays,0,ndays*24*60*60);
 
   int daysinyears[4] = {0, // 2015 - 2015
 			365, // 2016 - 2015
@@ -55,7 +56,7 @@ void plot_summary(int ndays) {
   int first_day = date.tm_yday;
 
   while (1) {
-    in >> year >> month >> day >> nevt >> nfiles >> nevt_1 >> nevt_2 >> nevt_3 >> nevt_4 >> nevt_5 >> nevt_6;
+    in >> year >> month >> day >> nevt >> nfiles >> nevt_1 >> nevt_2 >> nevt_3 >> nevt_4 >> nevt_5 >> nevt_6 >> nevt_7;
     if (!in.good()) break;
     //printf("%10d %10d %10d %20ld %10d\n",year,month,day,nevt,nfiles);    tm date = {};
     date.tm_year = year - 1900;
@@ -71,6 +72,7 @@ void plot_summary(int ndays) {
     nevt_4_total->SetBinContent(i_day,nevt_4);
     nevt_5_total->SetBinContent(i_day,nevt_5);
     nevt_6_total->SetBinContent(i_day,nevt_6);
+    nevt_7_total->SetBinContent(i_day,nevt_7);
     nfiles_total->SetBinContent(i_day,nfiles);
     i++;
   }
@@ -96,6 +98,8 @@ void plot_summary(int ndays) {
   nevt_4_total->SetLineColor(kBlue);    nevt_4_total->Draw("SAME");
   nevt_5_total->SetLineColor(kGreen);   nevt_5_total->Draw("SAME");
   nevt_6_total->SetLineColor(kRed);     nevt_6_total->Draw("SAME");
+  nevt_7_total->SetLineColor(kPink);  nevt_7_total->Draw("SAME");
+  nevt_7_total->SetLineStyle(kDashed);  nevt_7_total->Draw("SAME");
   canv1->SetLogy();
 
   TCanvas *canv2 = new TCanvas("canv2","canv2",800,600);
@@ -117,6 +121,7 @@ void plot_summary(int ndays) {
   leg->AddEntry(nevt_4_total,"500 - 1000 GeV","l");
   leg->AddEntry(nevt_5_total,"1 - 5 TeV","l");
   leg->AddEntry(nevt_6_total,"> 5 TeV","l");
+  leg->AddEntry(nevt_7_total,"photon skim","l");
   canv1->cd();
   leg->Draw();
 
