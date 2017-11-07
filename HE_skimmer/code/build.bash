@@ -20,7 +20,7 @@ DMPSWPATH = ${release_path}
 EOF
 
 cat tmp mkf > makefile
-
+mkdir -p lib bin
 make clean
 make -j8
 

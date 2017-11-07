@@ -38,7 +38,6 @@ main : main.o
 ############################################################################
 
 %.o : %.cc %.h
-    mkdir -pv $(VPATH)
 	@echo "compiling $<"
 	@echo "$(CXX) $(CXXFLAGS) -c $<"
 	@$(CXX) $(CXXFLAGS) -c $< 
