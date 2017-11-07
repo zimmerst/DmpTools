@@ -53,10 +53,8 @@ def make_wrapper(infile,outfile):
     of=open(outfile,'w')
     of.write("".join(lines_out))
     of.close()
-
-if __name__ == '__main__':
-	
-	cfg = yload(open(argv[1],"rb"))
+    
+def main(cfg):
 	
 	time_per_job = cfg.get("time_per_job",3600.)
 	if ":" in str(time_per_job):
@@ -131,3 +129,9 @@ if __name__ == '__main__':
 	    make_wrapper(wrapper,new_wrapper)
 	    system("sbatch {wrapper}".format(wrapper=new_wrapper))
 #### DONE
+
+if __name__ == '__main__':
+	
+	cfg = yload(open(argv[1],"rb"))
+	main(cfg)
+	
