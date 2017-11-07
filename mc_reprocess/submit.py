@@ -8,6 +8,7 @@ from os import environ
 from datetime import datetime, timedelta
 from tempfile import NamedTemporaryFile
 from os import system
+SLURM_PARTITION="mono-shared"
 
 def mkdir(pwd):
     system("mkdir -p {p}".format(p=pwd))
@@ -56,9 +57,11 @@ def make_wrapper(infile,outfile):
 
 def parseMultiDays(md):
     """ computes multiples of days, similar to 1 days, 18:00:00 """
+    global SLURM_PARTITION
     if not "days, " in md: return md
     days, rest = md.split("days, ")
     hrs, mins, secs = rest.split(":")
+    if int(hrs) > 12: SLURM_PARTITION="parallel"
     out = "%i:%02i:%02i"%(int(hrs)+24.*int(days), int(mins), int(secs))
     return out
 
@@ -73,6 +76,11 @@ else:
     time_per_job = str(timedelta(seconds=time_per_job))
 
 environ["STIME"]=parseMultiDays(time_per_job)
+environ['SLURM_PARTITION'] = SLURM_PARTITION
+#print '** DEBUG ** SLURM_PARTITION: ',getenv("SLURM_PARTITION")
+#raise Exception
+#print "* DEBUG * STIME: ",environ.get("STIME")
+#raise Exception
 environ["SMEM"] =cfg.get("mem_per_job","2G")
 environ["SWPATH"]=cfg.get("DMPSWSYS","/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/trunk")
 g_maxfiles = int(cfg.get("files_per_job",10))
