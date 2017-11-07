@@ -33,41 +33,50 @@ def json_load_byteified(file_handle):
 	'''
 	Crawler output is unicode. Change to UTF-8 for better handling
 	'''
+	def _byteify(data, ignore_dicts = False):
+		if isinstance(data, unicode):
+			return data.encode('utf-8')
+		if isinstance(data, list):
+			return [ _byteify(item, ignore_dicts=True) for item in data ]
+		if isinstance(data, dict) and not ignore_dicts:
+			return {
+				_byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+				for key, value in data.iteritems()
+				}
+		return data
 	return _byteify(
 		json.load(file_handle, object_hook=_byteify),
 		ignore_dicts=True
 	)
-def _byteify(data, ignore_dicts = False):
-	if isinstance(data, unicode):
-		return data.encode('utf-8')
-	if isinstance(data, list):
-		return [ _byteify(item, ignore_dicts=True) for item in data ]
-	if isinstance(data, dict) and not ignore_dicts:
-		return {
-			_byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-			for key, value in data.iteritems()
-			}
-	return data
 
-def identifyEnergyRange(filename):
+def identifyEnergyRange(filenamedir):
 	'''
 	Identifies energy range by looking at the name of the file (not at the event header)
+	
+	String manipulations are evil
 	'''
-	if "10TeV_100TeV" in filename:
-		energyMin = 1e+7
-		energyMax = 1e+8
-	elif "10GeV_100GeV" in filename:
-		energyMin = 1e+4
-		energyMax = 1e+5
-	elif "100GeV_10TeV" in filename:
-		energyMin = 1e+5
-		energyMax = 1e+7
-	elif "1GeV_100GeV" in filename:
-		energyMin = 1e+3
-		energyMax = 1e+5
-	else:
-		raise Exception("Energy range not recognised")
-	return energyMin, energyMax
+	
+	filename = os.path.basename(filenamedir)
+	
+	start = filename.find('_')+1
+	mid = filename.find('V_')+1
+	emin_str = filename[start:mid]
+	
+	secondhalf = filename[mid+1:]
+	end_2 = secondhalf.find('V')+1
+	emax_str = secondhalf[0:end_2]
+	
+	if "MeV" in emin_str: e_min = int(emin_str.split('M')[0]) * 1.
+	elif "GeV" in emin_str: e_min = int(emin_str.split('G')[0]) * 1e+3
+	elif "TeV" in emin_str: e_min = int(emin_str.split('T')[0]) * 1e+6
+	else: raise Exception("Energy min - not recognised. "+emin_str)
+	
+	if "MeV" in emax_str: e_max = int(emax_str.split('M')[0]) * 1.
+	elif "GeV" in emax_str: e_max = int(emax_str.split('G')[0]) * 1e+3
+	elif "TeV" in emax_str: e_max = int(emax_str.split('T')[0]) * 1e+6
+	else: raise Exception("Energy max - not recognised. "+emax_str)
+	
+	return e_min, e_max
 
 
 def ana(filename):
@@ -123,21 +132,27 @@ def ana(filename):
 			dicEnergy[str(x)] = []
 		for iteration in diclist:
 			if iteration['error_code'] == 0:
-				dicEnergy[str(iteration['emin'])].append(iteration['lfn'])
-		
+				
+				if iteration['emin'] > 1e+6: key1 = str(iteration['emin']/1e+6)+'TeV'
+				elif iteration['emin'] > 1e+3: key1 = str(iteration['emin']/1e+3)+'GeV'
+				else: key1 = str(iteration['emin'])+'MeV'
+				
+				if iteration['emax'] > 1e+6: key2 = str(iteration['emax']/1e+6)+'TeV'
+				elif iteration['emax'] > 1e+3: key2 = str(iteration['emax']/1e+3)+'GeV'
+				else: key2 = str(iteration['emax'])+'MeV'
+				
+				key = key1 + '_' + key2
+				try: 
+					dicEnergy[key].append(iteration['lfn'])
+				except KeyError:
+					dicEnergy[key] = [iteration['lfn']]
+					
 		for key in dicEnergy.keys():
-			if float(key) == 1e+4: erange='10GeV_100GeV.txt'
-			elif float(key) == 1e+5: erange='100GeV_10TeV.txt'
-			elif float(key) == 1e+7: erange='10TeV_100TeV.txt'
-			elif float(key) == 1e+3: erange='1GeV_100GeV.txt'
-			else: raise Exception("Energy range not recognised!")
-			outstring = dirname + '/energies/' + erange
+			outstring = dirname + '/energies/' + key + '.txt'
 			
 			with open(outstring,'w') as thefile:
 				for item in dicEnergy[key]:
 					thefile.write("%s\n" % item)
-	
-	
 	
 
 if __name__ == '__main__':
