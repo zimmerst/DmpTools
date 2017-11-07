@@ -17,11 +17,12 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     """ converts allGamma-vXrYpZ_100GeV_10TeV-p2.noOrb.740485.mc.root to allGamma-v5r4p0_100GeV_10TeV-p2.noOrb.740485.reco.root"""
     #print '*** DEBUG: file: ',fi
     vtag = research("v\dr\dp\d",fi)
-    # this is the case when we use *trunk* processings, these are 4 digits long.
-    if vtag is None: vtag = research("r\d{4}",fi)
+    if vtag is None:
+        vtag = research("r\d{4}",fi)
     vtag = vtag.group(0)
     # lastly, replace the path
     if fi.startswith("root:"):
+        #print fi
         fi = ("/%s"%fi.split("//")[2])
     fname = basename(fi)
     path = dirname(fi)
@@ -29,7 +30,7 @@ def mc2reco(fi,version="v5r4p0",newpath=""):
     npath = opjoin(newpath,task)
     fout = opjoin(npath,fname)
     fout = fout.replace(".mc",".reco")
-    max_occ = 5 # version tag shouldn't be there more than 5 times;
+    max_occ = 10 # version tag shouldn't be there more than 10 times;
     # if we do not include this criterion, if MC-version == reco version this would yield an infinite loop!
     occ = 0
     while vtag in fout:
@@ -77,7 +78,7 @@ else:
 
 environ["STIME"]=parseMultiDays(time_per_job)
 environ['SLURM_PARTITION'] = SLURM_PARTITION
-#print '** DEBUG ** SLURM_PARTITION: ',getenv("SLURM_PARTITION")
+#print '** DEBUG ** SLURM_PARTITION: ',environ.get("SLURM_PARTITION")
 #raise Exception
 #print "* DEBUG * STIME: ",environ.get("STIME")
 #raise Exception
