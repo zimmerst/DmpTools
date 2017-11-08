@@ -50,11 +50,11 @@ do
 	    ### releases folder
 	    elif [ `echo ${data_location} | grep releases | wc -l` -eq 1 ]
 	    then
-		find ${data_location} | grep "_${year}${month0}${day0}_" | grep root > list.tmp
+		#find ${data_location} | grep "_${year}${month0}${day0}_" | grep root > list.tmp
 	    ### FIXME!!! SZ 2017-09-05, get listing according to PMO structure 
 		#find ${data_location} -name "*.root" | awk -v target="${year}${month0}${day0}" -F_ '{ts = $5; sub(/T.*/, "", ts); if (ts == target) print $0}' > list.tmp
 		# these two lines are equivalent!
-		#find ${data_location} -name "*.root" | awk -v target="^${year}${month0}${day0}" -F_ '$5 ~ target' > list.tmp
+		find ${data_location} -name "*.root" | awk -v target="^${year}${month0}${day0}" -F_ '$5 ~ target' > list.tmp
 	    ### DPM
 	    elif [ `echo ${data_location} | grep dpm | wc -l` -eq 1 ]
 	    then
