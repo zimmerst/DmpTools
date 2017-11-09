@@ -35,7 +35,7 @@ then
     fi
 ######################
 ###                  #
-##   UNIGE cluster  ##
+##   UNIGE cluster / PBS ##
 #                  ###
 ######################
 elif [ ${system} = "unige_pbs" ] 
@@ -71,7 +71,46 @@ then
 
 #                  ###
 ######################
-elif [ ${system} = "pmo_local" ] 
+
+######################
+###                  #
+##   UNIGE cluster / SLURM ##
+#                  ###
+######################
+elif [ ${system} = "unige_slurm" ]
+then
+
+    rm -f jobs.list.tmp
+    for jobid in `squeue -u ${user} -p ${queue} | grep job_${skim_version} | grep -v ' C ' | grep -v ' E ' | awk '{print $1}' | sed -e 's/\..*//'`
+    do
+	qstat -f ${jobid} >> jobs.list.tmp
+    done
+    running=`cat jobs.list.tmp | grep "Job_Name = ${job_file}" | wc -l`
+    if [ ${running} -eq 0  ]
+    then
+	njobs=`squeue -u ${user} -p ${queue} | grep job_${skim_version} | grep -v ' C ' | grep -v ' E ' | wc -l`
+	if [ ${njobs} -lt ${max_n_jobs} ]
+	then
+	    echo "Run script ${job_file} on SLURM"
+	    sbatch -p ${queue} --mem6000mb --workdir=$(pwd) ${job_file}
+	else
+	    echo "INFO: ${max_n_jobs} jobs were already submitted. Skip submission of ${job_file}..."
+	fi
+    elif [ ${running} -eq 1  ]
+    then
+	echo "INFO: Script ${job_file} was already submitted"
+    else
+	echo "WARNING: Script ${job_file} was submitted more than once"
+    fi
+
+    rm -f jobs.list.tmp
+######################
+###                  #
+
+#                  ###
+######################
+
+elif [ ${system} = "pmo_local" ]
 then
     echo ""
 ######################
