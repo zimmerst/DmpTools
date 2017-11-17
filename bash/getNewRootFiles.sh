@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ### script to simplfiy crawling -- will create a file holding the content of the changed files on every remote site ###
-indir=${1:MC}
+indir=${1:-MC}
 host=$(hostname)
 site=UNDEF
 case $host in
@@ -15,7 +15,7 @@ case $site in
   UNIGE) output=/beegfs/dampe/prod;;
 esac
 target=${output}/${indir}
-newfile=${output}/${indir}/${site}.new
-errfile=${output}/${indir}/${site}.err
+newfile=${target}/${site}.new
+errfile=${target}/${site}.err
 touch ${newfile}
 find $(readlink -f ${target}) -mtime -1 -name "*.root" 2> ${errfile} 1> ${newfile}
