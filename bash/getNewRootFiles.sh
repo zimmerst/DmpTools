@@ -19,3 +19,5 @@ newfile=${target}/${site}.new
 errfile=${target}/${site}.err
 touch ${newfile}
 find $(readlink -f ${target}) -mtime -1 -name "*.root" 2> ${errfile} 1> ${newfile}
+
+# TODO -- change local path to xrootd path.
