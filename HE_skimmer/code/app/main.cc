@@ -7,6 +7,8 @@
     20171017: adding dummy photon filter
     20171018: add Maria's v4 of photon selection
     20171020: re-remove Xtrl>150 cut.
+    20171104: revised Maria's photon filter: removed E>100 GeV & e3/etot=0.9 constraints
+    20171104: added photon2 - place holder for new photon skim.
 */
 
 //@@ C++ includes
@@ -51,7 +53,6 @@ double Ecore3(DmpEvtBgoRec *bgorec){
         elayer[k]=bgorec->GetELayer(k);
         if(elayer[k]<1) elayer[k]=-5;//insert a minumum energy cut to avoid probelms with defauls values set ot zero
     }
-
     for(int j=0; j<14; j++){
         if(elayer[j]==-5) continue;//if the value was zero so everything stay with the -5 value;
         if(elayer[j]>=maxelayer)
@@ -66,6 +67,7 @@ double Ecore3(DmpEvtBgoRec *bgorec){
             if(max_bar[j]==bgorec->GetEdep(j,l)) num_bar[j]=l;
         }
     }
+
     //if(num_maxlayer>4) continue;
     //calculation of core3 -> Still considering the events that are located in the  extreme bars i think with this I could recover events that are lost in the corners
     double core_f=0;
@@ -83,6 +85,7 @@ double Ecore3(DmpEvtBgoRec *bgorec){
         core_f+=core3_me[z];
     }
     return core_f;
+
 }
 
 
@@ -103,10 +106,14 @@ bool photon_filter(DmpEvent *pev){
     // fiducial volume cut
     if ( (TMath::Abs(traj_xz) > 420.) || (TMath::Abs(traj_yz) > 420.) ) return false;
     // energy cut
-    if ( (etot > 1e5) || (etot < 1e3) ) return false;
+    if ( (etot < 1e3) ) return false;
     // finally the E3 core cut
-    if (e3/etot <= 0.9) return false;
+    if (e3/etot < 0.9) return false;
     return true;
+}
+
+bool photon_filter2(DmpEvent *pev){
+    return false;
 }
 
 int main(int argc, char **argv)
@@ -179,6 +186,8 @@ int main(int argc, char **argv)
     TFile* f_out_data_100_500 = new TFile("data_100_500.root","RECREATE"); TDirectory* f_out_data_100_500_dir = gDirectory; TTree* t_out_data_100_500 = t_in->CloneTree(0); TTree* hk_out_data_100_500[n_hk_in]; for (int i=0; i<n_hk_in; i++) hk_out_data_100_500[i] = hk_in[i]->CloneTree(0); TTree* rm_out_data_100_500 = rm_in->CloneTree(0);
     TFile* f_out_data_500_000 = new TFile("data_500_000.root","RECREATE"); TDirectory* f_out_data_500_000_dir = gDirectory; TTree* t_out_data_500_000 = t_in->CloneTree(0); TTree* hk_out_data_500_000[n_hk_in]; for (int i=0; i<n_hk_in; i++) hk_out_data_500_000[i] = hk_in[i]->CloneTree(0); TTree* rm_out_data_500_000 = rm_in->CloneTree(0);
     TFile* f_out_data_photon = new TFile("data_photon.root","RECREATE"); TDirectory* f_out_data_photon_dir = gDirectory; TTree* t_out_data_photon = t_in->CloneTree(0); TTree* hk_out_data_photon[n_hk_in]; for (int i=0; i<n_hk_in; i++) hk_out_data_photon[i] = hk_in[i]->CloneTree(0); TTree* rm_out_data_photon = rm_in->CloneTree(0);
+// UNCOMMENT FOR NEW STREAM
+//    TFile* f_out_data_photon2 = new TFile("data_photon2.root","RECREATE"); TDirectory* f_out_data_photon2_dir = gDirectory; TTree* t_out_data_photon2 = t_in->CloneTree(0); TTree* hk_out_data_photon2[n_hk_in]; for (int i=0; i<n_hk_in; i++) hk_out_data_photon2[i] = hk_in[i]->CloneTree(0); TTree* rm_out_data_photon2 = rm_in->CloneTree(0);
     DmpEvent *pev = DmpEvent::GetHead(); //ch_in->GetDmpEvent(0);
     DmpEvtBgoHits* bgohits = new DmpEvtBgoHits();
     t_in->SetBranchAddress("DmpEvtBgoHits", &bgohits);
@@ -190,6 +199,8 @@ int main(int argc, char **argv)
     int event_local = -1;
     bool rm_filled = false;
     bool pass_photon= false;
+    bool pass_event = false;
+    bool pass_photon2= false;
     //@ save all housekeeping data to each output file
     for (int i=0; i<n_hk_in; i++) {
         int n_hk_events = hk_in[i]->GetEntries();
@@ -202,16 +213,19 @@ int main(int argc, char **argv)
             hk_out_data_100_500[i]->Fill();
             hk_out_data_500_000[i]->Fill();
             hk_out_data_photon[i]->Fill();
+            //hk_out_data_photon2[i]->Fill();
         }
     }
 
     //@ START of EVENT LOOP
     for(long int event=first_event; event<=last_event; event++){
         pass_photon=false;
+        pass_photon2=false;
+        pass_event=true;
         event_local++;
         pev = ch_in->GetDmpEvent(event);
         if (photon_filter(pev)) pass_photon=true;
-
+        if (photon_filter2(pev)) pass_photon=true;
 
         if (verbosity==0) if ((event-first_event)>0 && (event-first_event)%10000==0){
                 logfile = fopen("progress.log","a");
@@ -334,7 +348,7 @@ int main(int argc, char **argv)
         bgoRec_intercept[1] = bgorec->GetInterceptXZ();
         bgoRec_intercept[0] = bgorec->GetInterceptYZ();
         if( (bgoRec_slope[1]==0 && bgoRec_intercept[1]==0) ||
-            (bgoRec_slope[0]==0 && bgoRec_intercept[0]==0)) continue;
+            (bgoRec_slope[0]==0 && bgoRec_intercept[0]==0)) pass_event=false;
 
         bool passed_bgo_containment_cut = false;
         TVector3 bgoRecEntrance;
@@ -349,12 +363,12 @@ int main(int argc, char **argv)
 
         //////// 1
         if (apply_cut>0) {
-            if (!passed_bgo_containment_cut) continue;
+            if (!passed_bgo_containment_cut) pass_event=false;
         }
         //////// 2
         if (apply_cut>1) {
-            if (!passed_maxELayerTotalE_cut) continue;
-            if (!passed_maxBarLayer_cut) continue;
+            if (!passed_maxELayerTotalE_cut) pass_event=false;
+            if (!passed_maxBarLayer_cut) pass_event=false;
         }
         //////// 3
         bool passed_Xtr_cut = true;
@@ -367,13 +381,16 @@ int main(int argc, char **argv)
         //////////////////////////////////////
 
         int TeV = 1000000;
-        if (passed_Xtr_cut && bgoTotalE >= 0.02*TeV && bgoTotalE < 0.10*TeV) { f_out_data_002_010_dir->cd(); t_out_data_002_010->Fill(); }
-        if (bgoTotalE >= 0.10*TeV && bgoTotalE < 0.25*TeV) { f_out_data_010_025_dir->cd(); t_out_data_010_025->Fill(); }
-        if (bgoTotalE >= 0.25*TeV && bgoTotalE <  0.5*TeV) { f_out_data_025_050_dir->cd(); t_out_data_025_050->Fill(); }
-        if (bgoTotalE >=  0.5*TeV && bgoTotalE <  1.0*TeV) { f_out_data_050_100_dir->cd(); t_out_data_050_100->Fill(); }
-        if (bgoTotalE >=  1.0*TeV && bgoTotalE <  5.0*TeV) { f_out_data_100_500_dir->cd(); t_out_data_100_500->Fill(); }
-        if (bgoTotalE >=  5.0*TeV)                         { f_out_data_500_000_dir->cd(); t_out_data_500_000->Fill(); }
+        if (pass_event){
+         if (passed_Xtr_cut && bgoTotalE >= 0.02*TeV && bgoTotalE < 0.10*TeV) { f_out_data_002_010_dir->cd(); t_out_data_002_010->Fill(); }
+         if (bgoTotalE >= 0.10*TeV && bgoTotalE < 0.25*TeV) { f_out_data_010_025_dir->cd(); t_out_data_010_025->Fill(); }
+         if (bgoTotalE >= 0.25*TeV && bgoTotalE <  0.5*TeV) { f_out_data_025_050_dir->cd(); t_out_data_025_050->Fill(); }
+         if (bgoTotalE >=  0.5*TeV && bgoTotalE <  1.0*TeV) { f_out_data_050_100_dir->cd(); t_out_data_050_100->Fill(); }
+         if (bgoTotalE >=  1.0*TeV && bgoTotalE <  5.0*TeV) { f_out_data_100_500_dir->cd(); t_out_data_100_500->Fill(); }
+         if (bgoTotalE >=  5.0*TeV)                         { f_out_data_500_000_dir->cd(); t_out_data_500_000->Fill(); }
+        }
         if (pass_photon)                                   { f_out_data_photon_dir->cd(); t_out_data_photon->Fill(); }
+        //if (pass_photon2)                                  { f_out_data_photon2_dir->cd(); t_out_data_photon2->Fill(); }
         if (!rm_filled) {
             f_out_data_002_010_dir->cd(); rm_out_data_002_010->Fill();
             f_out_data_010_025_dir->cd(); rm_out_data_010_025->Fill();
@@ -382,6 +399,7 @@ int main(int argc, char **argv)
             f_out_data_100_500_dir->cd(); rm_out_data_100_500->Fill();
             f_out_data_500_000_dir->cd(); rm_out_data_500_000->Fill();
             f_out_data_photon_dir->cd();  rm_out_data_photon->Fill();
+            //f_out_data_photon2_dir->cd(); rm_out_data_photon2->Fill();
             rm_filled = true; }
 
     }//@ END OF EVENT LOOP
@@ -393,7 +411,7 @@ int main(int argc, char **argv)
     f_out_data_100_500_dir->cd(); t_out_data_100_500->Write(); rm_out_data_100_500->Write(); TDirectory *hk_out_data_100_500_dir = f_out_data_100_500_dir->mkdir("HousekeepingData"); hk_out_data_100_500_dir->cd(); for (int i=0; i<n_hk_in; i++) hk_out_data_100_500[i]->Write(); f_out_data_100_500->Close();
     f_out_data_500_000_dir->cd(); t_out_data_500_000->Write(); rm_out_data_500_000->Write(); TDirectory *hk_out_data_500_000_dir = f_out_data_500_000_dir->mkdir("HousekeepingData"); hk_out_data_500_000_dir->cd(); for (int i=0; i<n_hk_in; i++) hk_out_data_500_000[i]->Write(); f_out_data_500_000->Close();
     f_out_data_photon_dir->cd(); t_out_data_photon->Write(); rm_out_data_photon->Write(); TDirectory *hk_out_data_photon_dir = f_out_data_photon_dir->mkdir("HousekeepingData"); hk_out_data_photon_dir->cd(); for (int i=0; i<n_hk_in; i++) hk_out_data_photon[i]->Write(); f_out_data_photon->Close();
-
+    // f_out_data_photon2_dir->cd(); t_out_data_photon2->Write(); rm_out_data_photon2->Write(); TDirectory *hk_out_data_photon2_dir = f_out_data_photon2_dir->mkdir("HousekeepingData"); hk_out_data_photon2_dir->cd(); for (int i=0; i<n_hk_in; i++) hk_out_data_photon2[i]->Write(); f_out_data_photon2->Close();
 
     double analyzed_time = (time_finish-time_start)/60.0/60.0/24.0;
     printf("\nAnalyzed time interval: %.4f days\n",analyzed_time);

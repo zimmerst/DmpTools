@@ -24,6 +24,7 @@ echo "cd ${release_path}/${release_name}/"
 cd ${release_path}/${release_name}/
 echo "source bin/thisdmpsw.sh"
 source bin/thisdmpsw.sh
+#source thisdmpeventclass.sh
 cd - >& /dev/null
 
 workdir="`pwd`"
@@ -103,7 +104,7 @@ do
 	    fi
 
 	    erange="002_010 010_025 025_050 050_100 100_500 500_000 photon"
-
+            #erange="002_010 010_025 025_050 050_100 100_500 500_000 photon photon2"
 	    for e in ${erange}
 	    do
 		f="${day}_data_${e}.root"

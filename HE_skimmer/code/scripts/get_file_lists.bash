@@ -17,7 +17,7 @@ files_hi=$((${max_files}+10))
 
 
 source setup-externals_${system_type}.sh
-
+#echo "** DEBUG **: data_location: ${data_location}"
 for year in $(seq $year_start $year_end)
 do
     #if [ ${year} -lt 2017 ]; then continue; fi ###### temporary !!! ####
@@ -40,21 +40,24 @@ do
 
 	    n=-1
 	    ### PMO_cluster folder
-	    if [ `echo ${data_location} | grep PMO_cluster | wc -l` -eq 1 -o `echo ${data_location} | grep FlightData | wc -l` -eq 1 ]
+	    if [[ $data_location == *"FlightData"*"PMO_cluster"* ]] #[ `echo ${data_location} | grep PMO_cluster | wc -l` -eq 1 -o `echo ${data_location} | grep FlightData | wc -l` -eq 1 ]
 	    then
+		#echo "PMO_cluster folder"
 		datadir="${data_location}/${year}${month0}${day0}"
 		if [ -d ${datadir} ]
 		then
 		    find ${datadir} | grep -v tmp | grep -v "\.DAMPE" | grep root > list.tmp
 		fi
 	    ### releases folder
-	    elif [ `echo ${data_location} | grep releases | wc -l` -eq 1 ]
+	    elif [[ $data_location == *"releases"* ]]; #[ `echo ${data_location} | grep releases | wc -l` -eq 1 ]
 	    then
+		#echo "** RELEASE AT UNIGE **"
 		#find ${data_location} | grep "_${year}${month0}${day0}_" | grep root > list.tmp
 	    ### FIXME!!! SZ 2017-09-05, get listing according to PMO structure 
 		#find ${data_location} -name "*.root" | awk -v target="${year}${month0}${day0}" -F_ '{ts = $5; sub(/T.*/, "", ts); if (ts == target) print $0}' > list.tmp
 		# these two lines are equivalent!
 		find ${data_location} -name "*.root" | awk -v target="^${year}${month0}${day0}" -F_ '$5 ~ target' > list.tmp
+		echo "*DEBUG* wc -l list.tmp: $(wc -l list.tmp)"
 	    ### DPM
 	    elif [ `echo ${data_location} | grep dpm | wc -l` -eq 1 ]
 	    then
@@ -71,6 +74,7 @@ do
 	    
 	    if [ -f list.tmp ]
 	    then
+		#echo "list.tmp exists already!"
 		n=`cat list.tmp | wc -l`
 	    fi
 

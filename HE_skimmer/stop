@@ -1,2 +1,3 @@
 #!/bin/bash
+export SKIMROOT=$(readlink -f $(pwd))
 ./run.bash kill

@@ -1,6 +1,7 @@
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := $(shell root-config --libs) -lMinuit -lProof
+ROOTLIBS     := $(shell root-config --libs) 
+#-lMinuit -lProof
 
 # Programs
 CXX          = g++ 
@@ -9,12 +10,15 @@ LDFLAGS      = -g -lm
 SOFLAGS      = -shared 
 
 # Local Includes
+#INCDIR      += -Iincludes -I/atlas/software/dampe/centos7/DmpSoftware/Event/include
 INCDIR      += -Iincludes -I${DMPSWPATH}/${DMPSWRELEASE}/include
 
 # Libraries
-DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/lib/
+DMPLIBDIR = -L${DMPSWPATH}/${DMPSWRELEASE}/lib
 DMPLIBS = -lDmpKernel `ls ${DMPSWPATH}/${DMPSWRELEASE}/lib/ | grep so | grep -v Kernel | sed -e 's/lib/-l/g' | sed -e 's/\.so//g' | tr '\n' ' '`
+#DMPLIBS   = -lDmpEvent
 LIBS      += $(ROOTLIBS) ${DMPLIBDIR} ${DMPLIBS}
+#LIBS      += $(ROOTLIBS) -L/atlas/software/dampe/centos7/DmpSoftware/Event -lDmpEvent
 
 # Direct to make the directories with the sources:
 VPATH  = ./lib / ./bin ./app ./includes 
@@ -54,7 +58,8 @@ main : main.o
 
 %   : %.o
 	@echo "compiling and linking $@"
-	@$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "$(CXX) $(CXXFLAGS) $^ -o $@"
+	@$(CXX) $(CXXFLAGS) $^ -o $@	
 	@if [ `ls | grep "\.so"$ | wc -l` != 0 ]; then mv *.so lib/; fi
 	@if [ `ls | grep "\.o"$  | wc -l` != 0 ]; then mv *.o  lib/; fi
 	@mv $@ bin/

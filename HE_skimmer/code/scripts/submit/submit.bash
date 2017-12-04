@@ -1,27 +1,30 @@
 #!/bin/bash
-
+echo ">>> executing code/scripts/submit/submit.bash "
 submit=$1 
-
-data_location="`cat ../../../parameters.txt | grep 2A_data_location | awk '{print $2}'`"
-skim_location="`cat ../../../parameters.txt | grep output_location | awk '{print $2}'`"
-year_start="`cat ../../../parameters.txt | grep year_start | awk '{print $2}'`"
-year_end="`cat ../../../parameters.txt | grep year_end | awk '{print $2}'`"
-month_start="`cat ../../../parameters.txt | grep month_start | awk '{print $2}'`"
-month_end="`cat ../../../parameters.txt | grep month_end | awk '{print $2}'`"
-day_start="`cat ../../../parameters.txt | grep day_start | awk '{print $2}'`"
-day_end="`cat ../../../parameters.txt | grep day_end | awk '{print $2}'`"
-start_execution_delay="`cat ../../../parameters.txt | grep start_execution_delay | awk '{print $2}'`"
-exec_location="`cat ../../../parameters.txt | grep exec_location | awk '{print $2}'`"
-file_start="`cat ../../../parameters.txt | grep file_start | awk '{print $2}'`"
-file_end="`cat ../../../parameters.txt | grep file_end | awk '{print $2}'`"
-event_start="`cat ../../../parameters.txt | grep event_start | awk '{print $2}'`"
-event_end="`cat ../../../parameters.txt | grep event_end | awk '{print $2}'`"
-apply_cut="`cat ../../../parameters.txt | grep apply_cut | awk '{print $2}'`"
-system_type="`cat ../../../parameters.txt | grep system_type | awk '{print $2}'`"
-skim_version="`cat ../../../parameters.txt | grep skim_version | awk '{print $2}'`"
-max_files="`cat ../../../parameters.txt | grep max_files | awk '{print $2}'`"
-files_lo=$((${max_files}-10))
-files_hi=$((${max_files}+10))
+ROOTDIR_SKIM=${SKIMROOT:-../../..}
+wdir=$(pwd)/submit_dir
+export data_location="`cat $ROOTDIR_SKIM/parameters.txt | grep 2A_data_location | awk '{print $2}'`"
+export skim_location="`cat $ROOTDIR_SKIM/parameters.txt | grep output_location | awk '{print $2}'`"
+export year_start="`cat $ROOTDIR_SKIM/parameters.txt | grep year_start | awk '{print $2}'`"
+export year_end="`cat $ROOTDIR_SKIM/parameters.txt | grep year_end | awk '{print $2}'`"
+export month_start="`cat $ROOTDIR_SKIM/parameters.txt | grep month_start | awk '{print $2}'`"
+export month_end="`cat $ROOTDIR_SKIM/parameters.txt | grep month_end | awk '{print $2}'`"
+export day_start="`cat $ROOTDIR_SKIM/parameters.txt | grep day_start | awk '{print $2}'`"
+export day_end="`cat $ROOTDIR_SKIM/parameters.txt | grep day_end | awk '{print $2}'`"
+export start_execution_delay="`cat $ROOTDIR_SKIM/parameters.txt | grep start_execution_delay | awk '{print $2}'`"
+export exec_location="`cat $ROOTDIR_SKIM/parameters.txt | grep exec_location | awk '{print $2}'`"
+export file_start="`cat $ROOTDIR_SKIM/parameters.txt | grep file_start | awk '{print $2}'`"
+export file_end="`cat $ROOTDIR_SKIM/parameters.txt | grep file_end | awk '{print $2}'`"
+export event_start="`cat $ROOTDIR_SKIM/parameters.txt | grep event_start | awk '{print $2}'`"
+export event_end="`cat $ROOTDIR_SKIM/parameters.txt | grep event_end | awk '{print $2}'`"
+export apply_cut="`cat $ROOTDIR_SKIM/parameters.txt | grep apply_cut | awk '{print $2}'`"
+export system_type="`cat $ROOTDIR_SKIM/parameters.txt | grep system_type | awk '{print $2}'`"
+export skim_version="`cat $ROOTDIR_SKIM/parameters.txt | grep skim_version | awk '{print $2}'`"
+export queue="`cat $ROOTDIR_SKIM/parameters.txt | grep queue | awk '{print $2}'`"
+export max_files="`cat $ROOTDIR_SKIM/parameters.txt | grep max_files | awk '{print $2}'`"
+export n_out_streams="`cat $ROOTDIR_SKIM/parameters.txt | grep n_out_streams | awk '{print $2}'`"
+export files_lo=$((${max_files}-10))
+export files_hi=$((${max_files}+10))
 
 for year in $(seq $year_start $year_end)
 do
@@ -46,19 +49,28 @@ do
 		continue
 	    fi
 	    
-	    if [ `ls ${skim_location}/${year}/${month}/ | grep "${day}_data" | grep -v stats | wc -l` -eq 6 ]; then
+	    if [ `ls ${skim_location}/${year}/${month}/ | grep "${day}_data" | grep -v stats | wc -l` -eq ${n_out_streams} ]; then
 		printf "Data processed already\n"
 		continue
 	    fi
 
-	    job_file="job_${skim_version}_${year}_${month}_${day}.bash"
-	    
+	    #job_file="submit_dir/job_${skim_version}_${year}_${month}_${day}.bash"
+	    jfile="job_${skim_version}_${year}_${month}_${day}.bash"
+	    job_file=$(readlink -f submit_dir/${jfile})	    
 	    if [ ! -f ${job_file} ]
 	    then
 		printf "INFO: Create job submission file\n"	    
 		cat << EOF > ${job_file}
 #!/bin/bash
+#SBATCH --partition=${queue}
+#SBATCH --mem=1024
+#SBATCH --workdir=$(readlink -f ${wdir})
+#SBATCH --output=${jfile/.bash/.out}
 
+echo "THIS IS HOST: \$(hostname)"
+echo "STARTING ON: \$(date)"
+
+exec_dir="${exec_location}"
 delay=\`echo "scale=2;\${RANDOM}*${start_execution_delay}/32767" | bc\`
 echo "Suspend execution by \${delay} seconds..."
 sleep \${delay}
@@ -66,10 +78,10 @@ sleep \${delay}
 file_list="${skim_location}/${year}/${month}/${day}.list.gr"
 output_dir="${skim_location}/${year}/${month}"
 
-job_run_dir="/tmp/skimming___\`date +%s-%N\`"
+job_run_dir="/local/scratch/skimming___\`date +%s-%N\`"
 mkdir -pv \${job_run_dir}
-pushd \${job_run_dir}
-
+cd \${job_run_dir}
+echo "in directory: $(readlink -f $(pwd))"
 exec_dir="${exec_location}"
 mkdir -pv bin
 cp -v \${exec_dir}/scripts/setup-externals_${system_type}.sh .
@@ -79,7 +91,6 @@ cp -v \${exec_dir}/run.bash .
 cp -v \${file_list} file_list.txt
 source setup-externals_${system_type}.sh
 ./run.bash ${event_start} ${event_end} 0 ${file_start} ${file_end} tmp file_list.txt ${apply_cut} &> log 
-
 rsync -av data/tmp/data_002_010.root \${output_dir}/${day}_data_002_010.root
 rsync -av data/tmp/data_010_025.root \${output_dir}/${day}_data_010_025.root
 rsync -av data/tmp/data_025_050.root \${output_dir}/${day}_data_025_050.root
@@ -87,11 +98,13 @@ rsync -av data/tmp/data_050_100.root \${output_dir}/${day}_data_050_100.root
 rsync -av data/tmp/data_100_500.root \${output_dir}/${day}_data_100_500.root
 rsync -av data/tmp/data_500_000.root \${output_dir}/${day}_data_500_000.root
 rsync -av data/tmp/data_photon.root \${output_dir}/${day}_data_photon.root
+# UNCOMMENT FOR PHOTON2
+###rsync -av data/tmp/data_photon2.root \${output_dir}/${day}_data_photon2.root
 rsync -av log \${output_dir}/${day}.log
 
 ls -lh \${output_dir}/${day}*
+cd ${wdir}
 
-popd
 
 rm -rf \${job_run_dir}
 

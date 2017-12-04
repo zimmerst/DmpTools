@@ -16,6 +16,8 @@ month_end="`cat ../../parameters.txt | grep month_end | awk '{print $2}'`"
 day_start="`cat ../../parameters.txt | grep day_start | awk '{print $2}'`"
 day_end="`cat ../../parameters.txt | grep day_end | awk '{print $2}'`"
 system_type="`cat ../../parameters.txt | grep system_type | awk '{print $2}'`"
+n_out_streams="`cat ../../parameters.txt | grep n_out_streams | awk '{print $2}'`"
+max_file="`cat ../../parameters.txt | grep max_files | awk '{print $2}'`"
 
 source setup-externals_${system_type}.sh
 
@@ -60,12 +62,12 @@ do
 		then
 		    printf "%6d" 0 
 		    printf "%6d" 0  >> ${skim_location}/summary.txt
-		elif [ ${nfiles} -lt $((${max_files}-5)) -o ${nfiles} -gt $((${max_files}+5)) ]
+		elif [ ${nfiles} -lt $((${max_files}-10)) -o ${nfiles} -gt $((${max_files}+10)) ]
 		then
 		    printf "${PUR}%6d${NC}" ${nfiles} 
 		    printf "${PUR}%6d${NC}" ${nfiles}  >> ${skim_location}/summary.txt		
 		else
-		    if [ ${processed} -eq 6 ]
+		    if [ ${processed} -eq ${n_out_streams} ]
 		    then
 			printf "${CYA}%6d${NC}" ${nfiles} 
 			printf "${CYA}%6d${NC}" ${nfiles}  >> ${skim_location}/summary.txt
@@ -108,11 +110,11 @@ do
 		    printf "%6.1f" 0
 		    printf "%6.1f" 0 >> ${skim_location}/summary.txt
 		else
-		    if [ ${n0} -lt 4700000 -o ${n0} -gt 5300000 ]
+		    if [ ${n0} -lt 4000000 -o ${n0} -gt 5300000 ]
 		    then
 			printf "${PUR}%6s${NC}" "${n}M"
 			printf "${PUR}%6s${NC}" "${n}M" >> ${skim_location}/summary.txt
-		    elif [ ${processed} -eq 6 ]
+		    elif [ ${processed} -eq ${n_out_streams} ]
 		    then
 			printf "${CYA}%6s${NC}" "${n}M"
 			printf "${CYA}%6s${NC}" "${n}M" >> ${skim_location}/summary.txt
@@ -142,8 +144,8 @@ do
 		    processed=`find ${dir} | grep -v proc | grep ${day}_data_${e}.root | grep -v stats | grep -v "\.${day}_data" | wc -l`
 		    if [ ${nfiles} -eq 0 ]
 		    then
-			printf "%6.1f" 0 
-			printf "%6.1f" 0  >> ${skim_location}/summary.txt
+		    printf "%6.1d" 0 
+		    printf "%6.1d" 0  >> ${skim_location}/summary.txt
 		    else
 			if [ ${processed} -eq 1 -a -f ${dir}/${day}_data_${e}.root.stats ]
 			then
@@ -159,11 +161,16 @@ do
 			    if [ "${e}" = "050_100" -a ${n0} -lt   800 ]; then CYA=${PUR}; not_enough_events=1; fi
 			    if [ "${e}" = "100_500" -a ${n0} -lt   350 ]; then CYA=${PUR}; not_enough_events=1; fi
 			    if [ "${e}" = "500_000" -a ${n0} -lt    20 ]; then CYA=${PUR}; not_enough_events=1; fi
-			    if [ "${e}" = "photon" -a ${n0}  -lt    10 ]; then CYA=${PUR}; not_enough_events=1; fi
-
-			    printf "${CYA}%6d${NC}" ${n0} 
-			    printf "${CYA}%6d${NC}" ${n0}  >> ${skim_location}/summary.txt
-			    
+			    if [ "${e}" = "photon" -a ${n0}  -lt 100000 ]; then CYA=${PUR}; not_enough_events=1; fi
+                            if [ "${e}" = "002_010" -o "${e}" = "photon" ]; 
+			    then 
+				n0=`echo "scale=0; ${n0}/1000.0" | bc`
+                                printf "${CYA}%6s${NC}" "${n0}k"
+                                printf "${CYA}%6s${NC}" "${n0}k" >> ${skim_location}/summary.txt
+			    else
+			        printf "${CYA}%6d${NC}" ${n0} 
+			        printf "${CYA}%6d${NC}" ${n0}  >> ${skim_location}/summary.txt
+			    fi
 			    CYA=${CYA0}
 			else
 			    printf "${RED}%6d${NC}" 0

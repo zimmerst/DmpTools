@@ -24,6 +24,7 @@ apply_cut=$8
 release_name=`cat ../makefile | grep DMPSWRELEASE | head -n1 | awk '{print $3}'`
 release_path=`cat ../makefile | grep DMPSWPATH | head -n1 | awk '{print $3}'`
 
+source setup-externals_${system_type}.sh
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@ Setup DMPSW"
 echo "cd ${release_path}/${release_name}"
 cd ${release_path}/${release_name}
@@ -47,7 +48,10 @@ fi
 rm -f progress.log
 #time_start=`date +%s`
 cp ../bin/main .
-time ./main ${first_event} ${last_event} ${verbosity} ../${filelist} ${first_file} ${last_file} ${apply_cut}
+echo "executing: $(readlink -f main) ${first_event} ${last_event} ${verbosity} $(readlink -f ../${filelist}) ${first_file} ${last_file} ${apply_cut}"
+./main ${first_event} ${last_event} ${verbosity} ../${filelist} ${first_file} ${last_file} ${apply_cut}
+## catch the error code!
+RC=$? 
 #time_end=`date +%s`
 
 echo ""
@@ -61,3 +65,10 @@ mv -v progress.log ../data/${output_files_tag}/
 popd
 rm -rfv ${rundir}
 
+#if [[ $RC != 0 ]]; 
+#then
+#  echo "skimmer exited with non-zero return code: ${RC}"
+#else
+#  echo "skimmer exited gracefully"
+#fi
+#exit ${RC}

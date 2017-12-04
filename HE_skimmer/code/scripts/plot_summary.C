@@ -63,6 +63,12 @@ void plot_summary(int ndays) {
     date.tm_mon = month - 1;
     date.tm_mday = day;
     mktime( &date );
+/*  
+    std::cout << "DBG: date.tm_yday: " << date.tm_yday << std::endl;
+    std::cout << "DBG: first_day + 1 " << first_day + 1 << std::endl;
+    std::cout << "DBG: year: " << year << std::endl;
+    std::cout << "DBG: daysinyears[year - 2015] " << daysinyears[year - 2015] << std::endl;
+*/
     int i_day = date.tm_yday - first_day + 1 + daysinyears[year - 2015];
     //printf("%d\n",i_day);
     nevt_total->SetBinContent(i_day,nevt);

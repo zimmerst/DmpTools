@@ -9,6 +9,11 @@ system_type="`cat ../parameters.txt | grep system_type | awk '{print $2}'`"
 source scripts/setup-externals_${system_type}.sh
 
 echo ""
+echo "which gcc $(which gcc)"
+echo "which g++ $(which g++)"
+echo "which ld $(which ld)"
+echo "" 
+echo "Use ${release_path}"
 echo "Use ${release_name}"
 echo ""
 echo "Use ${ROOTSYS}"
@@ -20,6 +25,7 @@ DMPSWPATH = ${release_path}
 EOF
 
 cat tmp mkf > makefile
+#cat mkf > makefile
 echo "creating directories"
 mkdir -vp lib bin
 mkdir -vp ../code/scripts/plots

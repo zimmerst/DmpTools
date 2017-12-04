@@ -1,39 +1,42 @@
 -----------------------------------------------------------------------------
 ### Location of 2A data files
-2A_data_location	/dampe/data2/releases/5.4.2
+2A_data_location	/beegfs/dampe/prod/FM/FlightData/releases/PMO_cluster/6.0.0
+##/beegfs/dampe/prod/FM/FlightData/2A/
+#/beegfs/dampe/prod/FM/FlightData/releases/6.0.0
 ## fix xrootd ingest first!
 -----------------------------------------------------------------------------
 ### Location of output files, file lists and bookeeping files
-output_location		/dampe/data4/users/public/HE_skim/5.4.2/v2
+output_location		/beegfs/dampe/prod/FM/skim/6.0.0/v2
 -----------------------------------------------------------------------------
 ### Version of the skim
 skim_version		v2
 -----------------------------------------------------------------------------
 ### Dates to process
-year_start		2017
+year_start		2016
 year_end		2017
-month_start		6
-month_end		9
+month_start		1
+month_end		12
 day_start		1
 day_end			31
 -----------------------------------------------------------------------------
 ### DAMPE softeare realease and installation path
-dampe_sw_release	DmpSoftware-5-4-2
-dampe_sw_path		/cvmfs/dampe.cern.ch/rhel6-64/opt/releases/
+dampe_sw_release	DmpSoftware-6-0-0
+dampe_sw_path		/cvmfs/dampe.cern.ch/centos7/opt/DMPSW/
 -----------------------------------------------------------------------------
 ### ROOT
-root_sw_path		/cvmfs/dampe.cern.ch/rhel6-64/opt/externals/root/latest/
+root_sw_path		/cvmfs/dampe.cern.ch/centos7/opt/root-5-34-34
 -----------------------------------------------------------------------------
 ### Time interval within which execution start is sampled
 start_execution_delay   60 seconds
 -----------------------------------------------------------------------------
 ### Locaiton of the skimmer executable
-exec_location		/dampe/data3/users/zimmer/HE_skim/code/
+exec_location		/beegfs/dampe/prod/UserSpace/dampe_prod/HEskim/code
 -----------------------------------------------------------------------------
 ### Files to process
 file_start		1
 file_end		-1 # set to -1 to process all available files
 max_files		90 # files per day
+n_out_streams		7  # number of output streams: 6 energy bins + 1 photon stream
 -----------------------------------------------------------------------------
 ### Events to process
 event_start		0
@@ -46,12 +49,12 @@ apply_cut		3
 #			unige_local
 #			pmo_lsf
 #			pmo_local
-system_type		unige_pbs
+system_type		unige_slurm
 -----------------------------------------------------------------------------
 ### Maximum number of jobs to be submitted at a time
-max_n_jobs		150
+max_n_jobs		152
 -----------------------------------------------------------------------------
 ### Job menagement system cridentials
-submit_user		zimmer
-submit_queue		verylong
+submit_user		dampe_prod
+submit_queue		debug
 -----------------------------------------------------------------------------

@@ -2,11 +2,13 @@
 
 job_file=$1
 system=$2
-
-max_n_jobs="`cat ../../../parameters.txt | grep max_n_jobs | awk '{print $2}'`"
-user="`cat ../../../parameters.txt | grep submit_user | awk '{print $2}'`"
-queue="`cat ../../../parameters.txt | grep submit_queue | awk '{print $2}'`"
-skim_version="`cat ../../../parameters.txt | grep skim_version | awk '{print $2}'`"
+echo ">>> executing code/scripts/submit/launch.bash"
+#echo "input: job_file ${job_file}"
+#echo "input: system   ${system}"
+max_n_jobs="`cat ${ROOTDIR_SKIM:-../../..}/parameters.txt | grep max_n_jobs | awk '{print $2}'`"
+user="`cat ${ROOTDIR_SKIM:-../../..}/parameters.txt | grep submit_user | awk '{print $2}'`"
+queue="`cat ${ROOTDIR_SKIM:-../../..}/parameters.txt | grep submit_queue | awk '{print $2}'`"
+skim_version="`cat ${ROOTDIR_SKIM:-../../..}/parameters.txt | grep skim_version | awk '{print $2}'`"
 
 #######################
 ####                  #
@@ -68,31 +70,33 @@ then
     rm -f jobs.list.tmp
 ######################
 ###                  #
-
-#                  ###
-######################
-
-######################
-###                  #
 ##   UNIGE cluster / SLURM ##
 #                  ###
 ######################
 elif [ ${system} = "unige_slurm" ]
 then
-
-    rm -f jobs.list.tmp
-    for jobid in `squeue -u ${user} -p ${queue} | grep job_${skim_version} | grep -v ' C ' | grep -v ' E ' | awk '{print $1}' | sed -e 's/\..*//'`
+    rm -fv $SKIMROOT/code/scripts/submit/submit_dir/jobs.list.tmp && touch $SKIMROOT/code/scripts/submit/submit_dir/jobs.list.tmp
+    for jobid in $(squeue -u ${user} -p ${queue} -t PD,R --noheader --format=%i)
+#grep job_${skim_version} | awk '{print $1}')
     do
-	qstat -f ${jobid} >> jobs.list.tmp
+	scontrol show jobid -dd ${jobid} >> $SKIMROOT/code/scripts/submit/submit_dir/jobs.list.tmp	
     done
-    running=`cat jobs.list.tmp | grep "Job_Name = ${job_file}" | wc -l`
+    running=$(grep "JobName=$(basename ${job_file})" $SKIMROOT/code/scripts/submit/submit_dir/jobs.list.tmp | wc -l)
+#    echo "*** DEBUG *** dump: cat job.list.tmp"
+#    cat jobs.list.tmp
+#    echo "*** DEBUG *** dump: running = ${running}"
     if [ ${running} -eq 0  ]
     then
-	njobs=`squeue -u ${user} -p ${queue} | grep job_${skim_version} | grep -v ' C ' | grep -v ' E ' | wc -l`
+	njobs=`squeue -u ${user} -p ${queue} -t PD,R | grep job_${skim_version} | wc -l`
 	if [ ${njobs} -lt ${max_n_jobs} ]
 	then
 	    echo "Run script ${job_file} on SLURM"
-	    sbatch -p ${queue} --mem6000mb --workdir=$(pwd) ${job_file}
+            #echo "job_file: $(readlink -f ${job_file})"
+	    jfile=$(readlink -f ${job_file})
+	    #cp ${job_file} ${job_file/.bash/.bak}
+	    chmod u+x ${jfile}
+	    #echo "sbatch ${job_file}"
+            sbatch ${job_file} 
 	else
 	    echo "INFO: ${max_n_jobs} jobs were already submitted. Skip submission of ${job_file}..."
 	fi
@@ -103,7 +107,7 @@ then
 	echo "WARNING: Script ${job_file} was submitted more than once"
     fi
 
-    rm -f jobs.list.tmp
+    rm -f $SKIMROOT/code/scripts/submit/submit_dir/jobs.list.tmp
 ######################
 ###                  #
 
