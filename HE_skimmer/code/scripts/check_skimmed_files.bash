@@ -1,5 +1,6 @@
 #!/bin/bash
-
+delete=${1:-no}
+echo ${delete}
 printf "\n>>>> Execute check_files.bash \n\n"
 
 data_location="`cat ../../parameters.txt | grep 2A_data_location | awk '{print $2}'`"
@@ -59,6 +60,19 @@ do
 		else
 		    printf "Check ${f}... "
 		    root -l -b -q "${workdir}/read_local_file.C(\"${f}\")" >& tmp
+		    RC=$?
+ 		    if [[ $RC != 0 ]];
+		    then
+ 		     echo "ERROR!!! could not read local file. skip."
+                     cat tmp
+		     if [[ $delete == 'delete' ]];
+		     then
+                      echo "REQUESTED DELETION OF FILE!, YOU CAN INTERRUPT THIS BY PRESSING CTRL+C DURING THE NEXT 5 SECONDS"
+		      sleep 5
+		      rm -v ${f}
+		     fi
+                     continue
+                    fi
                     #cat tmp
 		    n=`cat tmp | grep nentries | awk '{print $3}'`
 		    if [ "${n}" = "" ]
