@@ -62,7 +62,7 @@ do
     pushd scripts
     if [ "${todo}" != "kill" ]; then ./get_file_lists.bash; fi
     echo $(date)
-    #./check_files.bash
+    ./check_files.bash
     pushd submit
     if [ "${todo}" = "run" ]; then ./submit.bash submit; elif [ "${todo}" != "kill" ]; then ./submit.bash; fi
     ./${system_type}_check_jobs.bash
@@ -90,7 +90,7 @@ do
     echo "You are viewing hohup.out, press Ctr+C to stop..."
     
     n=0
-    delay=30 # seconds
+    delay=300 # seconds
     nmax=$(( 10*${delay} ))
     while [ ${n} -lt ${nmax} ]
     do

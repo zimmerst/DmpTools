@@ -13,7 +13,7 @@ skim_version		v2
 -----------------------------------------------------------------------------
 ### Dates to process
 year_start		2016
-year_end		2017
+year_end		2018
 month_start		1
 month_end		12
 day_start		1
@@ -52,9 +52,9 @@ apply_cut		3
 system_type		unige_slurm
 -----------------------------------------------------------------------------
 ### Maximum number of jobs to be submitted at a time
-max_n_jobs		152
+max_n_jobs		200
 -----------------------------------------------------------------------------
 ### Job menagement system cridentials
 submit_user		dampe_prod
-submit_queue		debug
+submit_queue		long
 -----------------------------------------------------------------------------

@@ -23,8 +23,8 @@ export skim_version="`cat $ROOTDIR_SKIM/parameters.txt | grep skim_version | awk
 export queue="`cat $ROOTDIR_SKIM/parameters.txt | grep queue | awk '{print $2}'`"
 export max_files="`cat $ROOTDIR_SKIM/parameters.txt | grep max_files | awk '{print $2}'`"
 export n_out_streams="`cat $ROOTDIR_SKIM/parameters.txt | grep n_out_streams | awk '{print $2}'`"
-export files_lo=$((${max_files}-10))
-export files_hi=$((${max_files}+10))
+export files_lo=$((${max_files}-20))
+export files_hi=$((${max_files}+20))
 
 for year in $(seq $year_start $year_end)
 do
@@ -78,7 +78,11 @@ sleep \${delay}
 file_list="${skim_location}/${year}/${month}/${day}.list.gr"
 output_dir="${skim_location}/${year}/${month}"
 
+# OBS: was commented out SZ 2018-03-14
 job_run_dir="/local/scratch/skimming___\`date +%s-%N\`"
+
+# OBS: was default until 2018-03-14 SZ
+##job_run_dir="/beegfs/dampe/tmp/HEskim/skimming___\`date +%s-%N\`"
 mkdir -pv \${job_run_dir}
 cd \${job_run_dir}
 echo "in directory: $(readlink -f $(pwd))"

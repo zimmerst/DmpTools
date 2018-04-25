@@ -51,35 +51,45 @@ do
 	    f_out_5="${skim_location}/${year}/${month0}/${day0}_data_100_500.root.stats"
 	    f_out_6="${skim_location}/${year}/${month0}/${day0}_data_500_000.root.stats"
 	    f_out_7="${skim_location}/${year}/${month0}/${day0}_data_photon.root.stats"
-            #f_out_8="${skim_location}/${year}/${month0}/${day0}_data_photon2.root.stats" # UNCOMMENT FOR PHOTON2
+            
 
+	    #echo "f1: ${f_out_1}"
+            #echo "f2: ${f_out_2}"
+            #echo "f3: ${f_out_3}"
+            #echo "f4: ${f_out_4}"
+            #echo "f5: ${f_out_5}"
+            #echo "f6: ${f_out_6}"
+            #echo "f7: ${f_out_7}"
+            
+
+            #f_out_8="${skim_location}/${year}/${month0}/${day0}_data_photon2.root.stats" # UNCOMMENT FOR PHOTON2
+            n1=0  # total events
+            n2=0  # total files
+            n3=0  # 002_010
+            n4=0  # 010_025
+            n5=0  # 025_050
+            n6=0  # 050_100
+            n7=0  # 100_500
+            n8=0  # 500_000
+            n9=0  # photon
 	    if [ -f ${f_in} ]
 	    then
 		n1=`cat ${f_in} | grep Total | awk '{print $8}'`
 		n2=`cat ${f_in} | grep root | wc -l`
-		if [ -f ${f_out_1} ]; then n3=`cat ${f_out_1} | awk '{print $7}'`; else n3=0; fi
-		if [ -f ${f_out_2} ]; then n4=`cat ${f_out_2} | awk '{print $7}'`; else n4=0; fi
-		if [ -f ${f_out_3} ]; then n5=`cat ${f_out_3} | awk '{print $7}'`; else n5=0; fi
-		if [ -f ${f_out_4} ]; then n6=`cat ${f_out_4} | awk '{print $7}'`; else n6=0; fi
-		if [ -f ${f_out_5} ]; then n7=`cat ${f_out_5} | awk '{print $7}'`; else n7=0; fi
-		if [ -f ${f_out_6} ]; then n8=`cat ${f_out_6} | awk '{print $7}'`; else n8=0; fi
-		if [ -f ${f_out_7} ]; then n8=`cat ${f_out_7} | awk '{print $7}'`; else n9=0; fi
-                #if [ -f ${f_out_8} ]; then n9=`cat ${f_out_8} | awk '{print $7}'`; else n10=0; fi # UNCOMMENT FOR PHOTON2
-	    else
-		n1=0
-		n2=0
-		n3=0
-		n4=0
-		n5=0
-		n6=0
-		n7=0
-		n8=0
-		n9=0
-                #n10=0
+		if [ -f ${f_out_1} ]; then n3=`cat ${f_out_1} | awk '{print $7}'`; else echo "missing ${f_out_1}"; n3=0; fi
+		if [ -f ${f_out_2} ]; then n4=`cat ${f_out_2} | awk '{print $7}'`; else echo "missing ${f_out_2}"; n4=0; fi
+		if [ -f ${f_out_3} ]; then n5=`cat ${f_out_3} | awk '{print $7}'`; else echo "missing ${f_out_3}"; n5=0; fi
+		if [ -f ${f_out_4} ]; then n6=`cat ${f_out_4} | awk '{print $7}'`; else echo "missing ${f_out_4}"; n6=0; fi
+		if [ -f ${f_out_5} ]; then n7=`cat ${f_out_5} | awk '{print $7}'`; else echo "missing ${f_out_5}"; n7=0; fi
+		if [ -f ${f_out_6} ]; then n8=`cat ${f_out_6} | awk '{print $7}'`; else echo "missing ${f_out_6}"; n8=0; fi
+		if [ -f ${f_out_7} ]; then n9=`cat ${f_out_7} | awk '{print $7}'`; else echo "missing ${f_out_7}"; n9=0; fi
+                #if [ -f ${f_out_8} ]; then n10=`cat ${f_out_8} | awk '{print $7}'`; else n10=0; fi # UNCOMMENT FOR PHOTON2
 	    fi
 	    echo "${n1} in ${n2} files"
 
-	    echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} ${n9}" >> raw_summary.txt
+	    #echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} " >> raw_summary.txt
+	    #echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} ${n9}"
+            echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} ${n9}" >> raw_summary.txt
             #echo "${year} ${month} ${day} ${n1} ${n2} ${n3} ${n4} ${n5} ${n6} ${n7} ${n8} ${n9} ${n10}" >> raw_summary.txt  # UNCOMMENT FOR PHOTON2
 	done
     done

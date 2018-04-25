@@ -57,18 +57,19 @@ void plot_summary(int ndays) {
 
   while (1) {
     in >> year >> month >> day >> nevt >> nfiles >> nevt_1 >> nevt_2 >> nevt_3 >> nevt_4 >> nevt_5 >> nevt_6 >> nevt_7;
+    //std::cout << "DEBUG: YEAR: " << year << std::endl;
     if (!in.good()) break;
     //printf("%10d %10d %10d %20ld %10d\n",year,month,day,nevt,nfiles);    tm date = {};
     date.tm_year = year - 1900;
     date.tm_mon = month - 1;
     date.tm_mday = day;
     mktime( &date );
-/*  
+  /*
     std::cout << "DBG: date.tm_yday: " << date.tm_yday << std::endl;
     std::cout << "DBG: first_day + 1 " << first_day + 1 << std::endl;
     std::cout << "DBG: year: " << year << std::endl;
     std::cout << "DBG: daysinyears[year - 2015] " << daysinyears[year - 2015] << std::endl;
-*/
+  */
     int i_day = date.tm_yday - first_day + 1 + daysinyears[year - 2015];
     //printf("%d\n",i_day);
     nevt_total->SetBinContent(i_day,nevt);
