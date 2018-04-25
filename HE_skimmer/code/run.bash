@@ -59,6 +59,7 @@ ls -lh data*.root
 echo ""
 
 mkdir -pv ../data/${output_files_tag}/
+chmod -v 750 *
 mv -v data*.root ../data/${output_files_tag}/
 mv -v progress.log ../data/${output_files_tag}/
 

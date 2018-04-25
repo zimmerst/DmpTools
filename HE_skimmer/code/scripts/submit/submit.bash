@@ -134,3 +134,6 @@ EOF
 	done
     done
 done
+
+### OBS: SZ 2018-04-12 added explict permission setter.
+chmod 750 \${output_dir}
