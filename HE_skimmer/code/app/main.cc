@@ -420,5 +420,5 @@ int main(int argc, char **argv)
     fclose(logfile);
 
     printf("\nAll done!!!\n");
-    return 1;
+    return 0;
 }

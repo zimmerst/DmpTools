@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "$(date): starting skimmer on $(hostname)"
 if [ "$1" = "" ]
 then
     echo ""
@@ -46,30 +46,31 @@ then
 fi
 
 rm -f progress.log
-#time_start=`date +%s`
+time_start=`date +%s`
 cp ../bin/main .
 echo "executing: $(readlink -f main) ${first_event} ${last_event} ${verbosity} $(readlink -f ../${filelist}) ${first_file} ${last_file} ${apply_cut}"
 ./main ${first_event} ${last_event} ${verbosity} ../${filelist} ${first_file} ${last_file} ${apply_cut}
 ## catch the error code!
 RC=$? 
-#time_end=`date +%s`
+time_end=`date +%s`
 
-echo ""
-ls -lh data*.root
-echo ""
+hours=$(printf "%.3f" $(echo "(${time_start} - ${time_end}) / 3600." | bc -l ))
+echo "$(date): execution finished (return code: ${RC}) on host $(hostname) after ${hours} of runtime. The current directory is $(pwd)"
 
-mkdir -pv ../data/${output_files_tag}/
-chmod -v 750 *
-mv -v data*.root ../data/${output_files_tag}/
-mv -v progress.log ../data/${output_files_tag}/
-
-popd
-rm -rfv ${rundir}
-
-#if [[ $RC != 0 ]]; 
-#then
-#  echo "skimmer exited with non-zero return code: ${RC}"
-#else
-#  echo "skimmer exited gracefully"
-#fi
-#exit ${RC}
+if [[ ${RC} != 0 ]];
+then
+  echo "$(date): skimmer exited with non-zero return code: ${RC}"
+else
+  echo "$(date): skimmer exited gracefully, copying outputs"
+  RC=0
+  echo ""
+  ls -lh data*.root
+  echo ""
+  mkdir -pv ../data/${output_files_tag}/
+  chmod -v 750 *
+  mv -v data*.root ../data/${output_files_tag}/
+  mv -v progress.log ../data/${output_files_tag}/
+  popd
+  rm -rfv ${rundir}
+fi
+exit ${RC}
